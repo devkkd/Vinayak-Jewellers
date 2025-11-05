@@ -8,6 +8,6 @@ export default function DiamondProductDetail() {
       dataSource={diamondProducts}
       categoryName="Diamond Jewellery"
       backPath="/diamond"
-    />
-  );
+    />
+  );
 }
