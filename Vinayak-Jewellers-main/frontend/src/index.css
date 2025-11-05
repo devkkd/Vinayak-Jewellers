@@ -1,0 +1,39 @@
+/* src/index.css */
+
+/* 1. Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+
+/* 2. Tailwind layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tailwind & other styles */
+@import "tailwindcss";
+
+/* 3. Optional helpers */
+.mainfont {
+  font-family: "Mona Sans", sans-serif;
+}
+
+.cinzelfont{
+  font-family: "cinzel", serif;
+}
+
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hindifont {
+  font-family: 'Tiro Devanagari Hindi', serif;
+  font-weight: 900;
+  border: black;
+  outline: black;
+}
+
+
