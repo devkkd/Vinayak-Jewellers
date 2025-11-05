@@ -23,16 +23,16 @@ export default function EnquiryCart() {
     setIsSubmitting(true);
 
     try {
-      // Send to backend
-      await submitEnquiry({
-        name: formData.name,
-        phone: formData.phone,
-        products: enquiryItems.map((item) => ({
-          id: item.id,
-          name: item.name,
-          image: item.image,
-        })),
-      });
+      // Send to backend - create one enquiry per product
+      for (const item of enquiryItems) {
+        await submitEnquiry({
+          name: formData.name,
+          phone: formData.phone,
+          productId: item.id,
+          productName: item.name,
+          productImage: item.image,
+        });
+      }
 
       // Send via EmailJS
       const templateParams = {

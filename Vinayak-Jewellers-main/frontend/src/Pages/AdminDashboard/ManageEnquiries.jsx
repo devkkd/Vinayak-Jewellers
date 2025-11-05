@@ -41,7 +41,7 @@ const ManageEnquiries = () => {
                   <td className="px-3 py-2">{new Date(r.createdAt).toLocaleString()}</td>
                   <td className="px-3 py-2">{r.name}</td>
                   <td className="px-3 py-2">{r.phone}</td>
-                  <td className="px-3 py-2">{r.productName || r.productId}</td>
+                  <td className="px-3 py-2">{r.productName || (r.productId ? `Product ID: ${r.productId}` : "N/A")}</td>
                 </tr>
               ))}
             </tbody>
