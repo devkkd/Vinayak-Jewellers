@@ -71,5 +71,5 @@ export const diamondProducts = [
     image: "https://static01.srikrishna.com/DealImages/18155/ZoomImages/fdnec010211823532.jpg",
     name: "Silver Gift Frame",
     category: "Gift Articles",
-  },
+  },
 ];
