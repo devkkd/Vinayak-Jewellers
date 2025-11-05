@@ -267,17 +267,9 @@
 //   );
 // };
 
-// export default AddProduct;
-import React, { useState } from "react";
-import {
-  goldCategories,
-  silverCategories,
-  diamondCategories,
-  giftingCategories,
-  weddingCategories,
-  birthStoneCategories,
-} from "../../data/admincategories";
+import React, { useState, useEffect } from "react";
 import { uploadBackendProduct } from "../../api/backendProductsAPI";
+import { listCategories } from "../../api/categoryAPI";
 
 const AddProduct = () => {
   const [formData, setFormData] = useState({
@@ -290,40 +282,39 @@ const AddProduct = () => {
   });
 
   const [subcategories, setSubcategories] = useState([]);
+  const [allCategories, setAllCategories] = useState({});
 
-  // 🧭 Category → Subcategory logic (dynamic from admincategories.js)
+  // Load categories from backend
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categories = await listCategories();
+        // Group by collection
+        const grouped = {};
+        categories.forEach((cat) => {
+          if (!grouped[cat.collection]) {
+            grouped[cat.collection] = [];
+          }
+          grouped[cat.collection].push({
+            category: cat.category,
+            subcategories: cat.subcategories || [],
+          });
+        });
+        setAllCategories(grouped);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  // 🧭 Category → Subcategory logic (dynamic from backend)
   const handleCategoryChange = (e) => {
     const selectedCategory = e.target.value;
     setFormData({ ...formData, category: selectedCategory, subcategory: "" });
 
-    let subs = [];
-
-    switch (selectedCategory) {
-      case "Gold":
-        subs = goldCategories;
-        break;
-      case "Silver":
-        subs = silverCategories;
-        break;
-      case "Diamond":
-        subs = diamondCategories;
-        break;
-      case "Gifting":
-        subs = giftingCategories;
-        break;
-      case "Wedding Collection":
-        subs = weddingCategories;
-        break;
-      case "Birth Stones":
-        subs = birthStoneCategories;
-        break;
-      case "Coins":
-        subs = [{ category: "Coins", subcategories: ["Gold Coins", "Silver Coins"] }];
-        break;
-      default:
-        subs = [];
-    }
-
+    // Get subcategories from backend data
+    const subs = allCategories[selectedCategory] || [];
     setSubcategories(subs);
   };
 
@@ -468,7 +459,7 @@ const AddProduct = () => {
         {/* Product Category */}
         <div>
           <label className="block text-[#3B1C0A] font-semibold mb-2">
-            Product Category
+            Product Category (Collection)
           </label>
           <select
             name="category"
@@ -478,13 +469,11 @@ const AddProduct = () => {
             required
           >
             <option value="">Select Category</option>
-            <option value="Gold">Gold</option>
-            <option value="Silver">Silver</option>
-            <option value="Diamond">Diamond</option>
-            <option value="Wedding Collection">Wedding Collection</option>
-            <option value="Gifting">Gifting</option>
-            <option value="Birth Stones">Birth Stones</option>
-            <option value="Coins">Coins</option>
+            {Object.keys(allCategories).map((collection) => (
+              <option key={collection} value={collection}>
+                {collection}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -502,21 +491,26 @@ const AddProduct = () => {
             required
           >
             <option value="">Select Sub-category</option>
-            {subcategories.map((item, i) =>
-              item.subcategories?.length ? (
-                <optgroup key={i} label={item.category}>
-                  {item.subcategories.map((sub, j) => (
-                    <option key={j} value={sub}>
-                      {sub}
-                    </option>
-                  ))}
-                </optgroup>
-              ) : (
+            {subcategories.map((item, i) => {
+              // If category has subcategories, show them
+              if (item.subcategories && item.subcategories.length > 0) {
+                return (
+                  <optgroup key={i} label={item.category}>
+                    {item.subcategories.map((sub, j) => (
+                      <option key={j} value={sub}>
+                        {sub}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              }
+              // If no subcategories, show category itself as option
+              return (
                 <option key={i} value={item.category}>
                   {item.category}
                 </option>
-              )
-            )}
+              );
+            })}
           </select>
         </div>
 

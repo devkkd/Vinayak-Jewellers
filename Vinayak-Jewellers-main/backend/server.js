@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -36,6 +37,7 @@ connectDB();
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/enquiries", enquiryRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // health route
 app.get("/health", (_req, res) => res.json({ ok: true }));
