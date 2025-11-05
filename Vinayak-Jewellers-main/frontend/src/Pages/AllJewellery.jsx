@@ -28,9 +28,10 @@ export default function AllJewellery() {
     Gold: ["Necklace", "Pendant Set", "Earrings", "Rings", "Bangles / Bracelets", "Anklets / Toe Rings", "Nose Pins", "Chain", "Mangalsutra"],
     Silver: ["Necklace", "Pendant Set", "Earrings", "Rings", "Bangles / Bracelets", "Anklets / Toe Rings", "Nose Pins", "Kamarbandh / Satka", "Watches", "Mozonight"],
     Diamond: ["Necklace", "Pendant Set", "Earrings", "Rings", "Bracelets", "Nose Pins"],
-    Coins: [],
-    "Wedding Collection": ["Traditional Gold", "Traditional Silver", "Hamel"],
-    Gifting: ["Gold Gifts", "Silver Gifts"],
+
+    "Wedding ": ["Traditional Gold", "Traditional Silver", "Hamel"],
+    Gifting: ["Gold Gifts", "Silver Gifts", " Coins"],
+        Birthstones: ["Rashi Ratan", "Emrald", "Pukhraj"],
   };
 
   const filtered = selectedCategory === "All Jewellery"

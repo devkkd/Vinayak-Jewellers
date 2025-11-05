@@ -1,8 +1,66 @@
+import React, { useState } from "react";
+import emailjs from "@emailjs/browser";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const Contact = () => {
+  const [formData, setFormData] = useState({ name: "", phone: "" });
+  const [isSending, setIsSending] = useState(false);
+  const [phoneError, setPhoneError] = useState(""); // ✅ real-time validation message
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // ✅ Allow only digits and optional "+"
+  const handlePhoneChange = (e) => {
+    let value = e.target.value;
+
+    // Allow only digits and one optional leading "+"
+    if (/^[+]?\d*$/.test(value)) {
+      if (value.length <= 13) {
+        setFormData({ ...formData, phone: value });
+        setPhoneError("");
+      }
+    } else {
+      setPhoneError("Please enter only numbers (with optional +country code).");
+    }
+  };
+
+  // ✅ Form Submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate phone number
+    if (!/^[+]?\d{10,13}$/.test(formData.phone)) {
+      setPhoneError("Please enter a valid phone number (10–13 digits).");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      await emailjs.send(
+        "service_fmzp73s", // 🔧 your EmailJS service ID
+        "template_0nhj3sp", // 🔧 your template ID
+        {
+          name: formData.name,
+          phone: formData.phone,
+          to_email: "vinayakjewellersjaipur12@gmail.com", // 🔧 destination email
+        },
+        "HW_6DYxtpYO4wBKfm" // 🔧 your public key
+      );
+
+      alert("✨ Thank you for reaching out to Vinayak Jewellers! We’ll contact you shortly.");
+      setFormData({ name: "", phone: "" });
+    } catch (error) {
+      console.error("Email send failed:", error);
+      alert("❌ Failed to send message. Please try again later.");
+    }
+    setIsSending(false);
+  };
+
+  // ✅ Optional store slider config
   const sliderSettings = {
     dots: false,
     infinite: true,
@@ -40,10 +98,9 @@ const Contact = () => {
             </p>
           </div>
 
-          {/* Grid */}
           <div className="grid md:grid-cols-2 gap-12 items-start">
             {/* LEFT SIDE */}
-            <div className="flex  flex-col items-center sm:flex sm:flex-col sm:items-center md:items-start space-y-6 md:pr-18 md:border-r border-[#0E0100]">
+            <div className="flex flex-col items-center md:items-start space-y-6 md:pr-18 md:border-r border-[#0E0100]">
               <h3 className=" text-2xl md:text-3xl font-[600] text-[#0E0100] mb-5 font-cinzel cinzelfont tracking-wider">
                 GET IN TOUCH
               </h3>
@@ -119,7 +176,7 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* RIGHT SIDE */}
+            {/* RIGHT SIDE FORM */}
             <div className="pl-0 md:pl-8">
               <h3 className="text-2xl md:text-3xl font-[600] text-[#0E0100] mb-5 font-cinzel cinzelfont tracking-wider">
                 SEARCHING FOR ALL <br />
@@ -133,13 +190,17 @@ const Contact = () => {
                 Our expert will get in touch with you shortly!
               </p>
 
-              <form className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="text-[#363333] text-base font-normal mt-2 block">
                     Name
                   </label>
                   <input
                     type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
                     placeholder="Enter Your Name"
                     className="flex-1 border border-[#C9A66B] bg-white rounded-full px-5 py-2 focus:outline-none focus:ring-2 focus:ring-[#C69C6D] mt-2 lg:w-[470px]"
                   />
@@ -151,8 +212,14 @@ const Contact = () => {
                   </label>
                   <div className="flex flex-wrap md:flex-nowrap gap-4 items-center mt-2">
                     <input
-                      type="text"
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handlePhoneChange}
+                      required
                       placeholder="Enter Your Mobile/WhatsApp Number"
+                      pattern="^[+]?[0-9]{10,13}$"
+                      title="Please enter a valid phone number (10–13 digits)."
                       className="flex-1 border border-[#C9A66B] bg-white rounded-full px-5 py-2 focus:outline-none focus:ring-2 focus:ring-[#C69C6D]"
                     />
                     <img
@@ -161,66 +228,31 @@ const Contact = () => {
                       className="w-[45px] h-[45px] bg-[#FFEAC5] rounded-full p-1"
                     />
                   </div>
+                  {phoneError && (
+                    <p className="text-red-600 text-sm mt-1">{phoneError}</p>
+                  )}
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full md:w-auto text-white px-10 md:px-14 py-3 rounded-full hover:bg-[#2F1208] transition-all duration-200 cursor-pointer mt-4"
+                  disabled={isSending}
+                  className={`w-full md:w-auto text-white px-10 md:px-14 py-3 rounded-full transition-all duration-200 cursor-pointer mt-4 ${
+                    isSending
+                      ? "opacity-70 cursor-not-allowed"
+                      : "hover:scale-[1.05]"
+                  }`}
                   style={{
                     background:
                       "radial-gradient(circle at center, #140100, #5C1D02)",
                   }}
                 >
-                  Send →
+                  {isSending ? "Sending..." : "Send →"}
                 </button>
               </form>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Divider (shorter lines near diamond) */}
-      {/* <div className="flex items-center justify-center mt-10">
-        <div className="w-[60px] sm:w-[80px] md:w-[300px] h-[1px] bg-gradient-to-r from-[#5C1D02] to-[#A65C3C]" />
-        <div className="mx-3 sm:mx-4">
-          <img
-            src="/images/diamondContactPage.png"
-            alt="Diamond"
-            className="w-5 h-5 md:w-6 md:h-6 object-contain"
-          />
-        </div>
-        <div className="w-[60px] sm:w-[80px] md:w-[300px] h-[1px] bg-gradient-to-r from-[#5C1D02] to-[#A65C3C]" />
-      </div> */}
-
-      {/* VISIT OUR STORE SECTION */}
-      {/* <section className="bg-[#fff4DC] pt-12 pb-20 overflow-hidden">
-        <div className="text-center mb-10 px-4">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-[500] mb-5 cinzelfont font-cinzel text-[#0E0100] tracking-wider">
-            VISIT OUR STORE
-          </h2>
-          <p className="text-[#0E0100] max-w-2xl mx-auto capitalize font-sans font-light flex justify-center text-base md:text-xl leading-relaxed lg:whitespace-nowrap">
-            Explore an exclusive range of lab grown diamond jewellery, crafted
-            with brilliance and care.
-          </p>
-        </div>
-
-        <div className="w-full">
-          <Slider {...sliderSettings}>
-            {images.map((img, i) => (
-              <div
-                key={i}
-                className="px-2 md:px-3 w-[280px] sm:w-[500px] md:w-[650px] lg:w-[900px] flex justify-center"
-              >
-                <img
-                  src={img}
-                  alt={`Store ${i + 1}`}
-                  className="rounded-3xl shadow-lg h-[200px] sm:h-[260px] md:h-[320px] lg:h-[380px] w-full object-cover"
-                />
-              </div>
-            ))}
-          </Slider>
-        </div>
-      </section> */}
     </div>
   );
 };

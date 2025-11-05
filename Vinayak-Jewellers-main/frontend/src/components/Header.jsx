@@ -1,15 +1,18 @@
-// import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSearch } from "../context/SearchContext";
+import { useEnquiry } from "../context/EnquiryContext"; // ✅ Enquiry Cart context
 import axios from "axios";
-import React, { useState,useEffect  } from "react";
+import { ShoppingBag } from "lucide-react"; // ✅ cart icon
+
 export default function Header() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [allProducts, setAllProducts] = useState([]); // ✅ Fetched products
+  const [allProducts, setAllProducts] = useState([]); // ✅ fetched products
   const { setSearchTerm } = useSearch();
+  const { enquiryItems } = useEnquiry(); // ✅ cart items
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -47,7 +50,7 @@ export default function Header() {
     }
   };
 
-  // 🧠 Live Suggestions (on typing)
+  // 🧠 Live Suggestions
   useEffect(() => {
     if (query.trim() === "") {
       setSuggestions([]);
@@ -79,7 +82,7 @@ export default function Header() {
   return (
     <header className="bg-[#FFF4DC] border-b border-[#b68d52] text-[#0E0100] font-sans w-full sticky top-0 z-50">
       {/* === Top Header Section === */}
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-10">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-10 py-2">
         {/* Left: Logo */}
         <div
           className="flex items-center cursor-pointer"
@@ -122,7 +125,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* === Desktop Links === */}
+        {/* === Desktop Links + Cart === */}
         <div className="hidden md:flex items-center gap-6 text-sm font-light text-[#0E0100] mainfont">
           <Link to="/about" className="hover:text-[#b68d52] transition-colors">
             About Vinayak
@@ -140,6 +143,21 @@ export default function Header() {
           >
             Visit Our Store
           </a>
+
+          {/* 🛒 Enquiry Cart Button */}
+          <Link
+            to="/enquiry"
+            className="flex items-center gap-2 bg-gradient-to-b from-[#5A2B1A] to-[#2E0D02] text-white px-4 py-2 rounded-full font-medium shadow-md hover:scale-105 transition-all duration-300"
+          >
+            <ShoppingBag className="w-5 h-5" />
+            <span>Enquiry Cart</span>
+
+            {enquiryItems.length > 0 && (
+              <span className="ml-2 bg-white text-[#5C1D02] font-bold text-xs px-2 py-[2px] rounded-full shadow">
+                {enquiryItems.length}
+              </span>
+            )}
+          </Link>
         </div>
 
         {/* === Mobile Menu Toggle === */}
@@ -180,7 +198,7 @@ export default function Header() {
         )}
       </div>
 
-      {/* === Bottom Navigation === */}
+      {/* === Bottom Navigation (Mobile & Desktop) === */}
       <nav
         className={`${
           menuOpen ? "flex" : "hidden"
@@ -200,6 +218,16 @@ export default function Header() {
             {cat.name}
           </Link>
         ))}
+
+        {/* 🛒 Mobile Enquiry Cart Button */}
+        <Link
+          to="/enquiry"
+          onClick={() => setMenuOpen(false)}
+          className="flex md:hidden items-center justify-center gap-2 bg-[#5C1D02] text-white px-4 py-2 rounded-full text-sm font-medium shadow-md"
+        >
+          <ShoppingBag className="w-4 h-4" />
+          Enquiry ({enquiryItems.length})
+        </Link>
       </nav>
     </header>
   );
