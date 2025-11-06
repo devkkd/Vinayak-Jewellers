@@ -13,7 +13,7 @@ const app = express();
 // ✅ Middleware setup
 const allowedOrigins = [
   "https://vinayak.kontentkraftdigital.com", // your frontend live domain
-  "http://localhost:3000", // local development
+  "http://localhost:5174", // local development
 ];
 
 app.use(

@@ -348,55 +348,115 @@ const ManageCategories = () => {
           <div className="bg-[#FFF9E6] border border-[#E2C887]/60 rounded-xl shadow-lg p-6 w-[90%] max-w-md">
             <h3 className="text-xl font-bold text-[#5C1D02] mb-4">
               {modalType === "collection"
-                ? "Select Collection First"
+                ? "Add New Category"
                 : modalType === "category"
-                ? `Add New Category to ${selectedGroup}`
-                : `Add Subcategory under ${selectedGroup}`}
+                ? `Add Category to ${selectedGroup}`
+                : `Add Subcategory to ${selectedGroup}`}
             </h3>
 
             {modalType === "collection" ? (
-              <select
-                value={selectedGroup || ""}
-                onChange={(e) => {
-                  setSelectedGroup(e.target.value);
-                  setModalType("category");
-                }}
-                className="w-full border border-[#E2C887]/60 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
-              >
-                <option value="">Select Collection</option>
-                {collections.map((col) => (
-                  <option key={col} value={col}>
-                    {col}
-                  </option>
-                ))}
-              </select>
-            ) : (
+              <div className="space-y-3">
+                <select
+                  value={selectedGroup || ""}
+                  onChange={(e) => {
+                    setSelectedGroup(e.target.value);
+                  }}
+                  className="w-full border border-[#E2C887]/60 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+                >
+                  <option value="">Select Collection</option>
+                  {collections.map((col) => (
+                    <option key={col} value={col}>
+                      {col}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Enter category name (e.g., Neckwear, Earrings, Rings)"
+                  className="w-full border border-[#E2C887]/60 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && selectedGroup && newName.trim()) handleAdd();
+                  }}
+                />
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-[#FFF4DC] text-[#5C1D02] border border-[#E2C887]/60 rounded-md hover:bg-[#E2C887]/20 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (selectedGroup && newName.trim()) {
+                        setModalType("category");
+                        handleAdd();
+                      } else {
+                        alert("Please select collection and enter category name");
+                      }
+                    }}
+                    className="px-4 py-2 bg-[#5C1D02] text-[#FFF9E6] rounded-md hover:bg-[#3B1C0A] transition"
+                  >
+                    Add Category
+                  </button>
+                </div>
+              </div>
+            ) : modalType === "category" ? (
               <>
-            <input
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-                  placeholder={`Enter ${modalType === "category" ? "category" : "subcategory"} name`}
-              className="w-full border border-[#E2C887]/60 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Enter category name (e.g., Neckwear, Earrings)"
+                  className="w-full border border-[#E2C887]/60 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
                   onKeyPress={(e) => {
                     if (e.key === "Enter") handleAdd();
                   }}
-            />
+                />
 
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-[#FFF4DC] text-[#5C1D02] border border-[#E2C887]/60 rounded-md hover:bg-[#E2C887]/20 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAdd}
-                className="px-4 py-2 bg-[#5C1D02] text-[#FFF9E6] rounded-md hover:bg-[#3B1C0A] transition"
-              >
-                Add
-              </button>
-            </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-[#FFF4DC] text-[#5C1D02] border border-[#E2C887]/60 rounded-md hover:bg-[#E2C887]/20 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAdd}
+                    className="px-4 py-2 bg-[#5C1D02] text-[#FFF9E6] rounded-md hover:bg-[#3B1C0A] transition"
+                  >
+                    Add Category
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Enter subcategory name (e.g., Gold Chains, Necklaces)"
+                  className="w-full border border-[#E2C887]/60 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") handleAdd();
+                  }}
+                />
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-[#FFF4DC] text-[#5C1D02] border border-[#E2C887]/60 rounded-md hover:bg-[#E2C887]/20 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAdd}
+                    className="px-4 py-2 bg-[#5C1D02] text-[#FFF9E6] rounded-md hover:bg-[#3B1C0A] transition"
+                  >
+                    Add Subcategory
+                  </button>
+                </div>
               </>
             )}
           </div>
