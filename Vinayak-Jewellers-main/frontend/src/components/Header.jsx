@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSearch } from "../context/SearchContext";
 import { useEnquiry } from "../context/EnquiryContext"; // ✅ Enquiry Cart context
-import axios from "axios";
+import { listBackendProducts } from "../api/backendProductsAPI";
 import { ShoppingBag } from "lucide-react"; // ✅ cart icon
 
 export default function Header() {
@@ -32,8 +32,8 @@ export default function Header() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
-        setAllProducts(res.data || []);
+        const products = await listBackendProducts();
+        setAllProducts(products || []);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -60,13 +60,14 @@ export default function Header() {
     const lower = query.toLowerCase();
     const filtered = allProducts.filter(
       (p) =>
-        p.name?.toLowerCase().includes(lower) ||
+        p.productName?.toLowerCase().includes(lower) ||
         p.category?.toLowerCase().includes(lower) ||
-        p.subcategory?.toLowerCase().includes(lower)
+        p.subcategory?.toLowerCase().includes(lower) ||
+        p.collection?.toLowerCase().includes(lower)
     );
 
     const uniqueNames = [
-      ...new Set(filtered.map((p) => p.subcategory || p.category || p.name)),
+      ...new Set(filtered.map((p) => p.subcategory || p.category || p.productName)),
     ].slice(0, 6);
 
     setSuggestions(uniqueNames);

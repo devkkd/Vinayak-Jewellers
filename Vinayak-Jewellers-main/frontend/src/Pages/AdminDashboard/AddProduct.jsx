@@ -269,7 +269,14 @@
 
 import React, { useState, useEffect } from "react";
 import { uploadBackendProduct } from "../../api/backendProductsAPI";
-import { listCategories, createCategory, addSubcategory } from "../../api/categoryAPI";
+import {
+  goldCategories,
+  silverCategories,
+  diamondCategories,
+  giftingCategories,
+  weddingCategories,
+  birthStoneCategories,
+} from "../../data/admincategories";
 
 const AddProduct = () => {
   const [formData, setFormData] = useState({
@@ -277,208 +284,66 @@ const AddProduct = () => {
     title: "",
     sku: "",
     description: "",
+    collection: "",
     category: "",
     subcategory: "",
   });
 
-  const [subcategories, setSubcategories] = useState([]);
-  const [allCategories, setAllCategories] = useState({});
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [categoryError, setCategoryError] = useState(null);
-  
-  // Add category/subcategory states
-  const [showAddCategory, setShowAddCategory] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryCollection, setNewCategoryCollection] = useState("");
-  const [showAddSubcategory, setShowAddSubcategory] = useState(false);
-  const [newSubcategoryName, setNewSubcategoryName] = useState("");
-  const [selectedCategoryForSub, setSelectedCategoryForSub] = useState(null);
+  const [availableCategories, setAvailableCategories] = useState([]); // Categories for selected collection
+  const [availableSubcategories, setAvailableSubcategories] = useState([]); // Subcategories for selected category
+  const [allCategories, setAllCategories] = useState({}); // All categories grouped by collection
 
-  // Load categories from backend
+  // Load categories from frontend data folder
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setLoadingCategories(true);
-        setCategoryError(null);
-        const categories = await listCategories();
-        console.log("Loaded categories:", categories);
-        
-        // Group by collection
-        const grouped = {};
-        categories.forEach((cat) => {
-          if (!grouped[cat.collection]) {
-            grouped[cat.collection] = [];
-          }
-          grouped[cat.collection].push({
-            category: cat.category,
-            subcategories: cat.subcategories || [],
-          });
-        });
-        
-        console.log("Grouped categories:", grouped);
-        
-        // If no categories from backend, use default collections as fallback
-        if (Object.keys(grouped).length === 0) {
-          setCategoryError("No categories found in backend. Using default collections. Please add categories from Manage Categories page.");
-          // Set default collections so user can still add products
-          const defaultCollections = {
-            "Gold": [],
-            "Silver": [],
-            "Diamond": [],
-            "Wedding Collection": [],
-            "Gifting": [],
-            "Birth Stones": [],
-            "Coins": []
-          };
-          setAllCategories(defaultCollections);
-        } else {
-          setAllCategories(grouped);
-        }
-      } catch (error) {
-        console.error("Error loading categories:", error);
-        setCategoryError(`Failed to load categories: ${error.message || "Please check your connection"}. Using default collections.`);
-        // Fallback to default collections on error
-        const defaultCollections = {
-          "Gold": [],
-          "Silver": [],
-          "Diamond": [],
-          "Wedding Collection": [],
-          "Gifting": [],
-          "Birth Stones": [],
-          "Coins": []
-        };
-        setAllCategories(defaultCollections);
-      } finally {
-        setLoadingCategories(false);
-      }
+    // Organize categories by collection
+    const grouped = {
+      "Gold": goldCategories,
+      "Silver": silverCategories,
+      "Diamond": diamondCategories,
+      "Gifting": giftingCategories,
+      "Wedding Collection": weddingCategories,
+      "Birth Stones": birthStoneCategories,
+      "Coins": [
+        { category: "Coins", subcategories: ["Gold Coins", "Silver Coins"] }
+      ],
     };
-    loadCategories();
+    
+    setAllCategories(grouped);
   }, []);
 
-  // Reload categories function
-  const reloadCategories = async () => {
-    try {
-      setLoadingCategories(true);
-      const categories = await listCategories();
-      const grouped = {};
-      categories.forEach((cat) => {
-        if (!grouped[cat.collection]) {
-          grouped[cat.collection] = [];
-        }
-        grouped[cat.collection].push({
-          category: cat.category,
-          subcategories: cat.subcategories || [],
-        });
-      });
-      setAllCategories(grouped);
-      
-      // Update subcategories if category is selected
-      if (formData.category) {
-        const subs = grouped[formData.category] || [];
-        setSubcategories(subs);
-      }
-    } catch (error) {
-      console.error("Error reloading categories:", error);
-    } finally {
-      setLoadingCategories(false);
-    }
+  // Handle collection change
+  const handleCollectionChange = (e) => {
+    const selectedCollection = e.target.value;
+    setFormData({ 
+      ...formData, 
+      collection: selectedCollection, 
+      category: "", 
+      subcategory: "" 
+    });
+
+    // Get categories for selected collection
+    const categories = allCategories[selectedCollection] || [];
+    setAvailableCategories(categories);
+    setAvailableSubcategories([]);
   };
 
-  // 🧭 Category → Subcategory logic (dynamic from backend)
+  // Handle category change
   const handleCategoryChange = (e) => {
-    const selectedCategory = e.target.value;
-    setFormData({ ...formData, category: selectedCategory, subcategory: "" });
+    const selectedCategoryName = e.target.value;
+    setFormData({ ...formData, category: selectedCategoryName, subcategory: "" });
 
-    // Get subcategories from backend data
-    const subs = allCategories[selectedCategory] || [];
-    setSubcategories(subs);
-    setSelectedCategoryForSub(null);
-  };
-
-  // Add new category
-  const handleAddCategory = async () => {
-    if (!newCategoryName.trim() || !newCategoryCollection.trim()) {
-      alert("Please enter both collection and category name");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("adminToken") || localStorage.getItem("backendToken");
-      if (!token) {
-        alert("Please log in first");
-        return;
-      }
-
-      await createCategory({
-        collection: newCategoryCollection.trim(),
-        category: newCategoryName.trim(),
-        subcategories: [],
-      }, token);
-
-      alert(`✅ Category "${newCategoryName}" added successfully!`);
-      setNewCategoryName("");
-      setNewCategoryCollection("");
-      setShowAddCategory(false);
-      await reloadCategories();
-      
-      // Auto-select the newly added category
-      setFormData({ ...formData, category: newCategoryCollection.trim() });
-      handleCategoryChange({ target: { value: newCategoryCollection.trim() } });
-    } catch (error) {
-      const msg = error?.response?.data?.message || error.message || "Failed to add category";
-      alert(`❌ ${msg}`);
+    // Find the selected category object and get its subcategories
+    const selectedCategory = availableCategories.find(
+      (cat) => cat.category === selectedCategoryName
+    );
+    
+    if (selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
+      setAvailableSubcategories(selectedCategory.subcategories);
+    } else {
+      setAvailableSubcategories([]);
     }
   };
 
-  // Add subcategory to selected category
-  const handleAddSubcategory = async () => {
-    if (!newSubcategoryName.trim()) {
-      alert("Please enter subcategory name");
-      return;
-    }
-
-    if (!formData.category) {
-      alert("Please select a category (collection) first");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("adminToken") || localStorage.getItem("backendToken");
-      if (!token) {
-        alert("Please log in first");
-        return;
-      }
-
-      // Find the category ID - formData.category is the collection, selectedCategoryForSub is the category name
-      const categories = await listCategories();
-      const categoryName = selectedCategoryForSub || (subcategories.length > 0 ? subcategories[0].category : "General");
-      
-      const found = categories.find(
-        (cat) => cat.collection === formData.category && cat.category === categoryName
-      );
-
-      if (!found || !found._id) {
-        // If category doesn't exist, create it first with the subcategory
-        await createCategory({
-          collection: formData.category,
-          category: categoryName,
-          subcategories: [newSubcategoryName.trim()],
-        }, token);
-      } else {
-        // Add subcategory to existing category
-        await addSubcategory(found._id, newSubcategoryName.trim(), token);
-      }
-
-      alert(`✅ Subcategory "${newSubcategoryName}" added successfully!`);
-      setNewSubcategoryName("");
-      setShowAddSubcategory(false);
-      setSelectedCategoryForSub(null);
-      await reloadCategories();
-    } catch (error) {
-      const msg = error?.response?.data?.message || error.message || "Failed to add subcategory";
-      alert(`❌ ${msg}`);
-    }
-  };
 
   // 🧠 Handle text/textarea inputs
   const handleChange = (e) => {
@@ -511,7 +376,7 @@ const AddProduct = () => {
         productName: formData.title,
         details: formData.description || formData.title,
         sku: formData.sku,
-        collection: formData.category,
+        collection: formData.collection,
         category: formData.category,
         subcategory: formData.subcategory,
         files: formData.images, // Send all images
@@ -524,10 +389,12 @@ const AddProduct = () => {
         title: "",
         sku: "",
         description: "",
+        collection: "",
         category: "",
         subcategory: "",
       });
-      setSubcategories([]);
+      setAvailableCategories([]);
+      setAvailableSubcategories([]);
     } catch (err) {
       const msg = err?.response?.data?.message || err.message || "Upload failed";
       alert(`❌ ${msg}`);
@@ -618,196 +485,80 @@ const AddProduct = () => {
           ></textarea>
         </div>
 
-        {/* Product Category */}
+        {/* Product Collection */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-[#3B1C0A] font-semibold">
-              Product Category (Collection)
-            </label>
-            <button
-              type="button"
-              onClick={() => setShowAddCategory(!showAddCategory)}
-              className="text-xs bg-[#5C1D02] text-white px-3 py-1 rounded-md hover:bg-[#3B1C0A] transition"
-            >
-              {showAddCategory ? "✕ Cancel" : "+ Add Category"}
-            </button>
-          </div>
-          
-          {showAddCategory && (
-            <div className="mb-3 p-3 bg-[#FFF4DC] border border-[#E2C887]/60 rounded-lg">
-              <div className="space-y-2">
-                <select
-                  value={newCategoryCollection}
-                  onChange={(e) => setNewCategoryCollection(e.target.value)}
-                  className="w-full border border-[#E2C887]/60 rounded-lg p-2 text-sm"
-                >
-                  <option value="">Select Collection</option>
-                  <option value="Gold">Gold</option>
-                  <option value="Silver">Silver</option>
-                  <option value="Diamond">Diamond</option>
-                  <option value="Wedding Collection">Wedding Collection</option>
-                  <option value="Gifting">Gifting</option>
-                  <option value="Birth Stones">Birth Stones</option>
-                  <option value="Coins">Coins</option>
-                </select>
-                <input
-                  type="text"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="Enter category name (e.g., Neckwear, Earrings)"
-                  className="w-full border border-[#E2C887]/60 rounded-lg p-2 text-sm"
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") handleAddCategory();
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddCategory}
-                  className="w-full bg-[#5C1D02] text-white px-3 py-2 rounded-md hover:bg-[#3B1C0A] transition text-sm"
-                >
-                  Add Category
-                </button>
-              </div>
-            </div>
-          )}
-
-          {loadingCategories ? (
-            <div className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-gray-100 text-gray-500">
-              Loading categories...
-            </div>
-          ) : (
-            <>
-              {categoryError && (
-                <div className="w-full border border-yellow-300 rounded-lg p-2 bg-yellow-50 text-yellow-700 text-xs mb-2">
-                  {categoryError}
-                </div>
-              )}
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleCategoryChange}
-                className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
-                required
-              >
-                <option value="">Select Category (Collection)</option>
-                {Object.keys(allCategories).map((collection) => (
-                  <option key={collection} value={collection}>
-                    {collection}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
+          <label className="block text-[#3B1C0A] font-semibold mb-2">
+            Product Collection
+          </label>
+          <select
+            name="collection"
+            value={formData.collection}
+            onChange={handleCollectionChange}
+            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            required
+          >
+            <option value="">Select Collection</option>
+            {Object.keys(allCategories).map((collection) => (
+              <option key={collection} value={collection}>
+                {collection}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Product Sub-category */}
+        {/* Product Category */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-[#3B1C0A] font-semibold">
-              Product Sub-category
-            </label>
-            {formData.category && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (subcategories.length > 0) {
-                    setSelectedCategoryForSub(subcategories[0].category);
-                  }
-                  setShowAddSubcategory(!showAddSubcategory);
-                }}
-                className="text-xs bg-[#5C1D02] text-white px-3 py-1 rounded-md hover:bg-[#3B1C0A] transition"
-              >
-                {showAddSubcategory ? "✕ Cancel" : "+ Add Subcategory"}
-              </button>
-            )}
-          </div>
-
-          {showAddSubcategory && formData.category && (
-            <div className="mb-3 p-3 bg-[#FFF4DC] border border-[#E2C887]/60 rounded-lg">
-              <div className="space-y-2">
-                {subcategories.length > 0 ? (
-                  <select
-                    value={selectedCategoryForSub || subcategories[0].category}
-                    onChange={(e) => setSelectedCategoryForSub(e.target.value)}
-                    className="w-full border border-[#E2C887]/60 rounded-lg p-2 text-sm"
-                  >
-                    {subcategories.map((item, i) => (
-                      <option key={i} value={item.category}>
-                        {item.category}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type="text"
-                    value={selectedCategoryForSub || ""}
-                    onChange={(e) => setSelectedCategoryForSub(e.target.value)}
-                    placeholder="Enter category name (e.g., Neckwear)"
-                    className="w-full border border-[#E2C887]/60 rounded-lg p-2 text-sm"
-                  />
-                )}
-                <input
-                  type="text"
-                  value={newSubcategoryName}
-                  onChange={(e) => setNewSubcategoryName(e.target.value)}
-                  placeholder="Enter subcategory name (e.g., Gold Chains, Necklaces)"
-                  className="w-full border border-[#E2C887]/60 rounded-lg p-2 text-sm"
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") handleAddSubcategory();
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddSubcategory}
-                  className="w-full bg-[#5C1D02] text-white px-3 py-2 rounded-md hover:bg-[#3B1C0A] transition text-sm"
-                >
-                  Add Subcategory
-                </button>
-              </div>
-            </div>
-          )}
-
+          <label className="block text-[#3B1C0A] font-semibold mb-2">
+            Product Category
+          </label>
           <select
-            name="subcategory"
-            value={formData.subcategory}
-            onChange={handleChange}
-            disabled={!subcategories.length || !formData.category}
+            name="category"
+            value={formData.category}
+            onChange={handleCategoryChange}
+            disabled={!formData.collection || availableCategories.length === 0}
             className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] disabled:bg-gray-100"
             required
           >
             <option value="">
+              {!formData.collection 
+                ? "Select Collection first" 
+                : availableCategories.length === 0 
+                ? "No categories available" 
+                : "Select Category"}
+            </option>
+            {availableCategories.map((cat, i) => (
+              <option key={i} value={cat.category}>
+                {cat.category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Product Sub-category */}
+        <div>
+          <label className="block text-[#3B1C0A] font-semibold mb-2">
+            Product Sub-category
+          </label>
+          <select
+            name="subcategory"
+            value={formData.subcategory}
+            onChange={handleChange}
+            disabled={!formData.category}
+            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] disabled:bg-gray-100"
+          >
+            <option value="">
               {!formData.category 
                 ? "Select Category first" 
-                : subcategories.length === 0 
-                ? "No subcategories available" 
+                : availableSubcategories.length === 0 
+                ? "No subcategories (optional)" 
                 : "Select Sub-category"}
             </option>
-            {subcategories.map((item, i) => {
-              // If category has subcategories, show them
-              if (item.subcategories && item.subcategories.length > 0) {
-                return (
-                  <optgroup key={i} label={item.category}>
-                    {item.subcategories.map((sub, j) => (
-                      <option key={j} value={sub}>
-                        {sub}
-                      </option>
-                    ))}
-                  </optgroup>
-                );
-              }
-              // If no subcategories, show category itself as option
-              return (
-                <option key={i} value={item.category}>
-                  {item.category}
-                </option>
-              );
-            })}
+            {availableSubcategories.map((sub, i) => (
+              <option key={i} value={sub}>
+                {sub}
+              </option>
+            ))}
           </select>
-          {formData.category && subcategories.length === 0 && !showAddSubcategory && (
-            <p className="text-sm text-gray-500 mt-1">
-              No subcategories found. Click "+ Add Subcategory" to add one.
-            </p>
-          )}
         </div>
 
         {/* Submit */}

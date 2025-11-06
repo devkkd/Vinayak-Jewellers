@@ -77,16 +77,27 @@ export default function Diamond() {
 
   // Filter products
   const filteredProducts = products.filter((product) => {
+    // First check collection
+    if (product.collection !== "Diamond" && product.category !== "Diamond") return false;
+    
+    // If no category/subcategory selected, show all products in collection
     if (!selectedCategory && !selectedSubcategory) return true;
+    
+    // If subcategory selected, filter by subcategory
     if (selectedSubcategory) {
       return (
         product.subcategory &&
-        product.subcategory.toLowerCase() === selectedSubcategory.toLowerCase()
+        product.subcategory.toLowerCase().trim() === selectedSubcategory.toLowerCase().trim()
       );
     }
+    
+    // If category selected, filter by category (case-insensitive)
     if (selectedCategory) {
-      return product.category === selectedCategory.category;
+      const productCategory = (product.category || "").toLowerCase().trim();
+      const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
+      return productCategory === selectedCategoryName;
     }
+    
     return true;
   });
 

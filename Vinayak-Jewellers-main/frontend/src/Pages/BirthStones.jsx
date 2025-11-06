@@ -66,11 +66,27 @@ export default function BirthStones() {
   };
 
   const filteredProducts = products.filter((product) => {
+    // First check collection
+    if (product.collection !== "Birth Stones" && product.category !== "Birth Stones") return false;
+    
+    // If no category/subcategory selected, show all products in collection
     if (!selectedCategory && !selectedSubcategory) return true;
-    if (selectedSubcategory)
-      return product.subcategory === selectedSubcategory;
-    if (selectedCategory)
-      return product.category === selectedCategory.category;
+    
+    // If subcategory selected, filter by subcategory
+    if (selectedSubcategory) {
+      return (
+        product.subcategory &&
+        product.subcategory.toLowerCase().trim() === selectedSubcategory.toLowerCase().trim()
+      );
+    }
+    
+    // If category selected, filter by category (case-insensitive)
+    if (selectedCategory) {
+      const productCategory = (product.category || "").toLowerCase().trim();
+      const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
+      return productCategory === selectedCategoryName;
+    }
+    
     return true;
   });
 

@@ -5,6 +5,13 @@ export const listBackendProducts = async () => {
   return res.data?.data || [];
 };
 
+export const searchBackendProducts = async (query) => {
+  const res = await client.get("/api/products/search", {
+    params: { q: query },
+  });
+  return res.data?.data || [];
+};
+
 export const getBackendProductById = async (id) => {
   const res = await client.get(`/api/products/${id}`);
   return res.data?.data;

@@ -113,6 +113,44 @@ export const listProducts = async (_req, res) => {
   }
 };
 
+export const searchProducts = async (req, res) => {
+  try {
+    const { q } = req.query; // Search query parameter
+    
+    if (!q || q.trim() === "") {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Search query is required" 
+      });
+    }
+
+    const searchTerm = q.trim();
+    
+    // Case-insensitive search across productName, category, subcategory, and collection
+    const products = await Product.find({
+      $or: [
+        { productName: { $regex: searchTerm, $options: "i" } },
+        { category: { $regex: searchTerm, $options: "i" } },
+        { subcategory: { $regex: searchTerm, $options: "i" } },
+        { collection: { $regex: searchTerm, $options: "i" } },
+        { details: { $regex: searchTerm, $options: "i" } },
+      ],
+    }).sort({ createdAt: -1 });
+
+    res.json({ 
+      success: true, 
+      data: products,
+      count: products.length 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: "Search failed", 
+      error: error.message 
+    });
+  }
+};
+
 export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);

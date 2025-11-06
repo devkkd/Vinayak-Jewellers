@@ -3,6 +3,7 @@ import multer from "multer";
 import {
   uploadProduct,
   listProducts,
+  searchProducts,
   uploadProductJson,
   getProductById,
   updateProduct,
@@ -31,6 +32,9 @@ router.post("/upload", upload.array("image", 10), uploadProduct);
 
 // JSON upload route (imageUrl or imageBase64)
 router.post("/upload-json", uploadProductJson);
+
+// Search products (must be before /:id route)
+router.get("/search", searchProducts);
 
 // List products
 router.get("/", listProducts);
