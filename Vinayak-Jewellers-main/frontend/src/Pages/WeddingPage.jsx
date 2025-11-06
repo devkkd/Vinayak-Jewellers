@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
-import { weddingCategories } from "../data/admincategories";
 import { listBackendProducts } from "../api/backendProductsAPI";
+import { listCategories } from "../api/categoryAPI";
 
 export default function Wedding() {
   const navigate = useNavigate();
@@ -14,18 +14,27 @@ export default function Wedding() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  // Fetch products from backend
+  // Fetch products and categories from backend
   useEffect(() => {
-    const fetchProducts = async () => {
-      const data = await listBackendProducts();
-      // Filter for Wedding Collection category
-      const weddingProducts = data.filter(
-        (p) => p.collection === "Wedding Collection" || p.category === "Wedding Collection"
-      );
-      setProducts(weddingProducts);
+    const loadData = async () => {
+      try {
+        // Load products
+        const data = await listBackendProducts();
+        const weddingProducts = data.filter(
+          (p) => p.collection === "Wedding Collection" || p.category === "Wedding Collection"
+        );
+        setProducts(weddingProducts);
+
+        // Load categories
+        const cats = await listCategories("Wedding Collection");
+        setCategories(cats);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
     };
-    fetchProducts();
+    loadData();
   }, []);
 
   // Handle category selection
@@ -81,28 +90,30 @@ export default function Wedding() {
       </div>
 
       {/* Category Buttons */}
-      <div className="flex flex-wrap justify-center gap-3 mb-8">
-        {weddingCategories.map((cat) => (
-          <button
-            key={cat.category}
-            onClick={() => handleCategoryClick(cat)}
-            className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
-              selectedCategory?.category === cat.category
-                ? "bg-[#681F00] text-[#FFE9A8]"
-                : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
-            }`}
-          >
-            {cat.category}
-          </button>
-        ))}
-      </div>
+      {categories.length > 0 && (
+        <div className="flex flex-wrap justify-center gap-3 mb-8">
+          {categories.map((cat) => (
+            <button
+              key={cat._id || cat.category}
+              onClick={() => handleCategoryClick(cat)}
+              className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
+                selectedCategory?.category === cat.category
+                  ? "bg-[#681F00] text-[#FFE9A8]"
+                  : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
+              }`}
+            >
+              {cat.category}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Subcategory Buttons */}
-      {selectedCategory && selectedCategory.subcategories.length > 0 && (
+      {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {selectedCategory.subcategories.map((sub) => (
+          {selectedCategory.subcategories.map((sub, index) => (
             <button
-              key={sub}
+              key={sub || index}
               onClick={() => handleSubcategoryClick(sub)}
               className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
                 selectedSubcategory === sub

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
-import { silverCategories } from "../data/admincategories";
 import { listBackendProducts } from "../api/backendProductsAPI";
+import { listCategories } from "../api/categoryAPI";
 
 export default function Silver() {
   const navigate = useNavigate();
@@ -13,18 +13,27 @@ export default function Silver() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  // Fetch products from backend
+  // Fetch products and categories from backend
   useEffect(() => {
-    const fetchProducts = async () => {
-      const data = await listBackendProducts();
-      // Filter for Silver category
-      const silverProducts = data.filter(
-        (p) => p.collection === "Silver" || p.category === "Silver"
-      );
-      setProducts(silverProducts);
+    const loadData = async () => {
+      try {
+        // Load products
+        const data = await listBackendProducts();
+        const silverProducts = data.filter(
+          (p) => p.collection === "Silver" || p.category === "Silver"
+        );
+        setProducts(silverProducts);
+
+        // Load categories
+        const cats = await listCategories("Silver");
+        setCategories(cats);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
     };
-    fetchProducts();
+    loadData();
   }, []);
 
   // Filter products by category/subcategory
@@ -76,28 +85,30 @@ export default function Silver() {
       </div>
 
       {/* Categories */}
-      <div className="flex flex-wrap justify-center gap-3 mb-8">
-        {silverCategories.map((cat) => (
-          <button
-            key={cat.category}
-            onClick={() => handleCategoryClick(cat)}
-            className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
-              selectedCategory?.category === cat.category
-                ? "bg-[#681F00] text-[#FFE9A8]"
-                : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
-            }`}
-          >
-            {cat.category}
-          </button>
-        ))}
-      </div>
+      {categories.length > 0 && (
+        <div className="flex flex-wrap justify-center gap-3 mb-8">
+          {categories.map((cat) => (
+            <button
+              key={cat._id || cat.category}
+              onClick={() => handleCategoryClick(cat)}
+              className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
+                selectedCategory?.category === cat.category
+                  ? "bg-[#681F00] text-[#FFE9A8]"
+                  : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
+              }`}
+            >
+              {cat.category}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Subcategories */}
-      {selectedCategory && selectedCategory.subcategories.length > 0 && (
+      {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {selectedCategory.subcategories.map((sub) => (
+          {selectedCategory.subcategories.map((sub, index) => (
             <button
-              key={sub}
+              key={sub || index}
               onClick={() => handleSubcategoryClick(sub)}
               className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
                 selectedSubcategory === sub

@@ -28,6 +28,10 @@ export default function Diamond() {
 
         // Load categories
         const cats = await listCategories("Diamond");
+        console.log("Diamond categories loaded:", cats);
+        cats.forEach(cat => {
+          console.log(`Category: ${cat.category}, Subcategories:`, cat.subcategories);
+        });
         setCategories(cats);
       } catch (error) {
         console.error("Error loading data:", error);
@@ -38,6 +42,8 @@ export default function Diamond() {
 
   // Handle Category selection
   const handleCategoryClick = (category) => {
+    console.log("Category clicked:", category);
+    console.log("Subcategories:", category.subcategories);
     if (selectedCategory?.category === category.category) {
       setSelectedCategory(null);
       setSelectedSubcategory(null);
@@ -120,11 +126,11 @@ export default function Diamond() {
       )}
 
       {/* Subcategory Buttons */}
-      {selectedCategory && selectedCategory.subcategories?.length > 0 && (
+      {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {selectedCategory.subcategories.map((sub) => (
+          {selectedCategory.subcategories.map((sub, index) => (
             <button
-              key={sub}
+              key={sub || index}
               onClick={() => handleSubcategoryClick(sub)}
               className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
                 selectedSubcategory === sub
