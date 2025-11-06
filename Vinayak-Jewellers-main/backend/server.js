@@ -10,38 +10,48 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 dotenv.config();
 const app = express();
 
-// middlewares
-const allowedOrigins = (process.env.CORS_ORIGINS || "*")
-  .split(",")
-  .map((o) => o.trim())
-  .filter(Boolean);
+// ✅ Middleware setup
+const allowedOrigins = [
+  "https://vinayak.kontentkraftdigital.com", // your frontend live domain
+  "http://localhost:3000", // local development
+];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin like curl or same-origin
-      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman, curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
       }
-      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   })
 );
+
+// ✅ Parse JSON
 app.use(express.json());
 
-// connect MongoDB
+// ✅ Connect MongoDB
 connectDB();
 
-// routes
+// ✅ API Routes
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/categories", categoryRoutes);
 
-// health route
+// ✅ Health check route
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
-// start server
+// ✅ Default route (optional for testing)
+app.get("/", (req, res) => {
+  res.send("✅ Vinayak Jewellers Backend is running successfully!");
+});
+
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(✅ Server running on port ${PORT}));
