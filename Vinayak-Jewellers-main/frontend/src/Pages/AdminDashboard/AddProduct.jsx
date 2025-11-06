@@ -269,7 +269,7 @@
 
 import React, { useState, useEffect } from "react";
 import { uploadBackendProduct } from "../../api/backendProductsAPI";
-import { listCategories } from "../../api/categoryAPI";
+import { listCategories, createCategory, addSubcategory } from "../../api/categoryAPI";
 
 const AddProduct = () => {
   const [formData, setFormData] = useState({
@@ -285,6 +285,14 @@ const AddProduct = () => {
   const [allCategories, setAllCategories] = useState({});
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [categoryError, setCategoryError] = useState(null);
+  
+  // Add category/subcategory states
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryCollection, setNewCategoryCollection] = useState("");
+  const [showAddSubcategory, setShowAddSubcategory] = useState(false);
+  const [newSubcategoryName, setNewSubcategoryName] = useState("");
+  const [selectedCategoryForSub, setSelectedCategoryForSub] = useState(null);
 
   // Load categories from backend
   useEffect(() => {
