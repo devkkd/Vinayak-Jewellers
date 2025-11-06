@@ -29,11 +29,11 @@ export default function ProductDetails() {
     <section className="bg-[#FFF6DE] py-16 px-4 sm:px-6 md:px-12">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10">
         {/* Left: Image */}
-        <div className="bg-[#FFF4DC] p-10 rounded-2xl shadow-sm flex items-center justify-center w-full md:w-1/2">
+        <div className="bg-[#FFF4DC] p-2 rounded-2xl shadow-sm flex items-center justify-center w-full md:w-1/2">
           <img
             src={product.image}
             alt={product.title}
-            className="w-[300px] h-[300px] object-contain rounded-xl"
+            className="w-[600px] h-[500px] object-cover rounded-xl"
           />
         </div>
 

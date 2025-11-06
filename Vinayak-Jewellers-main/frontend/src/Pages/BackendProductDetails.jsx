@@ -29,11 +29,11 @@ const BackendProductDetails = () => {
   const primaryImage = getPrimaryImage(product);
 
   return (
-    <section className="bg-[#FFF6DE] py-16 px-4 sm:px-6 md:px-12 min-h-screen">
+    <section className="bg-[#FFF6DE] py-4 px-4 sm:px-6 md:px-12 min-h-screen">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10 mb-16">
-        <div className="bg-[#FFF4DC] p-10 rounded-2xl shadow-sm flex items-center justify-center w-full md:w-1/2">
+        <div className="bg-[#FFF4DC] p-5 rounded-2xl shadow-sm flex items-center justify-center w-full md:w-1/2">
           {primaryImage ? (
-            <img src={primaryImage} alt={product.productName} className="w-[300px] h-[300px] object-contain rounded-xl" />
+            <img src={primaryImage} alt={product.productName} className="w-[700px] h-[550px] object-cover rounded-xl" />
           ) : (
             <div className="w-[300px] h-[300px] flex items-center justify-center text-gray-400">No image</div>
           )}
