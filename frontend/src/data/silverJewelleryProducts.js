@@ -1,0 +1,76 @@
+export const silverProducts = [
+  {
+    id: 1,
+    image: "https://www.giva.co/cdn/shop/articles/679-min.jpg?v=1713267383",
+    name: "Plain Silver Chain",
+    category: "Neckwear",
+    subcategory: "Silver Chains",
+  },
+  {
+    id: 2,
+    image: "https://m.media-amazon.com/images/I/91Y4umM2PlL._UY1100_.jpg",
+    name: "Elegant Silver Necklace",
+    category: "Neckwear",
+    subcategory: "Necklaces",
+  },
+  {
+    id: 3,
+    image: "https://i.ebayimg.com/images/g/L0IAAOSwj9hkZdr2/s-l1200.jpg",
+    name: "Floral Silver Pendant",
+    category: "Neckwear",
+    subcategory: "Pendants",
+  },
+  {
+    id: 4,
+    image: "https://okhai.org/cdn/shop/products/NS001_4.jpg?v=1743238550&width=1445",
+    name: "Silver Hoop Earrings",
+    category: "Earrings",
+    subcategory: "Hoops",
+  },
+  {
+    id: 5,
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqmkpjuJhmXCw3B-48Pqq8HgYqLUVoLTRwTA&s",
+    name: "Classic Stud Earrings",
+    category: "Earrings",
+    subcategory: "Stud Earrings",
+  },
+  {
+    id: 6,
+    image: "https://www.soosi.co.in/cdn/shop/products/WhatsAppImage2021-04-16at2.07.26PM_1200x1200.jpg?v=1619089637",
+    name: "Minimal Silver Ring",
+    category: "Rings",
+  },
+  {
+    id: 7,
+    image: "https://namanarts.in/cdn/shop/files/NAJC_87_da395476-896f-4c3e-abce-5feeea47a05a.jpg?v=1714644750&width=1080",
+    name: "Textured Silver Bangle",
+    category: "Bangles / Bracelets",
+    subcategory: "Plain Bangles",
+  },
+  {
+    id: 8,
+    image: "https://5.imimg.com/data5/SELLER/Default/2023/10/350001326/DZ/SU/FO/10238719/silver-jewellery-set.jpg",
+    name: "Silver Charm Bracelet",
+    category: "Bangles / Bracelets",
+    subcategory: "Bracelets",
+  },
+  {
+    id: 9,
+    image: "https://www.shopkhoj.com/wp-content/uploads/2025/03/silver-bangle.jpg",
+    name: "Anklet with Bells",
+    category: "Anklets & Toe Rings",
+  },
+  {
+    id: 10,
+    image: "https://rukminim2.flixcart.com/image/480/580/xif0q/jewellery-set/7/z/7/na-na-hj018-heer-original-imagj7ey2jmgsgfh.jpeg?q=90",
+    name: "Silver Coin – 10g",
+    category: "Coins",
+  },
+  {
+    id: 11,
+    image: "https://instamart-media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,h_600/NI_CATALOG/IMAGES/CIW/2024/9/29/6e59a90e-2530-4f27-b775-a3e21c336382_442761_1.jpg",
+    name: "Silver Gift Frame",
+    category: "Gift Articles",
+  },
+];
+

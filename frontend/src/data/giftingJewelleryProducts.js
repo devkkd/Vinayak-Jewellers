@@ -1,0 +1,76 @@
+export const giftingProducts = [
+  {
+    id: 1,
+    image: "https://cdn.media.amplience.net/i/pandora/Q225_Gemini_MD_Q424_Holiday_ExplodingBox_06_3x4?w=1000&fmt=auto&qlt=80&poi=0,0,0,0&scaleFit=poi",
+    name: "Plain Silver Chain",
+    category: "Neckwear",
+    subcategory: "Silver Chains",
+  },
+  {
+    id: 2,
+    image: "https://www.caratlane.com/blog/wp-content/uploads/2023/10/1B-20.jpg",
+    name: "Elegant Silver Necklace",
+    category: "Neckwear",
+    subcategory: "Necklaces",
+  },
+  {
+    id: 3,
+    image: "https://images-aka.hsamuel.co.uk/blog-pages/BEST%20MOTHERS%20DAY%20GIFTS%20FOR%20EVERY%20TYPE%20OF%20MUM/2_886x694_HS2401B08_ShowHertheLove.jpg",
+    name: "Floral Silver Pendant",
+    category: "Neckwear",
+    subcategory: "Pendants",
+  },
+  {
+    id: 4,
+    image: "https://www.caratlane.com/blog/wp-content/uploads/2024/04/1A-20.jpg",
+    name: "Silver Hoop Earrings",
+    category: "Earrings",
+    subcategory: "Hoops",
+  },
+  {
+    id: 5,
+    image: "https://www.vummidi.com/blog/wp-content/uploads/2024/12/Christmas-Jewelry-12-682x1024.jpg",
+    name: "Classic Stud Earrings",
+    category: "Earrings",
+    subcategory: "Stud Earrings",
+  },
+  {
+    id: 6,
+    image: "https://www.zaisha.co.in/cdn/shop/files/GB04_5.png?v=1754396850&width=416",
+    name: "Minimal Silver Ring",
+    category: "Rings",
+  },
+  {
+    id: 7,
+    image: "https://i.ebayimg.com/images/g/KpsAAeSwJRNo1OGm/s-l225.jpg",
+    name: "Textured Silver Bangle",
+    category: "Bangles / Bracelets",
+    subcategory: "Plain Bangles",
+  },
+  {
+    id: 8,
+    image: "https://m.media-amazon.com/images/I/71s0nWusT7L._UF350,350_QL80_.jpg",
+    name: "Silver Charm Bracelet",
+    category: "Bangles / Bracelets",
+    subcategory: "Bracelets",
+  },
+  {
+    id: 9,
+    image: "https://m.media-amazon.com/images/I/71aA2H74LYL._UF350,350_QL80_.jpg",
+    name: "Anklet with Bells",
+    category: "Anklets & Toe Rings",
+  },
+  {
+    id: 10,
+    image: "https://www.caratlane.com/blog/wp-content/uploads/2023/01/148Artboard-2.jpg",
+    name: "Silver Coin – 10g",
+    category: "Coins",
+  },
+  {
+    id: 11,
+    image: "https://www.vummidi.com/blog/wp-content/uploads/2024/12/Christmas-Jewelry-9-683x1024.jpg",
+    name: "Silver Gift Frame",
+    category: "Gift Articles",
+  },
+];
+

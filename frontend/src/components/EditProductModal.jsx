@@ -1,0 +1,211 @@
+import React, { useState, useEffect } from "react";
+import {
+  goldCategories,
+  silverCategories,
+  diamondCategories,
+  giftingCategories,
+  weddingCategories,
+  birthStoneCategories,
+} from "../data/admincategories";
+
+const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
+  const [formData, setFormData] = useState({
+    productName: "",
+    details: "",
+    sku: "",
+    collection: "",
+    category: "",
+    subcategory: "",
+    image: null,
+  });
+
+  const [subcategories, setSubcategories] = useState([]);
+
+  useEffect(() => {
+    if (product) {
+      const category = product.collection || product.category || "";
+      setFormData({
+        productName: product.productName || "",
+        details: product.details || "",
+        sku: product.sku || "",
+        collection: product.collection || "",
+        category: category,
+        subcategory: product.subcategory || "",
+        image: null,
+      });
+
+      // Load subcategories based on category
+      loadSubcategories(category);
+    }
+  }, [product]);
+
+  const loadSubcategories = (selectedCategory) => {
+    let subs = [];
+
+    switch (selectedCategory) {
+      case "Gold":
+        subs = goldCategories;
+        break;
+      case "Silver":
+        subs = silverCategories;
+        break;
+      case "Diamond":
+        subs = diamondCategories;
+        break;
+      case "Gifting":
+        subs = giftingCategories;
+        break;
+      case "Wedding Collection":
+        subs = weddingCategories;
+        break;
+      case "Birth Stones":
+        subs = birthStoneCategories;
+        break;
+      case "Coins":
+        subs = [{ category: "Coins", subcategories: ["Gold Coins", "Silver Coins"] }];
+        break;
+      default:
+        subs = [];
+    }
+
+    setSubcategories(subs);
+  };
+
+  const handleCategoryChange = (e) => {
+    const selectedCategory = e.target.value;
+    setFormData({ ...formData, collection: selectedCategory, category: selectedCategory, subcategory: "" });
+    loadSubcategories(selectedCategory);
+  };
+
+  if (!isOpen || !product) return null;
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, image: e.target.files?.[0] || null });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await onSave(product._id, formData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-2xl w-11/12 max-w-2xl p-8 relative shadow-xl max-h-[90vh] overflow-y-auto">
+        <button onClick={onClose} className="absolute top-4 right-5 text-gray-600 hover:text-[#681F00] text-2xl font-bold">
+          ×
+        </button>
+        <h2 className="text-2xl font-bold text-[#5C1D02] mb-6 cinzelfont">Edit Product</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">Product Name</label>
+            <input
+              type="text"
+              name="productName"
+              value={formData.productName}
+              onChange={handleChange}
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">SKU</label>
+            <input
+              type="text"
+              name="sku"
+              value={formData.sku}
+              onChange={handleChange}
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">Description</label>
+            <textarea
+              name="details"
+              value={formData.details}
+              onChange={handleChange}
+              rows="4"
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            />
+          </div>
+          <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleCategoryChange}
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            >
+              <option value="">Select Category</option>
+              <option value="Gold">Gold</option>
+              <option value="Silver">Silver</option>
+              <option value="Diamond">Diamond</option>
+              <option value="Wedding Collection">Wedding Collection</option>
+              <option value="Gifting">Gifting</option>
+              <option value="Birth Stones">Birth Stones</option>
+              <option value="Coins">Coins</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">Subcategory</label>
+            <select
+              name="subcategory"
+              value={formData.subcategory}
+              onChange={handleChange}
+              disabled={!subcategories.length}
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] disabled:bg-gray-100"
+            >
+              <option value="">Select Sub-category</option>
+              {subcategories.map((item, i) =>
+                item.subcategories?.length ? (
+                  <optgroup key={i} label={item.category}>
+                    {item.subcategories.map((sub, j) => (
+                      <option key={j} value={sub}>
+                        {sub}
+                      </option>
+                    ))}
+                  </optgroup>
+                ) : (
+                  <option key={i} value={item.category}>
+                    {item.category}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">New Image (Optional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            />
+            {!formData.image && (() => {
+              const currentImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || "");
+              return currentImage ? (
+                <p className="text-xs text-gray-500 mt-1">Current: <img src={currentImage} alt="current" className="inline w-16 h-16 object-cover rounded" /></p>
+              ) : null;
+            })()}
+          </div>
+          <div className="flex gap-3 justify-end mt-6">
+            <button type="button" onClick={onClose} className="px-4 py-2 border border-[#E2C887]/60 rounded-lg text-[#5C1D02] hover:bg-[#E2C887]/20">
+              Cancel
+            </button>
+            <button type="submit" className="px-4 py-2 bg-[#5C1D02] text-[#FFF9E6] rounded-lg hover:bg-[#3B1C0A]">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default EditProductModal;
+

@@ -1,0 +1,76 @@
+export const weddingProducts = [
+  {
+    id: 1,
+    image: "https://www.sneharateria.com/cdn/shop/articles/theweddingcorp_1200x1200.png?v=1676527615",
+    name: "Plain Silver Chain",
+    category: "Neckwear",
+    subcategory: "Silver Chains",
+  },
+  {
+    id: 2,
+    image: "https://setmywed.com/blogs/wp-content/uploads/2024/03/Photo-of-Jewellery-shot-of-traditional-bridal-jewellery.jpeg",
+    name: "Elegant Silver Necklace",
+    category: "Neckwear",
+    subcategory: "Necklaces",
+  },
+  {
+    id: 3,
+    image: "https://i.pinimg.com/736x/a3/2d/66/a32d66cf795cb64fe9664be20122719b.jpg",
+    name: "Floral Silver Pendant",
+    category: "Neckwear",
+    subcategory: "Pendants",
+  },
+  {
+    id: 4,
+    image: "https://i.pinimg.com/736x/a3/2d/66/a32d66cf795cb64fe9664be20122719b.jpg",
+    name: "Silver Hoop Earrings",
+    category: "Earrings",
+    subcategory: "Hoops",
+  },
+  {
+    id: 5,
+    image: "https://i.pinimg.com/736x/a3/2d/66/a32d66cf795cb64fe9664be20122719b.jpg",
+    name: "Classic Stud Earrings",
+    category: "Earrings",
+    subcategory: "Stud Earrings",
+  },
+  {
+    id: 6,
+    image: "https://setmywed.com/blogs/wp-content/uploads/2024/03/Photo-of-Jewellery-shot-of-traditional-bridal-jewellery.jpeg",
+    name: "Minimal Silver Ring",
+    category: "Rings",
+  },
+  {
+    id: 7,
+    image: "https://shaadiwish.com/blog/wp-content/uploads/2021/08/Jewellers-in-Punjab.jpg",
+    name: "Textured Silver Bangle",
+    category: "Bangles / Bracelets",
+    subcategory: "Plain Bangles",
+  },
+  {
+    id: 8,
+    image: "https://i.pinimg.com/736x/4a/9c/75/4a9c7507b323e009fa0a655a5c713144.jpg",
+    name: "Silver Charm Bracelet",
+    category: "Bangles / Bracelets",
+    subcategory: "Bracelets",
+  },
+  {
+    id: 9,
+    image: "https://i.pinimg.com/originals/40/8e/c4/408ec45c02a54570704026dfa70ec0c8.jpg",
+    name: "Anklet with Bells",
+    category: "Anklets & Toe Rings",
+  },
+  {
+    id: 10,
+    image: "https://cdn0.weddingwire.in/articles/images/7/0/6/6/img_16607/bridal-jewellery-sets-with-price-hitched-clicked-polki-gold-jewellery.jpg",
+    name: "Silver Coin – 10g",
+    category: "Coins",
+  },
+  {
+    id: 11,
+    image: "https://i.pinimg.com/736x/62/57/95/625795f00227dbce2bfaf63978af1ec1.jpg",
+    name: "Silver Gift Frame",
+    category: "Gift Articles",
+  },
+];
+
