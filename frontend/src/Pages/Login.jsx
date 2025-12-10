@@ -9,17 +9,46 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Trim email and password to remove any extra spaces
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    
+    if (!trimmedEmail || !trimmedPassword) {
+      alert("Please enter both email and password");
+      return;
+    }
+    
     try {
-      const res = await backendLogin({ email, password });
+      console.log("📤 Sending login request with:", { 
+        email: trimmedEmail, 
+        emailLength: trimmedEmail.length,
+        passwordLength: trimmedPassword.length 
+      });
+      
+      const res = await backendLogin({ email: trimmedEmail, password: trimmedPassword });
+      
       if (res?.token) {
         localStorage.setItem("adminToken", res.token);
+        localStorage.setItem("backendToken", res.token); // Also set backendToken for compatibility
+        console.log("✅ Login successful! Redirecting to dashboard...");
         navigate("/dashboard");
       } else {
-        alert("Invalid credentials");
+        alert("Invalid credentials - No token received");
       }
     } catch (err) {
-      const msg = err?.response?.data?.message || "Invalid credentials";
-      alert(msg);
+      const status = err?.response?.status;
+      const msg = err?.response?.data?.message || "Login failed";
+      
+      console.error("Login failed:", { status, msg, error: err });
+      
+      if (status === 401) {
+        alert(`❌ Invalid email or password.\n\nPlease verify:\n- Email: ${trimmedEmail}\n- Password: Check if password is correct\n\nIf you haven't created an admin account yet, run: npm run seed:admin in the backend folder`);
+      } else if (status === 403) {
+        alert("❌ Not authorized. This email is not allowed to access the admin panel.");
+      } else {
+        alert(`❌ ${msg}`);
+      }
     }
   };
 

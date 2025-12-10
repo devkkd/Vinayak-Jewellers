@@ -32,6 +32,7 @@ const AdminDashboard = () => {
     { to: "/dashboard/add-product", label: "Add Product", icon: <FaPlus /> },
     { to: "/dashboard/bulk-upload", label: "Bulk Upload", icon: <FaUpload /> },
     { to: "/dashboard/categories", label: "Categories", icon: <FaThList /> },
+    { to: "/dashboard/menus", label: "Manage Menus", icon: <FaThList /> },
     { to: "/dashboard/enquiries", label: "Enquiries", icon: <FaEnvelope /> },
   ];
 

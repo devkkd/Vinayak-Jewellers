@@ -6,6 +6,7 @@ import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import menuRoutes from "./routes/menuRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -13,7 +14,9 @@ const app = express();
 // ✅ Middleware setup
 const allowedOrigins = [
   "https://vinayak.kontentkraftdigital.com", // your frontend live domain
-  "http://localhost:5174", // local development
+  "http://localhost:5173", // local development (Vite default)
+  "http://localhost:5174", // local development (alternative)
+  "http://localhost:3000", // local development (alternative)
 ];
 
 app.use(
@@ -43,6 +46,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/menus", menuRoutes);
 
 // ✅ Health check route
 app.get("/health", (_req, res) => res.json({ ok: true }));

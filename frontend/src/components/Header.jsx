@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSearch } from "../context/SearchContext";
 import { useEnquiry } from "../context/EnquiryContext";
 import { listBackendProducts } from "../api/backendProductsAPI";
+import { listMenus } from "../api/menuAPI";
 import { ShoppingBag } from "lucide-react";
 
 export default function Header() {
@@ -17,8 +18,8 @@ export default function Header() {
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  // ✅ Categories list
-  const categories = [
+  // ✅ Categories list (Hardcoded - Original) - Defined outside useEffect to avoid dependency issues
+  const defaultCategories = React.useMemo(() => [
     { name: "Home", link: "/", icon: "/images/Icon/menu-icons/Essential/home.png" },
     {
       name: "Collections", link: "/alljewellery", icon: "/images/Icon/menu-icons/Group 16.png",
@@ -135,7 +136,39 @@ export default function Header() {
       ],
     },
     { name: "Birth Stones", link: "/birthstones", icon: "/images/Icon/menu-icons/Group 56254.png" },
-  ];
+  ], []);
+
+  // State for categories (will use backend menus if available, else default)
+  const [categories, setCategories] = useState(defaultCategories);
+
+  // 🧠 Fetch menus from backend and merge with defaults
+  useEffect(() => {
+    const fetchMenus = async () => {
+      try {
+        const menus = await listMenus();
+        if (menus && menus.length > 0) {
+          // Transform backend menu structure to match frontend format
+          const transformedMenus = menus.map(menu => ({
+            name: menu.name,
+            link: menu.link,
+            icon: menu.icon,
+            sub: menu.hasNestedStructure ? menu.nestedSub : menu.sub,
+            hasNestedStructure: menu.hasNestedStructure,
+          }));
+          setCategories(transformedMenus);
+        } else {
+          // If no menus in backend, use default
+          setCategories(defaultCategories);
+        }
+      } catch (error) {
+        console.error("Error fetching menus:", error);
+        // Fallback to default categories if API fails
+        setCategories(defaultCategories);
+      }
+    };
+    fetchMenus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // defaultCategories is stable via useMemo, so safe to omit
 
   // 🧠 Fetch all products on mount
   useEffect(() => {
@@ -365,7 +398,6 @@ export default function Header() {
 
             {/* Only show dropdown if category has sub items */}
             {cat.sub && (
-
               <div
                 className={`absolute ${openSub === index ? "flex" : "hidden"} group-hover:flex flex-col
        top-[110%] left-1/2 -translate-x-1/2
@@ -387,8 +419,13 @@ export default function Header() {
                     <Link
                       key={i}
                       to={sub.link}
-                      onClick={() => setMenuOpen(false)}
-                      className="px-4 py-1 text-sm hover:underline rounded-lg text-left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMenuOpen(false);
+                        setOpenSub(null);
+                        navigate(sub.link);
+                      }}
+                      className="px-4 py-1 text-sm hover:underline rounded-lg text-left cursor-pointer"
                     >
                       {sub.name}
                     </Link>
@@ -405,7 +442,7 @@ export default function Header() {
                 <div className="w-[min(600px,85vw)] bg-[#FFF4DC] text-[#5A2B1A] shadow-2xl rounded-2xl overflow-hidden transition-all duration-200 ease-out">
                   {/* Header */}
                   <div className="bg-gradient-to-r from-[#FFF7E0] to-[#FFF4DC] px-6 py-4 ">
-                    <h3 className="text-center uppercase font-bold text-16px text-[#0E0100] mb-2">Mens</h3>
+                    <h3 className="text-center uppercase font-bold text-16px text-[#0E0100] mb-2">{cat.name}</h3>
                     <hr className="border-[#d1b890] " />
                   </div>
 
@@ -435,8 +472,13 @@ export default function Header() {
                             <li key={itemIndex}>
                               <Link
                                 to={item.link}
-                                onClick={() => setMenuOpen(false)}
-                                className="block py-1 text-sm text-[#7a563f] rounded-md hover:bg-[#FFF4DC] hover:text-[#5A2B1A] transition-all duration-150 border border-transparent hover:underline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setMenuOpen(false);
+                                  setOpenSub(null);
+                                  navigate(item.link);
+                                }}
+                                className="block py-1 text-sm text-[#7a563f] rounded-md hover:bg-[#FFF4DC] hover:text-[#5A2B1A] transition-all duration-150 border border-transparent hover:underline cursor-pointer"
                               >
                                 {item.name}
                               </Link>

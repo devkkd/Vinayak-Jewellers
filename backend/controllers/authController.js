@@ -32,22 +32,38 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body || {};
-    if (!email || !password) return res.status(400).json({ success: false, message: "Email and password required" });
+    
+    // Debug logging (remove in production)
+    console.log("🔐 Login attempt:", { email: email?.toLowerCase(), hasPassword: !!password });
+    
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password required" });
+    }
 
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(401).json({ success: false, message: "Invalid credentials" });
+    if (!user) {
+      console.log("❌ User not found:", email.toLowerCase());
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+    
     const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok) return res.status(401).json({ success: false, message: "Invalid credentials" });
+    if (!ok) {
+      console.log("❌ Password mismatch for:", email.toLowerCase());
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
 
     // Restrict dashboard access to ADMIN_EMAIL
     if (process.env.ADMIN_EMAIL && user.email.toLowerCase() !== process.env.ADMIN_EMAIL.toLowerCase()) {
-      return res.status(403).json({ success: false, message: "Not authorized" });
+      console.log("❌ Email not authorized:", user.email, "Expected:", process.env.ADMIN_EMAIL);
+      return res.status(403).json({ success: false, message: "Not authorized. Only admin email can access." });
     }
 
     const token = signToken(user);
+    console.log("✅ Login successful for:", user.email);
     return res.json({ success: true, token, user: { email: user.email } });
   } catch (e) {
-    return res.status(500).json({ success: false, message: "Login failed" });
+    console.error("❌ Login error:", e);
+    return res.status(500).json({ success: false, message: "Login failed", error: e.message });
   }
 };
 

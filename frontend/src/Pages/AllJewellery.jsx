@@ -105,19 +105,39 @@ export default function AllJewellery() {
     selectedCategory === "All Jewellery"
       ? products
       : products.filter((p) => {
+          // Normalize collection check (case-insensitive)
           const productCollection = (p.collection || "").toLowerCase().trim();
+          const productCategory = (p.category || "").toLowerCase().trim();
           const selectedCollection = (selectedCategory || "").toLowerCase().trim();
-          const matchesCollection = productCollection === selectedCollection;
+          
+          // Check if collection matches (try both collection and category fields)
+          const matchesCollection = 
+            productCollection === selectedCollection || 
+            productCategory === selectedCollection ||
+            productCollection.includes(selectedCollection) ||
+            selectedCollection.includes(productCollection);
+          
           if (!matchesCollection) return false;
+          
+          // If subcategory selected, filter by subcategory (case-insensitive, partial match)
           if (selectedSubcategory) {
-            const productCategory = (p.category || "").toLowerCase().trim();
-            const selectedCategoryName = (selectedSubcategory || "").toLowerCase().trim();
-            return (
-              productCategory === selectedCategoryName ||
-              productCategory.includes(selectedCategoryName) ||
-              selectedCategoryName.includes(productCategory)
-            );
+            const productSub = (p.subcategory || "").toLowerCase().trim();
+            const productCat = (p.category || "").toLowerCase().trim();
+            const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
+            
+            // Try exact match with subcategory
+            if (productSub === selectedSub) return true;
+            
+            // Try exact match with category
+            if (productCat === selectedSub) return true;
+            
+            // Try partial match
+            if (productSub.includes(selectedSub) || selectedSub.includes(productSub)) return true;
+            if (productCat.includes(selectedSub) || selectedSub.includes(productCat)) return true;
+            
+            return false;
           }
+          
           return true;
         });
 

@@ -47,6 +47,7 @@ import AdminDashboard from "./Pages/AdminDashboard/AdminDashboard";
 import DashboardHome from "./Pages/AdminDashboard/DashboardHome";
 import ManageProducts from "./Pages/AdminDashboard/ManageProducts";
 import ManageCategories from "./Pages/AdminDashboard/ManageCategories";
+import ManageMenus from "./Pages/AdminDashboard/ManageMenus";
 import ManageEnquiries from "./Pages/AdminDashboard/ManageEnquiries";
 import AddProduct from "./Pages/AdminDashboard/AddProduct";
 import BulkUpload from "./Pages/AdminDashboard/BulkUpload";
@@ -90,13 +91,15 @@ function App() {
                 <Route path="add-product" element={<AddProduct />} />
                 <Route path="bulk-upload" element={<BulkUpload />} />
                 <Route path="categories" element={<ManageCategories />} />
+                <Route path="menus" element={<ManageMenus />} />
                 <Route path="enquiries" element={<ManageEnquiries />} />
               </Route>
 
               {/* 💎 Jewellery Pages */}
               <Route path="/gold" element={<Gold />} />
+              <Route path="/gold/:subcategory" element={<Gold />} />
               <Route
-                path="/gold/:id"
+                path="/gold/product/:id"
                 element={
                   <RemProductDetail
                     dataSource={goldProducts}
@@ -107,8 +110,9 @@ function App() {
               />
 
               <Route path="/silver" element={<Silver />} />
+              <Route path="/silver/:subcategory" element={<Silver />} />
               <Route
-                path="/silver/:id"
+                path="/silver/product/:id"
                 element={
                   <RemProductDetail
                     dataSource={silverProducts}
@@ -119,8 +123,9 @@ function App() {
               />
 
               <Route path="/diamond" element={<Diamond />} />
+              <Route path="/diamond/:subcategory" element={<Diamond />} />
               <Route
-                path="/diamond/:id"
+                path="/diamond/product/:id"
                 element={
                   <RemProductDetail
                     dataSource={diamondProducts}
