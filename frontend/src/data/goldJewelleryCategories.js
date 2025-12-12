@@ -1,4 +1,8 @@
 export const goldCategories = [
+   {
+    category: "Rings",
+    subcategories: [],
+  },
   {
     category: "Neckwear",
     subcategories: ["Gold Chains", "Necklaces", "Mangalsutras"],
@@ -7,10 +11,7 @@ export const goldCategories = [
     category: "Earrings",
     subcategories: [],
   },
-  {
-    category: "Rings",
-    subcategories: [],
-  },
+ 
   {
     category: "Bangles / Bracelets",
     subcategories: ["Plain Bangles", "Kadas", "Bracelets"],
