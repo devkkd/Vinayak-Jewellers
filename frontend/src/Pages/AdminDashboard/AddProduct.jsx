@@ -276,6 +276,7 @@ import {
   giftingCategories,
   weddingCategories,
   birthStoneCategories,
+  mensCategories,
 } from "../../data/admincategories";
 
 const AddProduct = () => {
@@ -304,8 +305,10 @@ const AddProduct = () => {
       "Wedding Collection": weddingCategories,
       "Birth Stones": birthStoneCategories,
       "Coins": [
-        { category: "Coins", subcategories: ["Gold Coins", "Silver Coins"] }
+        { category: "Gold", subcategories: [] },
+        { category: "Silver", subcategories: [] }
       ],
+      "Mens": mensCategories,
     };
     
     setAllCategories(grouped);

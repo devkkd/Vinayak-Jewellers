@@ -5,7 +5,7 @@ const categorySchema = new mongoose.Schema(
     collection: { 
       type: String, 
       required: true,
-      enum: ["Gold", "Silver", "Diamond", "Gifting", "Wedding Collection", "Birth Stones", "Coins"]
+      enum: ["Gold", "Silver", "Diamond", "Gifting", "Wedding Collection", "Birth Stones", "Coins", "Mens"]
     },
     category: { type: String, required: true }, // e.g., "Neckwear", "Earrings", "Rings"
     subcategories: { type: [String], default: [] }, // e.g., ["Gold Chains", "Necklaces", "Mangalsutras"]

@@ -29,6 +29,7 @@ import BirthStones from "./Pages/BirthStones";
 import Ring from "./Pages/RingPage";
 import Festive from "./Pages/Festive";
 import Mangalsutra from "./Pages/MangalsutraPage";
+import Mens from "./Pages/MensPage";
 
 // 🧩 Product Details
 import RemProductDetail from "./Pages/RemProductDetail";
@@ -171,6 +172,10 @@ function App() {
                   />
                 }
               />
+
+              {/* Mens Jewellery */}
+              <Route path="/mens" element={<Mens />} />
+              <Route path="/mens/:subcategory" element={<Mens />} />
 
               {/* Other Pages */}
               <Route path="/ring" element={<Ring />} />
