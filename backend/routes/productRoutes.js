@@ -9,6 +9,7 @@ import {
   updateProduct,
   deleteProduct,
   bulkUploadProducts,
+  getProductsBySubmenu,
 } from "../controllers/productController.js";
 
 const router = express.Router();
@@ -36,7 +37,10 @@ router.post("/upload-json", uploadProductJson);
 // Search products (must be before /:id route)
 router.get("/search", searchProducts);
 
-// List products
+// Get products by submenu (must be before /:id route)
+router.get("/by-submenu", getProductsBySubmenu);
+
+// List products (with optional filtering: ?collection=Gold&category=Rings&subcategory=Gold Rings)
 router.get("/", listProducts);
 
 // Get single product

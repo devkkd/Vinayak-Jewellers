@@ -5,7 +5,15 @@ import axios from "axios";
 
 export const uploadProduct = async (req, res) => {
   try {
-    const { productName, details, sku, collection, category, subcategory } = req.body;
+    let { productName, details, sku, collection, category, subcategory } = req.body;
+    
+    // Normalize and trim string fields
+    if (productName) productName = productName.trim();
+    if (details) details = details.trim();
+    if (sku) sku = sku.trim();
+    if (collection) collection = collection.trim();
+    if (category) category = category.trim();
+    if (subcategory) subcategory = subcategory.trim();
 
     if (!productName || !details || !sku) {
       return res.status(400).json({
@@ -67,10 +75,12 @@ export const uploadProduct = async (req, res) => {
       imagePublicId: primaryPublicId, // Legacy single public id
       images: imageUrls, // New multiple images array
       imagePublicIds: imagePublicIds, // New multiple public ids array
-      collection,
-      category,
-      subcategory,
+      collection: collection || undefined,
+      category: category || undefined,
+      subcategory: subcategory || undefined,
     });
+
+    console.log(`✅ Product uploaded: ${productName} | Collection: ${collection || 'N/A'} | Category: ${category || 'N/A'} | Subcategory: ${subcategory || 'N/A'}`);
 
     res.status(201).json({
       success: true,
@@ -104,12 +114,38 @@ export const uploadProduct = async (req, res) => {
   }
 };
 
-export const listProducts = async (_req, res) => {
+export const listProducts = async (req, res) => {
   try {
-    const products = await Product.find({}).sort({ createdAt: -1 });
-    res.json({ success: true, data: products });
+    // Extract query parameters for filtering
+    const { collection, category, subcategory } = req.query;
+    
+    // Build filter object
+    const filter = {};
+    
+    if (collection) {
+      // Case-insensitive matching for collection
+      filter.collection = { $regex: collection, $options: "i" };
+    }
+    
+    if (category) {
+      // Case-insensitive matching for category
+      filter.category = { $regex: category, $options: "i" };
+    }
+    
+    if (subcategory) {
+      // Case-insensitive matching for subcategory
+      filter.subcategory = { $regex: subcategory, $options: "i" };
+    }
+    
+    const products = await Product.find(filter).sort({ createdAt: -1 });
+    res.json({ 
+      success: true, 
+      data: products,
+      count: products.length,
+      filters: { collection, category, subcategory }
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to fetch products" });
+    res.status(500).json({ success: false, message: "Failed to fetch products", error: error.message });
   }
 };
 
@@ -147,6 +183,56 @@ export const searchProducts = async (req, res) => {
       success: false, 
       message: "Search failed", 
       error: error.message 
+    });
+  }
+};
+
+// Get products by menu submenu item (by matching submenu name or link)
+export const getProductsBySubmenu = async (req, res) => {
+  try {
+    const { submenuName, menuLink, collection } = req.query;
+    
+    if (!submenuName && !menuLink) {
+      return res.status(400).json({
+        success: false,
+        message: "submenuName or menuLink query parameter is required",
+      });
+    }
+
+    const filter = {};
+    
+    // If collection is provided, filter by it
+    if (collection) {
+      filter.collection = { $regex: collection, $options: "i" };
+    }
+
+    // Match subcategory by submenu name (case-insensitive)
+    if (submenuName) {
+      filter.subcategory = { $regex: submenuName, $options: "i" };
+    }
+
+    // If menuLink is provided, try to extract subcategory from it
+    // e.g., /gold/rings -> "rings"
+    if (menuLink && !submenuName) {
+      const parts = menuLink.split("/").filter((p) => p);
+      if (parts.length > 1) {
+        const possibleSubcategory = parts[parts.length - 1];
+        filter.subcategory = { $regex: possibleSubcategory.replace(/-/g, " "), $options: "i" };
+      }
+    }
+
+    const products = await Product.find(filter).sort({ createdAt: -1 });
+    
+    return res.json({
+      success: true,
+      data: products,
+      count: products.length,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch products by submenu",
+      error: error.message,
     });
   }
 };
@@ -220,12 +306,12 @@ export const updateProduct = async (req, res) => {
       product.imagePublicIds = imagePublicIds;
     }
 
-    if (productName !== undefined) product.productName = productName;
-    if (details !== undefined) product.details = details;
-    if (sku !== undefined) product.sku = sku;
-    if (collection !== undefined) product.collection = collection;
-    if (category !== undefined) product.category = category;
-    if (subcategory !== undefined) product.subcategory = subcategory;
+    if (productName !== undefined) product.productName = productName.trim();
+    if (details !== undefined) product.details = details.trim();
+    if (sku !== undefined) product.sku = sku.trim();
+    if (collection !== undefined) product.collection = collection ? collection.trim() : undefined;
+    if (category !== undefined) product.category = category ? category.trim() : undefined;
+    if (subcategory !== undefined) product.subcategory = subcategory ? subcategory.trim() : undefined;
 
     await product.save();
     return res.json({ success: true, message: "✅ Product updated", data: product });
@@ -347,18 +433,23 @@ export const bulkUploadProducts = async (req, res) => {
           continue;
         }
 
+        // Normalize and trim string fields
+        const normalizedCollection = collection ? collection.trim() : "";
+        const normalizedCategory = category ? category.trim() : "";
+        const normalizedSubcategory = subcategory ? subcategory.trim() : "";
+
         // Create product in database with multiple images
         const product = await Product.create({
-          productName,
-          details,
-          sku,
+          productName: productName.trim(),
+          details: details.trim(),
+          sku: sku.trim(),
           image: imageUrlsArray[0], // Primary image for backward compatibility
           imagePublicId: imagePublicIdsArray[0], // Primary public id for backward compatibility
           images: imageUrlsArray, // Multiple images array
           imagePublicIds: imagePublicIdsArray, // Multiple public ids array
-          collection: collection || "",
-          category: category || "",
-          subcategory: subcategory || "",
+          collection: normalizedCollection || undefined,
+          category: normalizedCategory || undefined,
+          subcategory: normalizedSubcategory || undefined,
         });
 
         results.push(product);
@@ -384,7 +475,15 @@ export const bulkUploadProducts = async (req, res) => {
 
 export const uploadProductJson = async (req, res) => {
   try {
-    const { productName, details, sku, imageUrl, imageBase64, mimeType, collection, category, subcategory } = req.body || {};
+    let { productName, details, sku, imageUrl, imageBase64, mimeType, collection, category, subcategory } = req.body || {};
+    
+    // Normalize and trim string fields
+    if (productName) productName = productName.trim();
+    if (details) details = details.trim();
+    if (sku) sku = sku.trim();
+    if (collection) collection = collection.trim();
+    if (category) category = category.trim();
+    if (subcategory) subcategory = subcategory.trim();
 
     if (!productName || !details || !sku) {
       return res.status(400).json({
@@ -420,9 +519,9 @@ export const uploadProductJson = async (req, res) => {
       sku,
       image: result.secure_url,
       imagePublicId: result.public_id,
-      collection,
-      category,
-      subcategory,
+      collection: collection || undefined,
+      category: category || undefined,
+      subcategory: subcategory || undefined,
     });
 
     return res.status(201).json({

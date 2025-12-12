@@ -1,7 +1,13 @@
 import client from "./client";
 
-export const listBackendProducts = async () => {
-  const res = await client.get("/api/products");
+export const listBackendProducts = async (filters = {}) => {
+  // filters can contain: { collection, category, subcategory }
+  const params = {};
+  if (filters.collection) params.collection = filters.collection;
+  if (filters.category) params.category = filters.category;
+  if (filters.subcategory) params.subcategory = filters.subcategory;
+  
+  const res = await client.get("/api/products", { params });
   return res.data?.data || [];
 };
 
@@ -15,6 +21,17 @@ export const searchBackendProducts = async (query) => {
 export const getBackendProductById = async (id) => {
   const res = await client.get(`/api/products/${id}`);
   return res.data?.data;
+};
+
+// Get products by submenu (for menu submenu items)
+export const getProductsBySubmenu = async (submenuName, collection, menuLink) => {
+  const params = {};
+  if (submenuName) params.submenuName = submenuName;
+  if (collection) params.collection = collection;
+  if (menuLink) params.menuLink = menuLink;
+  
+  const res = await client.get("/api/products/by-submenu", { params });
+  return res.data?.data || [];
 };
 
 export const uploadBackendProduct = async ({ productName, details, sku, collection, category, subcategory, file, files, token }) => {
