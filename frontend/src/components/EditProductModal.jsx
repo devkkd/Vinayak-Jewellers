@@ -124,14 +124,20 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
             />
           </div>
           <div>
-            <label className="block text-[#3B1C0A] font-semibold mb-2">Description</label>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">
+              Description <span className="text-xs text-gray-500">(HTML tags supported)</span>
+            </label>
             <textarea
               name="details"
               value={formData.details}
               onChange={handleChange}
-              rows="4"
-              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+              rows="6"
+              placeholder="Enter product description. You can use HTML tags for styling:&#10;&lt;p&gt;Paragraph text&lt;/p&gt;&#10;&lt;strong&gt;Bold text&lt;/strong&gt;&#10;&lt;em&gt;Italic text&lt;/em&gt;&#10;&lt;ul&gt;&lt;li&gt;List items&lt;/li&gt;&lt;/ul&gt;&#10;&lt;br/&gt; for line breaks"
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] font-mono text-sm"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Supported HTML tags: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;u&gt;, &lt;br/&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;h1&gt;-&lt;h6&gt;
+            </p>
           </div>
           <div>
             <label className="block text-[#3B1C0A] font-semibold mb-2">Category</label>

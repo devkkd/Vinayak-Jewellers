@@ -73,6 +73,7 @@ function App() {
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/search" element={<SearchResults />} />
               <Route path="/alljewellery" element={<AllJewellery />} />
+              <Route path="/alljewellery/collections/:collectionItem" element={<AllJewellery />} />
               <Route path="/login-enquiry" element={<LoginEnquiry />} />
               <Route path="/admin-login" element={<Login />} />
               <Route path="/terms" element={<TermsandConditions />} />

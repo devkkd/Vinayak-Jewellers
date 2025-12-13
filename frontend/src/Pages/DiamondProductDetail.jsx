@@ -77,9 +77,10 @@ export default function DiamondProductDetail() {
             </span>
           </p>
 
-          <p className="text-[#0E0100] text-sm leading-relaxed">
-            {product.details || `This exquisite piece from our Diamond Jewellery collection is crafted with precision and elegance to suit every occasion.`}
-          </p>
+          <div 
+            className="text-[#0E0100] text-sm leading-relaxed [&_p]:mb-2 [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:mb-1 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_u]:underline"
+            dangerouslySetInnerHTML={{ __html: product.details || `This exquisite piece from our Diamond Jewellery collection is crafted with precision and elegance to suit every occasion.` }}
+          />
 
           <div className="pt-2">
             <button

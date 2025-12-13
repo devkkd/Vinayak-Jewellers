@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import ContactSection from "../components/ContactSection";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { listBackendProducts } from "../api/backendProductsAPI";
+import { listMenus } from "../api/menuAPI";
 import EnquiryModal from "../components/EnquiryModal";
 import {
   goldCategories,
@@ -46,12 +47,19 @@ const useMobile = () => {
 
 export default function AllJewellery() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All Jewellery");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedCollectionItem, setSelectedCollectionItem] = useState(null); // For Collections submenu items
   const [hoveredProduct, setHoveredProduct] = useState(null);
+  const [collectionsMenu, setCollectionsMenu] = useState(null);
+
+  // Extract collectionItem from URL if present
+  const urlCollectionItem = params.collectionItem;
 
   const isMobile = useMobile();
   const categoryScrollRef = useRef(null);
@@ -70,10 +78,60 @@ export default function AllJewellery() {
     fetchProducts();
   }, []);
 
+  // Load Collections menu from backend
+  useEffect(() => {
+    const fetchCollectionsMenu = async () => {
+      try {
+        const menus = await listMenus();
+        const collections = menus.find(m => m.name === "Collections");
+        if (collections) {
+          setCollectionsMenu(collections);
+        }
+      } catch (err) {
+        console.error("Failed to fetch Collections menu", err);
+      }
+    };
+    fetchCollectionsMenu();
+  }, []);
+
+  // Auto-select Collections category and item from URL
+  useEffect(() => {
+    if (urlCollectionItem && collectionsMenu && collectionsMenu.sub) {
+      // Normalize URL collection item (remove hyphens, convert to lowercase)
+      const urlNormalized = urlCollectionItem.toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
+      
+      // Find matching collection item
+      const matchingItem = collectionsMenu.sub.find(item => {
+        const itemName = (item.name || "").toLowerCase().trim().replace(/\s+/g, ' ');
+        return itemName === urlNormalized || 
+               itemName.includes(urlNormalized) || 
+               urlNormalized.includes(itemName);
+      });
+      
+      if (matchingItem) {
+        setSelectedCategory("Collections");
+        setSelectedCollectionItem(matchingItem.name.trim());
+        setSelectedSubcategory("");
+      }
+    } else if (!urlCollectionItem) {
+      // Reset if no URL parameter
+      if (location.pathname === "/alljewellery") {
+        // Only reset if we're on base alljewellery route
+        // Don't reset if we're navigating from another page
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlCollectionItem, collectionsMenu]);
+
+  // Build categories with Collections submenu items
   const categories = {
     "All Jewellery": {
       image: "/public/images/Icon/menu-icons/icon 2.png",
       subcategories: [],
+    },
+    Collections: {
+      image: "/images/Icon/menu-icons/Group 16.png",
+      subcategories: collectionsMenu?.sub?.map(item => item.name.trim()) || [],
     },
     Gold: {
       image: "https://via.placeholder.com/40?text=Gold",
@@ -108,8 +166,57 @@ export default function AllJewellery() {
           // Normalize collection check (case-insensitive)
           const productCollection = (p.collection || "").toLowerCase().trim();
           const productCategory = (p.category || "").toLowerCase().trim();
+          const productSub = (p.subcategory || "").toLowerCase().trim();
+          const productName = (p.productName || "").toLowerCase().trim();
           const selectedCollection = (selectedCategory || "").toLowerCase().trim();
           
+          // Special handling for Collections submenu items
+          if (selectedCategory === "Collections" && selectedCollectionItem) {
+            const collectionItemName = selectedCollectionItem.toLowerCase().trim();
+            
+            // Match against product category, subcategory, collection, and name
+            const matchesCollectionItem = 
+              productCategory.includes(collectionItemName) ||
+              productSub.includes(collectionItemName) ||
+              productCollection.includes(collectionItemName) ||
+              productName.includes(collectionItemName) ||
+              collectionItemName.includes(productCategory) ||
+              collectionItemName.includes(productSub);
+            
+            // Also check for specific patterns
+            if (collectionItemName.includes("gold wedding") || collectionItemName.includes("wedding collection")) {
+              return productCategory.includes("wedding") || productCategory.includes("traditional gold") || 
+                     productCollection === "wedding collection" || productCollection === "gold";
+            }
+            if (collectionItemName.includes("gold traditional")) {
+              return productCollection === "gold" && (productCategory.includes("traditional") || !productCategory.includes("wedding"));
+            }
+            if (collectionItemName.includes("rajasthani")) {
+              return productCategory.includes("rajasthani") || productName.includes("rajasthani");
+            }
+            if (collectionItemName.includes("rose gold")) {
+              return productCategory.includes("rose") || productName.includes("rose");
+            }
+            if (collectionItemName.includes("diamond wedding") || collectionItemName.includes("diamond solitaire")) {
+              return productCollection === "diamond" || productCategory.includes("diamond");
+            }
+            if (collectionItemName.includes("silver utensils")) {
+              return productCollection === "silver" && productCategory.includes("utensil");
+            }
+            if (collectionItemName.includes("silver traditional")) {
+              return productCollection === "silver" && productCategory.includes("traditional");
+            }
+            if (collectionItemName.includes("silver fancy")) {
+              return productCollection === "silver" && (productCategory.includes("fancy") || productName.includes("fancy"));
+            }
+            if (collectionItemName.includes("gift")) {
+              return productCollection === "gifting" || productCategory.includes("gift");
+            }
+            
+            return matchesCollectionItem;
+          }
+          
+          // Regular category filtering
           // Check if collection matches (try both collection and category fields)
           const matchesCollection = 
             productCollection === selectedCollection || 
@@ -121,19 +228,17 @@ export default function AllJewellery() {
           
           // If subcategory selected, filter by subcategory (case-insensitive, partial match)
           if (selectedSubcategory) {
-            const productSub = (p.subcategory || "").toLowerCase().trim();
-            const productCat = (p.category || "").toLowerCase().trim();
             const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
             
             // Try exact match with subcategory
             if (productSub === selectedSub) return true;
             
             // Try exact match with category
-            if (productCat === selectedSub) return true;
+            if (productCategory === selectedSub) return true;
             
             // Try partial match
             if (productSub.includes(selectedSub) || selectedSub.includes(productSub)) return true;
-            if (productCat.includes(selectedSub) || selectedSub.includes(productCat)) return true;
+            if (productCategory.includes(selectedSub) || selectedSub.includes(productCategory)) return true;
             
             return false;
           }
@@ -227,22 +332,28 @@ export default function AllJewellery() {
               {Object.keys(categories).map((cat) => {
                 const active = selectedCategory === cat;
                 const catImage = categories[cat].image;
+                const showImage = cat !== "Collections"; // Hide image for Collections category
                 return (
                   <button
                     key={cat}
                     onClick={() => {
                       setSelectedCategory(cat);
                       setSelectedSubcategory("");
+                      setSelectedCollectionItem(null);
                       if (subcategoryScrollRef.current) subcategoryScrollRef.current.scrollLeft = 0;
+                      // Navigate to base alljewellery route when changing category
+                      if (cat !== "Collections" || !urlCollectionItem) {
+                        navigate('/alljewellery', { replace: true });
+                      }
                     }}
-                    className={`flex-shrink-0 ${isMobile ? "px-4 py-2" : "px-3 py-2"} rounded-lg transition-colors duration-150 text-left flex items-center gap-3 ${
+                    className={`flex-shrink-0 ${isMobile ? "px-4 py-2" : "px-3 py-2"} rounded-lg transition-colors duration-150 text-left flex items-center ${showImage ? "gap-3" : ""} ${
                       active
                         ? "btn-accent shadow-sm"
                         : "bg-white border border-gray-100 text-accent hover:bg-gray-50"
                     }`}
                     style={{ fontSize: isMobile ? 13 : 14 }}
                   >
-                    <img src={catImage} alt={cat} className="w-6 h-6 md:w-7 md:h-7 object-contain rounded" />
+                    {showImage && <img src={catImage} alt={cat} className="w-6 h-6 md:w-7 md:h-7 object-contain rounded" />}
                     <span className="whitespace-nowrap font-medium">{cat}</span>
                   </button>
                 );
@@ -280,9 +391,16 @@ export default function AllJewellery() {
                           className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-2 pb-2" : "flex-wrap gap-2"} scroll-smooth`}
                         >
                           <button
-                            onClick={() => setSelectedSubcategory("")}
+                            onClick={() => {
+                              setSelectedSubcategory("");
+                              setSelectedCollectionItem(null);
+                              // Navigate to base route when clicking "All"
+                              if (selectedCategory === "Collections") {
+                                navigate('/alljewellery', { replace: true });
+                              }
+                            }}
                             className={`flex-shrink-0 px-3 py-1 rounded-md text-sm ${
-                              selectedSubcategory === ""
+                              selectedSubcategory === "" && !selectedCollectionItem
                                 ? "bg-accent-gradient text-white"
                                 : "bg-gray-50 text-accent border border-gray-100"
                             }`}
@@ -290,19 +408,41 @@ export default function AllJewellery() {
                             All {selectedCategory}
                           </button>
 
-                          {categories[selectedCategory].subcategories.map((sub) => (
-                            <button
-                              key={sub}
-                              onClick={() => setSelectedSubcategory(sub)}
-                              className={`flex-shrink-0 px-3 py-1 rounded-md text-sm whitespace-nowrap ${
-                                selectedSubcategory === sub
-                                  ? "bg-accent-gradient text-white"
-                                  : "bg-white text-accent border border-gray-100 hover:bg-gray-50"
-                              }`}
-                            >
-                              {sub}
-                            </button>
-                          ))}
+                          {categories[selectedCategory].subcategories.map((sub) => {
+                            // For Collections, use selectedCollectionItem instead of selectedSubcategory
+                            const isSelected = selectedCategory === "Collections" 
+                              ? selectedCollectionItem === sub 
+                              : selectedSubcategory === sub;
+                            
+                            return (
+                              <button
+                                key={sub}
+                            onClick={() => {
+                              if (selectedCategory === "Collections") {
+                                setSelectedCollectionItem(sub);
+                                setSelectedSubcategory("");
+                                // Navigate to collection item route
+                                const collectionSlug = sub
+                                  .toLowerCase()
+                                  .trim()
+                                  .replace(/\s+/g, '-')
+                                  .replace(/[^a-z0-9-]/g, '');
+                                navigate(`/alljewellery/collections/${collectionSlug}`, { replace: true });
+                              } else {
+                                setSelectedSubcategory(sub);
+                                setSelectedCollectionItem(null);
+                              }
+                            }}
+                                className={`flex-shrink-0 px-3 py-1 rounded-md text-sm whitespace-nowrap ${
+                                  isSelected
+                                    ? "bg-accent-gradient text-white"
+                                    : "bg-white text-accent border border-gray-100 hover:bg-gray-50"
+                                }`}
+                              >
+                                {sub}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     </motion.div>

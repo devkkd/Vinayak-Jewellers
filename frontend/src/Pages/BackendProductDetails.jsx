@@ -47,7 +47,10 @@ const BackendProductDetails = () => {
               {product.subcategory ? ` → ${product.subcategory}` : ""}
             </p>
           )}
-          <p className="text-[#2E1A08] mb-6 leading-relaxed">{product.details}</p>
+          <div 
+            className="text-[#2E1A08] mb-6 leading-relaxed [&_p]:mb-2 [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:mb-1 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_u]:underline"
+            dangerouslySetInnerHTML={{ __html: product.details || '' }}
+          />
           <button 
             onClick={() => setModalOpen(true)} 
             className="bg-[#681F00] text-white text-sm px-6 py-3 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300"
