@@ -69,8 +69,46 @@ export const weddingCategories = [
   { category: "Hamel", subcategories: [] },
 ];
 
+// New: Mens Categories with detailed subcategories
 export const mensCategories = [
-  { category: "Gold", subcategories: ["Gold Rings", "Gold Chains", "Gold Kadas/Bracelet"] },
-  { category: "Silver", subcategories: ["Silver Rings", "Silver Chains", "Silver Kadas/Bracelet", "Others"] },
-  { category: "Diamond", subcategories: ["Diamond Rings", "Diamond Bracelet", "Others"] },
+  {
+    category: "Gold",
+    subcategories: [
+      "Gold Rings",
+      "Gold Chains",
+      "Gold Kadas/Bracelet",
+     
+    ]
+  },
+  {
+    category: "Silver",
+    subcategories: [
+      "Silver Rings",
+      "Silver Chains",
+      "Silver Kadas/Bracelet",
+      "Others"
+    ]
+  },
+  {
+    category: "Diamond",
+    subcategories: [
+      "Diamond Rings",
+      "Diamond Bracelet",
+      "Diamond Chains",
+      "Others"
+    ]
+  },
+];
+
+// New: Coins Categories
+export const coinsCategories = [
+  {
+    category: "Gold Coins",
+    subcategories: []
+  },
+  {
+    category: "Silver Coins",
+    subcategories: []
+  },
+  
 ];

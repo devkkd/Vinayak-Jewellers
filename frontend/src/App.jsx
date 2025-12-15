@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ScrollToTop from "./components/ScrollToTop";
+import ScrollToTop from "./Pages/ScrollToTop";
 import { SearchProvider } from "./context/SearchContext";
 import { EnquiryProvider } from "./context/EnquiryContext"; // ✅ ensure this exists
 
@@ -55,6 +55,7 @@ import BulkUpload from "./Pages/AdminDashboard/BulkUpload";
 
 // 🛒 NEW PAGE: Enquiry Cart
 import EnquiryCart from "./Pages/EnquiryCart"; // ✅ create this page (I’ll give you below)
+import Coins from "./Pages/Coins";
 
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
               <Route path="/about" element={<AboutUs />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/search" element={<SearchResults />} />
+              {/* <ScrollToTop/> */}
               <Route path="/alljewellery" element={<AllJewellery />} />
               <Route path="/alljewellery/collections/:collectionItem" element={<AllJewellery />} />
               <Route path="/login-enquiry" element={<LoginEnquiry />} />
@@ -177,6 +179,9 @@ function App() {
               {/* Mens Jewellery */}
               <Route path="/mens" element={<Mens />} />
               <Route path="/mens/:subcategory" element={<Mens />} />
+
+               <Route path="/coins" element={<Coins />} />
+              <Route path="/coins/:subcategory" element={<Coins />} />
 
               {/* Other Pages */}
               <Route path="/ring" element={<Ring />} />

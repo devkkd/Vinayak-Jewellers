@@ -4,7 +4,23 @@ import { useSearch } from "../context/SearchContext";
 import { useEnquiry } from "../context/EnquiryContext";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listMenus } from "../api/menuAPI";
-import { ShoppingBag } from "lucide-react";
+import { 
+  ShoppingBag, 
+  Search, 
+  Info, 
+  Phone, 
+  MapPin,
+  Home,
+  Gem,
+  Diamond,
+  Coins,
+  Gift,
+  Sparkles,
+  Users,
+  CircleStar,
+  Boxes 
+
+} from "lucide-react";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -20,9 +36,15 @@ export default function Header() {
 
   // ✅ Categories list (Hardcoded - Original) - Defined outside useEffect to avoid dependency issues
   const defaultCategories = React.useMemo(() => [
-    { name: "Home", link: "/", icon: "/images/Icon/menu-icons/Essential/home.png" },
+    { 
+      name: "Home", 
+      link: "/", 
+      iconComponent: <Home className="w-5 h-5" /> 
+    },
     {
-      name: "Collections", link: "/alljewellery", icon: "/images/Icon/menu-icons/Group 16.png",
+      name: "Collections", 
+      link: "/alljewellery", 
+      iconComponent: <Boxes  className="w-5 h-5" />, // Placeholder - update based on actual meaning
       sub: [
         { name: "Gold Wedding", link: "/alljewellery/collections/gold-wedding" },
         { name: "Gold Traditional", link: "/alljewellery/collections/gold-traditional" },
@@ -37,7 +59,9 @@ export default function Header() {
       ],
     },
     {
-      name: "Gold", link: "/gold", icon: "/images/Icon/menu-icons/Group 56251.png",
+      name: "Gold", 
+      link: "/gold", 
+      iconComponent: <CircleStar className="w-5 h-5 text-yellow-500" />, // Placeholder - update based on actual meaning
       sub: [
         { name: "Ring", link: "/gold/rings" },
         { name: "Earrings", link: "/gold/earrings" },
@@ -51,7 +75,9 @@ export default function Header() {
       ],
     },
     {
-      name: "Diamond", link: "/diamond", icon: "/images/Icon/menu-icons/Vector.png",
+      name: "Diamond", 
+      link: "/diamond", 
+      iconComponent: <Gem className="w-5 h-5" />,
       sub: [
         { name: "Ring", link: "/diamond/rings" },
         { name: "Earrings", link: "/diamond/earrings" },
@@ -64,7 +90,9 @@ export default function Header() {
       ],
     },
     {
-      name: "Silver", link: "/silver", icon: "/images/Icon/menu-icons/Group.png",
+      name: "Silver", 
+      link: "/silver", 
+      iconComponent: <CircleStar  className="w-5 h-5 text-gray-400" />, // Placeholder - update based on actual meaning
       sub: [
         { name: "Utensils", link: "/silver/utensils" },
         { name: "Anklets / payals", link: "/silver/anklets" },
@@ -83,7 +111,9 @@ export default function Header() {
       ],
     },
     {
-      name: "Mens", link: "/mens", icon: "/public/images/Icon/menu-icons/Users/profile.png",
+      name: "Mens", 
+      link: "/mens", 
+      iconComponent: <Users className="w-5 h-5" />,
       // Updated structure with nested subcategories
       sub: [
         {
@@ -101,7 +131,6 @@ export default function Header() {
             { name: "Silver Chains", link: "/mens/silver-chains" },
             { name: "Silver Kadas/Bracelet", link: "/mens/silver-bracelet" },
             { name: "Others", link: "/mens/silver-others" },
-          
           ]
         },
         {
@@ -115,14 +144,18 @@ export default function Header() {
       ]
     },
     {
-      name: "Coins", link: "/coins", icon: "/images/Icon/menu-icons/Group 56253.png",
+      name: "Coins", 
+      link: "/coins", 
+      iconComponent: <Coins className="w-5 h-5" />,
       sub: [
         { name: "Gold", link: "/coins/gold" },
         { name: "Silver", link: "/coins/silver" },
       ],
     },
     {
-      name: "Gifting", link: "/gifting", icon: "/images/Icon/menu-icons/Group 15.png",
+      name: "Gifting", 
+      link: "/gifting", 
+      iconComponent: <Gift className="w-5 h-5" />,
       sub: [
         { name: "Starting from 250-500", link: "/gifting/starting-from-250-500" },
         { name: "500-1000", link: "/gifting/500-1000" },
@@ -135,7 +168,11 @@ export default function Header() {
         { name: "Exclusive", link: "/gifting/exclusive" },
       ],
     },
-    { name: "Birth Stones", link: "/birthstones", icon: "/images/Icon/menu-icons/Group 56254.png" },
+    { 
+      name: "Birth Stones", 
+      link: "/birthstones", 
+      iconComponent: <Sparkles className="w-5 h-5" /> 
+    },
   ], []);
 
   // State for categories (will use backend menus if available, else default)
@@ -151,7 +188,7 @@ export default function Header() {
           const transformedMenus = menus.map(menu => ({
             name: menu.name,
             link: menu.link,
-            icon: menu.icon,
+            iconComponent: getIconComponent(menu.name), // Convert icon name to component
             sub: menu.hasNestedStructure ? menu.nestedSub : menu.sub,
             hasNestedStructure: menu.hasNestedStructure,
           }));
@@ -169,6 +206,22 @@ export default function Header() {
     fetchMenus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // defaultCategories is stable via useMemo, so safe to omit
+
+  // Helper function to convert icon names to Lucide components
+  const getIconComponent = (name) => {
+    switch(name.toLowerCase()) {
+      case 'home': return <Home className="w-5 h-5" />;
+      case 'collections': return <Gem className="w-5 h-5" />;
+      case 'gold': return <Gem className="w-5 h-5 text-yellow-500" />;
+      case 'diamond': return <Diamond className="w-5 h-5" />;
+      case 'silver': return <Gem className="w-5 h-5 text-gray-400" />;
+      case 'mens': return <Users className="w-5 h-5" />;
+      case 'coins': return <Coins className="w-5 h-5" />;
+      case 'gifting': return <Gift className="w-5 h-5" />;
+      case 'birth stones': return <Sparkles className="w-5 h-5" />;
+      default: return <Gem className="w-5 h-5" />;
+    }
+  };
 
   // 🧠 Fetch all products on mount
   useEffect(() => {
@@ -223,8 +276,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-gradient-to-b from-[#5C1D02] to-[#140100] border-b border-[#b68d52] text-white font-sans w-full sticky top-0 z-50">
-
+    <header className="bg-[#FFF4DC] border-b border-[#b68d52] text-[#5A2B1A] font-sans w-full sticky top-0 z-50">
       {/* === Top Header Section === */}
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-10 py-2">
         {/* Left: Logo */}
@@ -233,9 +285,9 @@ export default function Header() {
           onClick={() => navigate("/")}
         >
           <img
-            src="/images/white-logo.svg"
-            alt="Vinayak Jewellers Logo"
-            className="h-12 sm:h-16 md:h-16 w-auto object-contain"
+            src="/images/934a6aba-bdcc-4aef-ac80-b229a136329c-removebg-preview.png"
+            className="h-14 sm:h-16 md:h-24 w-auto object-cover"
+            alt="Vinayak Logo"
           />
         </div>
 
@@ -243,7 +295,7 @@ export default function Header() {
         <div className="relative hidden md:flex flex-col w-[30%]">
           <div className="flex items-center rounded-xl border border-[#A7968F] px-3 py-2">
             <span className="mr-2 text-[#A7968F]">
-              <img src="/public/images/Icon/Search/search-normal.png" alt="Search" />
+              <Search className="w-4 h-4" />
             </span>
             <input
               type="text"
@@ -272,17 +324,13 @@ export default function Header() {
         </div>
 
         {/* === Desktop Links + Cart === */}
-        <div className="hidden md:flex items-center gap-4 text-sm font-light text-white mainfont">
+        <div className="hidden md:flex items-center gap-4 text-sm font-light text-[#5A2B1A] mainfont">
           {/* About */}
           <Link
             to="/about"
             className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
           >
-            <img
-              src="/public/images/Icon/Union.png"
-              alt="About"
-              className="w-4 h-4 object-contain"
-            />
+            <Info className="w-4 h-4" />
             <span>About Vinayak</span>
           </Link>
 
@@ -293,11 +341,7 @@ export default function Header() {
             to="/contact"
             className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
           >
-            <img
-              src="/public/images/Icon/Call/call-calling.png"
-              alt="Contact"
-              className="w-4 h-4 object-contain"
-            />
+            <Phone className="w-4 h-4" />
             <span>Contact Us</span>
           </Link>
 
@@ -310,11 +354,7 @@ export default function Header() {
             rel="noopener noreferrer"
             className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
           >
-            <img
-              src="/public/images/Icon/Location/location.png"
-              alt="Location"
-              className="w-4 h-4 object-contain"
-            />
+            <MapPin className="w-4 h-4" />
             <span>Visit Our Store</span>
           </a>
 
@@ -342,6 +382,7 @@ export default function Header() {
         <button
           className="md:hidden text-[#0E0100] text-2xl"
           onClick={toggleMenu}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
           {menuOpen ? "✖" : "☰"}
         </button>
@@ -351,7 +392,7 @@ export default function Header() {
       <div className="relative flex md:hidden flex-col w-[90%] mx-auto mb-3">
         <div className="flex items-center bg-white rounded-full border border-[#c7a46d] px-3 py-2">
           <span className="mr-2 text-[#A7968F]">
-            <img src="/public/images/Icon/Search/search-normal.png" alt="Search" />
+            <Search className="w-4 h-4" />
           </span>
           <input
             type="text"
@@ -390,14 +431,14 @@ export default function Header() {
             <Link
               to={cat.link}
               onClick={(e) => { e.preventDefault(); navigate(cat.link); setMenuOpen(false); }}
-              className="relative flex items-center gap-2 text-white px-4 py-2 rounded-xl text-sm md:text-base transition-all duration-300 after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-white after:transition-all after:duration-300 group-hover:after:w-full"
+              className="relative flex items-center gap-2 text-[#5A2B1A] px-4 py-2 hover:text-[#b68d52] rounded-xl text-sm md:text-base transition-all duration-300 after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-[#5A2B1A] after:transition-all after:duration-300 group-hover:after:w-full"
             >
-              <img src={cat.icon} className="w-5 h-5 object-contain" alt={cat.name} />
+              {cat.iconComponent}
               {cat.name}
             </Link>
 
             {/* Only show dropdown if category has sub items */}
-            {cat.sub && (
+            {cat.sub && cat.name !== "Mens" && (
               <div
                 className={`absolute ${openSub === index ? "flex" : "hidden"} group-hover:flex flex-col
        top-[110%] left-1/2 -translate-x-1/2
@@ -455,15 +496,9 @@ export default function Header() {
                       >
                         {/* Metal Category Header with Icon */}
                         <div className="flex items-center gap-3  pb-3">
-                       
                           <h3 className="font-bold text-12px  text-[#0E0100]">
                             {category.category}
                           </h3>
-                          {/* <div className={`ml-auto w-4 h-4 rounded-full ${
-                            category.category === "Gold" ? "bg-yellow-500 shadow-lg shadow-yellow-300" :
-                            category.category === "Silver" ? "bg-gray-400 shadow-lg shadow-gray-300" :
-                            "bg-blue-400 shadow-lg shadow-blue-300"
-                          }`}></div> */}
                         </div>
 
                         {/* Items List - All items shown directly (no subdropdown) */}
@@ -485,13 +520,9 @@ export default function Header() {
                             </li>
                           ))}
                         </ul>
-
-                      
                       </div>
                     ))}
                   </div>
-
-
                 </div>
               </div>
             )}

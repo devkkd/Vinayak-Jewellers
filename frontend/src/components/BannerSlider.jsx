@@ -5,13 +5,13 @@ import "swiper/css/pagination";
 
 const BannerSlider = () => {
   const banners = [
-    "/images/Untitled-3.jpg",
-    "/images/vinayak-1.jpg",
-    "/images/vinayak-2.jpg",
-    "/images/vinayak-5.jpg",
-    "/images/vinayak-7.jpg",
-    "/images/vinayak-4.jpg",
-    "/images/vinayak8.png",
+    
+    "/images/banner2.jpeg",
+   "/images/vinayak jewellers  (1).jpg",
+    "/images/banner3.jpg",
+    "/images/banner4.jpeg",
+ "/images/vinayak jewellers  (1).jpg",
+     "/images/banner3.jpg",
   ];
 
   return (

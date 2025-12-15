@@ -11,6 +11,8 @@ import {
   giftingCategories,
   weddingCategories,
   birthStoneCategories,
+  mensCategories,
+  coinsCategories
 } from "../data/admincategories";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -23,6 +25,21 @@ import {
   FiChevronRight as FiRight,
 } from "react-icons/fi";
 import { TbDiamond, TbCrown } from "react-icons/tb";
+// Import Lucide React icons
+import {
+  Home,          // for Home/All Jewellery
+  Gem,           // for Gold, Silver, Diamond
+  Heart,         // for Wedding Collection
+  Gift,          // for Gifting
+  Sparkles,      // for Birth Stones
+  ShoppingBag,   // alternative for Collections
+  Diamond as LucideDiamond, // alternative for Diamond
+  CircleDollarSign, // for Gold/Coins
+  Trophy,         // for premium collections
+  CircleStar
+} from "lucide-react";
+
+
 
 /**
  * AllJewellery (Light theme with dark accents)
@@ -57,6 +74,11 @@ export default function AllJewellery() {
   const [selectedCollectionItem, setSelectedCollectionItem] = useState(null); // For Collections submenu items
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [collectionsMenu, setCollectionsMenu] = useState(null);
+  // Add this state
+const [selectedMainSubcategory, setSelectedMainSubcategory] = useState("");
+const [selectedNestedSubcategory, setSelectedNestedSubcategory] = useState("");
+  
+  const searchParams = new URLSearchParams(location.search);
 
   // Extract collectionItem from URL if present
   const urlCollectionItem = params.collectionItem;
@@ -64,6 +86,58 @@ export default function AllJewellery() {
   const isMobile = useMobile();
   const categoryScrollRef = useRef(null);
   const subcategoryScrollRef = useRef(null);
+
+  // Read category from URL query parameter
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl && categories[categoryFromUrl]) {
+      setSelectedCategory(categoryFromUrl);
+    }
+
+      window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant' // Use 'instant' for immediate scrolling
+    });
+  }, [location.search]);
+
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  useEffect(() => {
+    if (location.state?.scrollToTop) {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+      });
+      // Clear the state
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate]);
+// Update when category changes
+const handleCategorySelect = (cat) => {
+  setSelectedCategory(cat);
+  setSelectedSubcategory("");
+  setSelectedMainSubcategory("");
+  setSelectedNestedSubcategory("");
+  setSelectedCollectionItem(null);
+  if (subcategoryScrollRef.current) subcategoryScrollRef.current.scrollLeft = 0;
+  navigate('/alljewellery', { replace: true });
+};
+
+// Update when main subcategory is selected
+const handleMainSubcategorySelect = (sub) => {
+  setSelectedMainSubcategory(sub);
+  setSelectedNestedSubcategory("");
+  setSelectedSubcategory(sub); // Also set this for filtering
+};
+
+// Update when nested subcategory is selected
+const handleNestedSubcategorySelect = (nestedSub) => {
+  setSelectedNestedSubcategory(nestedSub);
+  setSelectedSubcategory(nestedSub); // Use nested subcategory for filtering
+};
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -78,173 +152,230 @@ export default function AllJewellery() {
     fetchProducts();
   }, []);
 
-  // Load Collections menu from backend
-  useEffect(() => {
-    const fetchCollectionsMenu = async () => {
-      try {
-        const menus = await listMenus();
-        const collections = menus.find(m => m.name === "Collections");
-        if (collections) {
-          setCollectionsMenu(collections);
-        }
-      } catch (err) {
-        console.error("Failed to fetch Collections menu", err);
-      }
-    };
-    fetchCollectionsMenu();
-  }, []);
+  console.log("Filtering product:", products[1]);
+  // Get appropriate icon component for each category
+  const getCategoryIcon = (categoryName) => {
+    const iconProps = { className: "w-6 h-6 md:w-7 md:h-7" };
 
-  // Auto-select Collections category and item from URL
-  useEffect(() => {
-    if (urlCollectionItem && collectionsMenu && collectionsMenu.sub) {
-      // Normalize URL collection item (remove hyphens, convert to lowercase)
-      const urlNormalized = urlCollectionItem.toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
-      
-      // Find matching collection item
-      const matchingItem = collectionsMenu.sub.find(item => {
-        const itemName = (item.name || "").toLowerCase().trim().replace(/\s+/g, ' ');
-        return itemName === urlNormalized || 
-               itemName.includes(urlNormalized) || 
-               urlNormalized.includes(itemName);
-      });
-      
-      if (matchingItem) {
-        setSelectedCategory("Collections");
-        setSelectedCollectionItem(matchingItem.name.trim());
-        setSelectedSubcategory("");
-      }
-    } else if (!urlCollectionItem) {
-      // Reset if no URL parameter
-      if (location.pathname === "/alljewellery") {
-        // Only reset if we're on base alljewellery route
-        // Don't reset if we're navigating from another page
-      }
+    switch (categoryName) {
+      case "All Collection":
+        return <Home {...iconProps} />;
+      case "Gold":
+        return <CircleStar {...iconProps} className={`${iconProps.className}`} />;
+      case "Silver":
+        return <CircleStar {...iconProps} className={`${iconProps.className}`} />;
+      case "Diamond":
+        return <Gem {...iconProps} className={`${iconProps.className}`} />;
+      case "Wedding Collection":
+        return <Heart {...iconProps} className={`${iconProps.className}`} />;
+      case "Gifting":
+        return <Gift {...iconProps} className={`${iconProps.className}`} />;
+      case "Birth Stones":
+        return <Sparkles {...iconProps} className={`${iconProps.className}`} />;
+      case "Mens":
+        return <Gift {...iconProps} className={`${iconProps.className}`} />;
+      case "Coins":
+        return <CircleDollarSign {...iconProps} className={`${iconProps.className}`} />;
+      default:
+        return <ShoppingBag {...iconProps} />;
+
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlCollectionItem, collectionsMenu]);
-
-  // Build categories with Collections submenu items
-  const categories = {
-    "All Jewellery": {
-      image: "/public/images/Icon/menu-icons/icon 2.png",
-      subcategories: [],
-    },
-    Collections: {
-      image: "/images/Icon/menu-icons/Group 16.png",
-      subcategories: collectionsMenu?.sub?.map(item => item.name.trim()) || [],
-    },
-    Gold: {
-      image: "https://via.placeholder.com/40?text=Gold",
-      subcategories: goldCategories.map((c) => c.category),
-    },
-    Silver: {
-      image: "https://via.placeholder.com/40?text=Silver",
-      subcategories: silverCategories.map((c) => c.category),
-    },
-    Diamond: {
-      image: "https://via.placeholder.com/40?text=Diamond",
-      subcategories: diamondCategories.map((c) => c.category),
-    },
-    "Wedding Collection": {
-      image: "https://via.placeholder.com/40?text=Wedding",
-      subcategories: weddingCategories.map((c) => c.category),
-    },
-    Gifting: {
-      image: "/public/images/Icon/menu-icons/Group 15.png",
-      subcategories: giftingCategories.map((c) => c.category),
-    },
-    "Birth Stones": {
-      image: "https://via.placeholder.com/40?text=Stone",
-      subcategories: birthStoneCategories.map((c) => c.category),
-    },
   };
 
-  const filtered =
-    selectedCategory === "All Jewellery"
-      ? products
-      : products.filter((p) => {
-          // Normalize collection check (case-insensitive)
-          const productCollection = (p.collection || "").toLowerCase().trim();
-          const productCategory = (p.category || "").toLowerCase().trim();
-          const productSub = (p.subcategory || "").toLowerCase().trim();
-          const productName = (p.productName || "").toLowerCase().trim();
-          const selectedCollection = (selectedCategory || "").toLowerCase().trim();
-          
-          // Special handling for Collections submenu items
-          if (selectedCategory === "Collections" && selectedCollectionItem) {
-            const collectionItemName = selectedCollectionItem.toLowerCase().trim();
-            
-            // Match against product category, subcategory, collection, and name
-            const matchesCollectionItem = 
-              productCategory.includes(collectionItemName) ||
-              productSub.includes(collectionItemName) ||
-              productCollection.includes(collectionItemName) ||
-              productName.includes(collectionItemName) ||
-              collectionItemName.includes(productCategory) ||
-              collectionItemName.includes(productSub);
-            
-            // Also check for specific patterns
-            if (collectionItemName.includes("gold wedding") || collectionItemName.includes("wedding collection")) {
-              return productCategory.includes("wedding") || productCategory.includes("traditional gold") || 
-                     productCollection === "wedding collection" || productCollection === "gold";
-            }
-            if (collectionItemName.includes("gold traditional")) {
-              return productCollection === "gold" && (productCategory.includes("traditional") || !productCategory.includes("wedding"));
-            }
-            if (collectionItemName.includes("rajasthani")) {
-              return productCategory.includes("rajasthani") || productName.includes("rajasthani");
-            }
-            if (collectionItemName.includes("rose gold")) {
-              return productCategory.includes("rose") || productName.includes("rose");
-            }
-            if (collectionItemName.includes("diamond wedding") || collectionItemName.includes("diamond solitaire")) {
-              return productCollection === "diamond" || productCategory.includes("diamond");
-            }
-            if (collectionItemName.includes("silver utensils")) {
-              return productCollection === "silver" && productCategory.includes("utensil");
-            }
-            if (collectionItemName.includes("silver traditional")) {
-              return productCollection === "silver" && productCategory.includes("traditional");
-            }
-            if (collectionItemName.includes("silver fancy")) {
-              return productCollection === "silver" && (productCategory.includes("fancy") || productName.includes("fancy"));
-            }
-            if (collectionItemName.includes("gift")) {
-              return productCollection === "gifting" || productCategory.includes("gift");
-            }
-            
-            return matchesCollectionItem;
-          }
-          
-          // Regular category filtering
-          // Check if collection matches (try both collection and category fields)
-          const matchesCollection = 
-            productCollection === selectedCollection || 
-            productCategory === selectedCollection ||
-            productCollection.includes(selectedCollection) ||
-            selectedCollection.includes(productCollection);
-          
-          if (!matchesCollection) return false;
-          
-          // If subcategory selected, filter by subcategory (case-insensitive, partial match)
-          if (selectedSubcategory) {
-            const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
-            
-            // Try exact match with subcategory
-            if (productSub === selectedSub) return true;
-            
-            // Try exact match with category
-            if (productCategory === selectedSub) return true;
-            
-            // Try partial match
-            if (productSub.includes(selectedSub) || selectedSub.includes(productSub)) return true;
-            if (productCategory.includes(selectedSub) || selectedSub.includes(productCategory)) return true;
-            
-            return false;
-          }
-          
-          return true;
-        });
+  // const categories = {
+  //   "All Jewellery": {
+  //     icon: getCategoryIcon("All Jewellery"),
+  //     subcategories: [],
+  //   },
+  //   "Gold": {
+  //     icon: getCategoryIcon("Gold"),
+  //     subcategories: goldCategories.map((c) => c.category),
+  //   },
+  //   "Silver": {
+  //     icon: getCategoryIcon("Silver"),
+  //     subcategories: silverCategories.map((c) => c.category),
+  //   },
+  //   "Diamond": {
+  //     icon: getCategoryIcon("Diamond"),
+  //     subcategories: diamondCategories.map((c) => c.category),
+  //   },
+  //   "Wedding Collection": {
+  //     icon: getCategoryIcon("Wedding Collection"),
+  //     subcategories: weddingCategories.map((c) => c.category),
+  //   },
+  //   "Gifting": {
+  //     icon: getCategoryIcon("Gifting"),
+  //     subcategories: giftingCategories.map((c) => c.category),
+  //   },
+  //   "Birth Stones": {
+  //     icon: getCategoryIcon("Birth Stones"),
+  //     subcategories: birthStoneCategories.map((c) => c.category),
+  //   },
+  //   "Coins": {
+  //     icon: getCategoryIcon("Coins"),
+  //     subcategories: coinsCategories.map((c) => c.category), // Add this
+  //   },
+  //   "Mens": {
+  //     icon: getCategoryIcon("Mens"),
+  //     subcategories: mensCategories.map((c) => c.category), // Add this
+  //   },
+  // };
+
+  // const filtered =
+  //   selectedCategory === "All Jewellery"
+  //     ? products
+  //     : products.filter((p) => {
+  //       // Normalize collection check (case-insensitive)
+  //       const productCollection = (p.collection || "").toLowerCase().trim();
+  //       const productCategory = (p.category || "").toLowerCase().trim();
+  //       const selectedCollection = (selectedCategory || "").toLowerCase().trim();
+
+  //       // Check if collection matches (try both collection and category fields)
+  //       const matchesCollection =
+  //         productCollection === selectedCollection ||
+  //         productCategory === selectedCollection ||
+  //         productCollection.includes(selectedCollection) ||
+  //         selectedCollection.includes(productCollection);
+
+  //       if (!matchesCollection) return false;
+
+  //       // If subcategory selected, filter by subcategory (case-insensitive, partial match)
+  //       if (selectedSubcategory) {
+  //         const productSub = (p.subcategory || "").toLowerCase().trim();
+  //         const productCat = (p.category || "").toLowerCase().trim();
+  //         const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
+
+  //         // Try exact match with subcategory
+  //         if (productSub === selectedSub) return true;
+
+  //         // Try exact match with category
+  //         if (productCat === selectedSub) return true;
+
+  //         // Try partial match
+  //         if (productSub.includes(selectedSub) || selectedSub.includes(productSub)) return true;
+  //         if (productCat.includes(selectedSub) || selectedSub.includes(productCat)) return true;
+
+  //         return false;
+  //       }
+
+  //       return true;
+  //     });
+
+  // src/data/admincategories.js - Keep this file as is, it already has nested structure
+
+// In your AllJewellery component, update the categories object:
+
+const categories = {
+  "All Jewellery": {
+    icon: getCategoryIcon("All Jewellery"),
+    subcategories: [],
+  },
+  "Gold": {
+    icon: getCategoryIcon("Gold"),
+    subcategories: goldCategories.map((c) => c.category),
+  },
+  "Silver": {
+    icon: getCategoryIcon("Silver"),
+    subcategories: silverCategories.map((c) => c.category),
+  },
+  "Diamond": {
+    icon: getCategoryIcon("Diamond"),
+    subcategories: diamondCategories.map((c) => c.category),
+  },
+  "Wedding Collection": {
+    icon: getCategoryIcon("Wedding Collection"),
+    subcategories: weddingCategories.map((c) => c.category),
+  },
+  "Gifting": {
+    icon: getCategoryIcon("Gifting"),
+    subcategories: giftingCategories.map((c) => c.category),
+  },
+  "Birth Stones": {
+    icon: getCategoryIcon("Birth Stones"),
+    subcategories: birthStoneCategories.map((c) => c.category),
+  },
+  "Mens": {
+    icon: getCategoryIcon("Mens"),
+    subcategories: mensCategories.map((c) => c.category),
+    // Store the detailed subcategories for nested display
+    detailedSubcategories: mensCategories,
+  },
+  "Coins": {
+    icon: getCategoryIcon("Coins"),
+    subcategories: coinsCategories.map((c) => c.category),
+    detailedSubcategories: coinsCategories,
+  },
+};
+  // const filtered = products.filter((p) => {
+
+
+  //   const productCategory = (p.collection || p.category || "")
+  //     .toLowerCase()
+  //     .trim();
+
+  //   const productSubcategory = (p.subcategory || "")
+  //     .toLowerCase()
+  //     .trim();
+
+  //   const selectedCat = selectedCategory.toLowerCase().trim();
+  //   const selectedSub = selectedSubcategory.toLowerCase().trim();
+
+  //   // 1️⃣ Category filter
+  //   if (selectedCategory !== "All Jewellery") {
+  //     if (productCategory !== selectedCat) return false;
+  //   }
+
+  //   // 2️⃣ Subcategory filter (ONLY when selected)
+  //   if (selectedSubcategory) {
+  //     if (productSubcategory !== selectedSub) return false;
+  //   }
+
+  //   return true;
+  // });
+
+
+  const filtered = products.filter((p) => {
+  // Convert to lowercase for case-insensitive comparison
+  const productCategory = (p.collection || p.category || "").toLowerCase().trim();
+  const productSubcategory = (p.subcategory || "").toLowerCase().trim();
+  const selectedCat = selectedCategory.toLowerCase().trim();
+  
+  // 1️⃣ Category filter
+  if (selectedCategory !== "All Jewellery") {
+    if (productCategory !== selectedCat) return false;
+  }
+
+  // 2️⃣ Handle Mens category filtering differently
+  if (selectedCategory === "Mens" || selectedCategory === "Coins") {
+    // For Mens and Coins, we need to check both levels
+    if (selectedMainSubcategory) {
+      // Check if product's subcategory matches selected main subcategory
+      const mainSubMatch = productSubcategory.includes(selectedMainSubcategory.toLowerCase()) ||
+                          productCategory.includes(selectedMainSubcategory.toLowerCase());
+      
+      if (!mainSubMatch) return false;
+      
+      // If nested subcategory is selected, check further
+      if (selectedNestedSubcategory) {
+        const nestedMatch = productSubcategory.includes(selectedNestedSubcategory.toLowerCase()) ||
+                           (p.material || "").toLowerCase().includes(selectedNestedSubcategory.toLowerCase()) ||
+                           (p.description || "").toLowerCase().includes(selectedNestedSubcategory.toLowerCase());
+        
+        return nestedMatch;
+      }
+    }
+  } else {
+    // Original logic for other categories
+    if (selectedSubcategory) {
+      if (productSubcategory !== selectedSubcategory.toLowerCase().trim() && 
+          productCategory !== selectedSubcategory.toLowerCase().trim()) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+});
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -307,10 +438,10 @@ export default function AllJewellery() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="text-sm text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+            <div className="text-sm text-gray-700 bg-gray-200 px-3 py-1 rounded-full">
               {filtered.length} Products
             </div>
-            <div className="hidden md:flex items-center border border-gray-100 rounded-full px-2">
+            {/* <div className="hidden md:flex items-center border border-gray-100 rounded-full px-2">
               <FiSearch className="text-gray-400 ml-1" />
               <input
                 type="text"
@@ -318,21 +449,20 @@ export default function AllJewellery() {
                 className="w-40 md:w-64 text-sm px-2 py-1 bg-transparent focus:outline-none"
                 onChange={() => {}}
               />
-            </div>
+            </div> */}
           </div>
         </div>
 
         {/* Category Tabs */}
-        <div className="relative mb-6">
+        <div className="relative mb-6 ">
           <div className="md:flex md:items-start md:gap-6">
             <div
               ref={categoryScrollRef}
-              className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-3 pb-2" : "flex-col gap-2 md:w-64"} scroll-smooth`}
+              className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-3 b pb-2" : "flex-col gap-2 md:w-64"} scroll-smooth`}
             >
               {Object.keys(categories).map((cat) => {
                 const active = selectedCategory === cat;
-                const catImage = categories[cat].image;
-                const showImage = cat !== "Collections"; // Hide image for Collections category
+                const categoryIcon = categories[cat].icon;
                 return (
                   <button
                     key={cat}
@@ -346,207 +476,292 @@ export default function AllJewellery() {
                         navigate('/alljewellery', { replace: true });
                       }
                     }}
-                    className={`flex-shrink-0 ${isMobile ? "px-4 py-2" : "px-3 py-2"} rounded-lg transition-colors duration-150 text-left flex items-center ${showImage ? "gap-3" : ""} ${
-                      active
-                        ? "btn-accent shadow-sm"
-                        : "bg-white border border-gray-100 text-accent hover:bg-gray-50"
-                    }`}
+                    className={`flex-shrink-0 ${isMobile ? "px-4 py-2 " : "px-3 py-2"} rounded-lg transition-colors bg-amber-300 duration-150 text-left flex items-center gap-3 ${active
+                      ? "btn-accent shadow-sm bg-amber-300"
+                      : "bg-gray-200 border border-gray-100  text-accent hover:bg-gray-50"
+                      }`}
                     style={{ fontSize: isMobile ? 13 : 14 }}
                   >
-                    {showImage && <img src={catImage} alt={cat} className="w-6 h-6 md:w-7 md:h-7 object-contain rounded" />}
+                    <div className="flex items-center justify-center w-6 h-6 md:w-7 md:h-7">
+                      {categoryIcon}
+                    </div>
                     <span className="whitespace-nowrap font-medium">{cat}</span>
                   </button>
                 );
               })}
             </div>
+            <div>
+              {/* Subcategory area */}
+              {/* <div className="flex-1 md:pl-4 mt-3 md:mt-0">
+                <AnimatePresence>
+                  {selectedCategory !== "All Jewellery" &&
+                    categories[selectedCategory].subcategories?.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100">
+                          <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-sm md:text-base font-semibold text-accent">Select Subcategory</h3>
+                            {isMobile && categories[selectedCategory].subcategories.length > 3 && (
+                              <div className="flex gap-1">
+                                <button onClick={() => scrollSubcategories(-1)} className="p-1 rounded-md bg-gray-50 border">
+                                  <FiChevronLeft className="text-sm text-gray-600" />
+                                </button>
+                                <button onClick={() => scrollSubcategories(1)} className="p-1 rounded-md bg-gray-50 border">
+                                  <FiChevronRight className="text-sm text-gray-600" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
 
-            {/* Subcategory area */}
-            <div className="flex-1 md:pl-4 mt-3 md:mt-0">
-              <AnimatePresence>
-                {selectedCategory !== "All Jewellery" &&
-                  categories[selectedCategory].subcategories?.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-sm md:text-base font-semibold text-accent">Select Subcategory</h3>
-                          {isMobile && categories[selectedCategory].subcategories.length > 3 && (
-                            <div className="flex gap-1">
-                              <button onClick={() => scrollSubcategories(-1)} className="p-1 rounded-md bg-gray-50 border">
-                                <FiChevronLeft className="text-sm text-gray-600" />
-                              </button>
-                              <button onClick={() => scrollSubcategories(1)} className="p-1 rounded-md bg-gray-50 border">
-                                <FiChevronRight className="text-sm text-gray-600" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        <div
-                          ref={subcategoryScrollRef}
-                          className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-2 pb-2" : "flex-wrap gap-2"} scroll-smooth`}
-                        >
-                          <button
-                            onClick={() => {
-                              setSelectedSubcategory("");
-                              setSelectedCollectionItem(null);
-                              // Navigate to base route when clicking "All"
-                              if (selectedCategory === "Collections") {
-                                navigate('/alljewellery', { replace: true });
-                              }
-                            }}
-                            className={`flex-shrink-0 px-3 py-1 rounded-md text-sm ${
-                              selectedSubcategory === "" && !selectedCollectionItem
+                          <div
+                            ref={subcategoryScrollRef}
+                            className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-2 pb-2" : "flex-wrap gap-2"} scroll-smooth`}
+                          >
+                            <button
+                              onClick={() => setSelectedSubcategory("")}
+                              className={`flex-shrink-0 px-3 py-1 rounded-md text-sm ${selectedSubcategory === ""
                                 ? "bg-accent-gradient text-white"
                                 : "bg-gray-50 text-accent border border-gray-100"
-                            }`}
-                          >
-                            All {selectedCategory}
-                          </button>
+                                }`}
+                            >
+                              All {selectedCategory}
+                            </button>
 
-                          {categories[selectedCategory].subcategories.map((sub) => {
-                            // For Collections, use selectedCollectionItem instead of selectedSubcategory
-                            const isSelected = selectedCategory === "Collections" 
-                              ? selectedCollectionItem === sub 
-                              : selectedSubcategory === sub;
-                            
-                            return (
+                            {categories[selectedCategory].subcategories.map((sub) => (
                               <button
                                 key={sub}
-                            onClick={() => {
-                              if (selectedCategory === "Collections") {
-                                setSelectedCollectionItem(sub);
-                                setSelectedSubcategory("");
-                                // Navigate to collection item route
-                                const collectionSlug = sub
-                                  .toLowerCase()
-                                  .trim()
-                                  .replace(/\s+/g, '-')
-                                  .replace(/[^a-z0-9-]/g, '');
-                                navigate(`/alljewellery/collections/${collectionSlug}`, { replace: true });
-                              } else {
-                                setSelectedSubcategory(sub);
-                                setSelectedCollectionItem(null);
-                              }
-                            }}
-                                className={`flex-shrink-0 px-3 py-1 rounded-md text-sm whitespace-nowrap ${
-                                  isSelected
-                                    ? "bg-accent-gradient text-white"
-                                    : "bg-white text-accent border border-gray-100 hover:bg-gray-50"
-                                }`}
+                                onClick={() => setSelectedSubcategory(sub)}
+                                className={`flex-shrink-0 px-3 py-1 rounded-md text-sm whitespace-nowrap ${selectedSubcategory === sub
+                                  ? "bg-accent-gradient text-white"
+                                  : "bg-white text-accent border border-gray-100 hover:bg-gray-50"
+                                  }`}
                               >
                                 {sub}
                               </button>
-                            );
-                          })}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
+                      </motion.div>
+                    )}
+                </AnimatePresence>
+              </div> */}
+
+
+              {/* Subcategory area */}
+<div className="flex-1 md:pl-4 mt-3 md:mt-0">
+  <AnimatePresence>
+    {selectedCategory !== "All Jewellery" &&
+      categories[selectedCategory].subcategories?.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="overflow-hidden"
+        >
+          <div className="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100">
+            {/* Level 1 Subcategories */}
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm md:text-base font-semibold text-accent">
+                {selectedCategory === "Mens" || selectedCategory === "Coins" 
+                  ? "Select Category" 
+                  : "Select Subcategory"}
+              </h3>
+              {isMobile && categories[selectedCategory].subcategories.length > 3 && (
+                <div className="flex gap-1">
+                  <button onClick={() => scrollSubcategories(-1)} className="p-1 rounded-md bg-gray-50 border">
+                    <FiChevronLeft className="text-sm text-gray-600" />
+                  </button>
+                  <button onClick={() => scrollSubcategories(1)} className="p-1 rounded-md bg-gray-50 border">
+                    <FiChevronRight className="text-sm text-gray-600" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div
+              ref={subcategoryScrollRef}
+              className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-2 pb-2" : "flex-wrap gap-2"} scroll-smooth mb-4`}
+            >
+              <button
+                onClick={() => {
+                  setSelectedMainSubcategory("");
+                  setSelectedNestedSubcategory("");
+                  setSelectedSubcategory("");
+                }}
+                className={`flex-shrink-0 px-3 py-1 rounded-md text-sm ${!selectedMainSubcategory
+                  ? "bg-accent-gradient text-white"
+                  : "bg-gray-50 text-accent border border-gray-100"
+                  }`}
+              >
+                All {selectedCategory}
+              </button>
+
+              {categories[selectedCategory].subcategories.map((sub) => (
+                <button
+                  key={sub}
+                  onClick={() => handleMainSubcategorySelect(sub)}
+                  className={`flex-shrink-0 px-3 py-1 rounded-md text-sm whitespace-nowrap ${selectedMainSubcategory === sub
+                    ? "bg-accent-gradient text-white"
+                    : "bg-white text-accent border border-gray-100 hover:bg-gray-50"
+                    }`}
+                >
+                  {sub}
+                </button>
+              ))}
+            </div>
+
+            {/* Level 2 (Nested) Subcategories for Mens and Coins */}
+            {selectedCategory === "Mens" && selectedMainSubcategory && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 pt-4 border-t border-gray-100"
+              >
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                  Select {selectedMainSubcategory} Type
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedNestedSubcategory("")}
+                    className={`px-3 py-1 rounded-md text-sm ${!selectedNestedSubcategory
+                      ? "bg-[#fff4dc] text-[#5C1D02] border border-[#5C1D02]"
+                      : "bg-gray-50 text-gray-700 border border-gray-200"
+                      }`}
+                  >
+                    All {selectedMainSubcategory}
+                  </button>
+                  
+                  {mensCategories
+                    .find(cat => cat.category === selectedMainSubcategory)
+                    ?.subcategories.map((nestedSub) => (
+                      <button
+                        key={nestedSub}
+                        onClick={() => handleNestedSubcategorySelect(nestedSub)}
+                        className={`px-3 py-1 rounded-md text-sm whitespace-nowrap ${selectedNestedSubcategory === nestedSub
+                          ? "bg-[#fff4dc] text-[#5C1D02] border border-[#5C1D02]"
+                          : "bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100"
+                          }`}
+                      >
+                        {nestedSub}
+                      </button>
+                    ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* {selectedCategory === "Coins" && selectedMainSubcategory && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 pt-4 border-t border-gray-100"
+              >
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                  Select {selectedMainSubcategory} Type
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedNestedSubcategory("")}
+                    className={`px-3 py-1 rounded-md text-sm ${!selectedNestedSubcategory
+                      ? "bg-[#fff4dc] text-[#5C1D02] border border-[#5C1D02"
+                      : "bg-gray-50 text-gray-700 border border-gray-200"
+                      }`}
+                  >
+                    All {selectedMainSubcategory}
+                  </button>
+                  
+                  {coinsCategories
+                    .find(cat => cat.category === selectedMainSubcategory)
+                    ?.subcategories.map((nestedSub) => (
+                      <button
+                        key={nestedSub}
+                        onClick={() => handleNestedSubcategorySelect(nestedSub)}
+                        className={`px-3 py-1 rounded-md text-sm whitespace-nowrap ${selectedNestedSubcategory === nestedSub
+                          ? "bg-blue-100 text-blue-700 border border-blue-200"
+                          : "bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100"
+                          }`}
+                      >
+                        {nestedSub}
+                      </button>
+                    ))}
+                </div>
+              </motion.div>
+            )} */}
+          </div>
+        </motion.div>
+      )}
+  </AnimatePresence>
+</div>
+              {/* Product Grid */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedCategory + selectedSubcategory}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="mb-12 overflow-y-auto h-screen scrollbar-hide"
+                >
+                  {filtered.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
+                      {filtered.map((product) => {
+                        // Get primary image - support both images array and single image field
+                        const primaryImage =
+                          (product.images && product.images.length > 0)
+                            ? product.images[0]
+                            : (product.image || "");
+
+                        return (
+                          <div key={product._id} className="flex flex-col items-start">
+                            {/* Product Image */}
+                            <div
+                              onClick={() => navigate(`/backend-product/${product._id}`)}
+                              className="w-full bg-[#FFF4DC] h-[360px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex justify-center items-center"
+                            >
+                              {primaryImage ? (
+                                <img
+                                  src={primaryImage}
+                                  alt={product.productName}
+                                  className="w-[300px] h-[400px] object-cover hover:scale-105 transition-transform duration-500"
+                                />
+                              ) : (
+                                <div className="w-full h-[360px] flex items-center justify-center text-gray-400">
+                                  No image
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Product Info */}
+                            <div className="w-full mt-4 text-center sm:text-left">
+                              <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide">
+                                {product.productName}
+                              </h4>
+                              <button
+                                onClick={() => openModal(product)}
+                                className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer"
+                              >
+                                Enquiry Now →
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center text-[#0E0100] py-10 font-medium">
+                      No products found.
+                    </div>
                   )}
+                </motion.div>
               </AnimatePresence>
             </div>
           </div>
         </div>
-
-        {/* Product Grid */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selectedCategory + selectedSubcategory}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="mb-12"
-          >
-            {filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {filtered.map((product) => {
-                  const primaryImage = product.images && product.images.length > 0 ? product.images[0] : product.image || "";
-                  return (
-                    <motion.div
-                      key={product._id}
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.28 }}
-                      whileHover={{ y: isMobile ? 0 : -6 }}
-                      onMouseEnter={() => !isMobile && setHoveredProduct(product._id)}
-                      onMouseLeave={() => !isMobile && setHoveredProduct(null)}
-                      className="group relative"
-                    >
-                      <div className="bg-white rounded-xl overflow-hidden shadow-sm transition-transform duration-300 border border-gray-100 card-hover-up">
-                        <div
-                          onClick={() => navigate(`/backend-product/${product._id}`)}
-                          className="cursor-pointer h-56 md:h-60 flex items-center justify-center p-3"
-                          style={{ backgroundColor: "var(--muted)" }}
-                        >
-                          {primaryImage ? (
-                            <motion.img
-                              whileHover={{ scale: isMobile ? 1 : 1.06 }}
-                              transition={{ duration: 0.4 }}
-                              src={primaryImage}
-                              alt={product.productName}
-                              className="max-h-44 md:max-h-52 max-w-full object-contain transition-transform"
-                            />
-                          ) : (
-                            <div className="text-gray-300">
-                              <TbDiamond className="text-4xl md:text-5xl opacity-30" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Hover overlay on desktop */}
-                        {!isMobile && hoveredProduct === product._id && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="absolute inset-0 flex items-end justify-center p-3 pointer-events-none"
-                          >
-                            <div className="flex gap-2 pointer-events-auto">
-                              <button className="p-2 bg-white rounded-full shadow border">
-                                <FiHeart className="text-accent" />
-                              </button>
-                              <button onClick={() => navigate(`/backend-product/${product._id}`)} className="p-2 bg-white rounded-full shadow border">
-                                <FiEye className="text-accent" />
-                              </button>
-                            </div>
-                          </motion.div>
-                        )}
-
-                        <div className="p-3 md:p-4">
-                          <h3 className="font-serif text-sm md:text-base font-semibold text-accent leading-tight line-clamp-2">
-                            {product.productName}
-                          </h3>
-
-                          <div className="flex items-center justify-between mt-3">
-                            <span className="text-xs text-gray-500">{product.category || selectedCategory}</span>
-
-                            <button
-                              onClick={() => openModal(product)}
-                              className="text-sm btn-accent rounded-full px-3 py-1 md:px-4 md:py-2 flex items-center gap-2"
-                            >
-                              <span className="text-sm">Enquire</span>
-                              <FiChevronRight className="text-sm" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            ) : (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-10">
-                <TbDiamond className="text-gray-300 text-4xl mx-auto mb-3" />
-                <h3 className="text-lg font-serif text-accent mb-1">No Products Found</h3>
-                <p className="text-sm text-gray-500">Try selecting a different category or subcategory.</p>
-              </motion.div>
-            )}
-          </motion.div>
-        </AnimatePresence>
       </div>
+
+
 
       {/* Contact Section */}
       <div className="bg-white border-t border-gray-100">
