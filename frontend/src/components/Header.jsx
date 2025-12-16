@@ -4,23 +4,7 @@ import { useSearch } from "../context/SearchContext";
 import { useEnquiry } from "../context/EnquiryContext";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listMenus } from "../api/menuAPI";
-import { 
-  ShoppingBag, 
-  Search, 
-  Info, 
-  Phone, 
-  MapPin,
-  Home,
-  Gem,
-  Diamond,
-  Coins,
-  Gift,
-  Sparkles,
-  Users,
-  CircleStar,
-  Boxes 
-
-} from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -39,12 +23,12 @@ export default function Header() {
     { 
       name: "Home", 
       link: "/", 
-      iconComponent: <Home className="w-5 h-5" /> 
+      iconComponent: <img src="/images/Icon/menu-icons/home.svg" alt="Home" className="w-5 h-5" /> 
     },
     {
       name: "Collections", 
       link: "/alljewellery", 
-      iconComponent: <Boxes  className="w-5 h-5" />, // Placeholder - update based on actual meaning
+      iconComponent: <img src="/images/Icon/menu-icons/Collections.svg" alt="Collections" className="w-5 h-5" />,
       sub: [
         { name: "Gold Wedding", link: "/alljewellery/collections/gold-wedding" },
         { name: "Gold Traditional", link: "/alljewellery/collections/gold-traditional" },
@@ -61,7 +45,7 @@ export default function Header() {
     {
       name: "Gold", 
       link: "/gold", 
-      iconComponent: <CircleStar className="w-5 h-5 text-yellow-500" />, // Placeholder - update based on actual meaning
+      iconComponent: <img src="/images/Icon/menu-icons/Gold.svg" alt="Gold" className="w-5 h-5" />,
       sub: [
         { name: "Ring", link: "/gold/rings" },
         { name: "Earrings", link: "/gold/earrings" },
@@ -77,7 +61,7 @@ export default function Header() {
     {
       name: "Diamond", 
       link: "/diamond", 
-      iconComponent: <Gem className="w-5 h-5" />,
+      iconComponent: <img src="/images/Icon/menu-icons/Diamond.svg" alt="Diamond" className="w-5 h-5" />,
       sub: [
         { name: "Ring", link: "/diamond/rings" },
         { name: "Earrings", link: "/diamond/earrings" },
@@ -92,7 +76,7 @@ export default function Header() {
     {
       name: "Silver", 
       link: "/silver", 
-      iconComponent: <CircleStar  className="w-5 h-5 text-gray-400" />, // Placeholder - update based on actual meaning
+      iconComponent: <img src="/images/Icon/menu-icons/Silver.svg" alt="Silver" className="w-5 h-5" />,
       sub: [
         { name: "Utensils", link: "/silver/utensils" },
         { name: "Anklets / payals", link: "/silver/anklets" },
@@ -113,8 +97,7 @@ export default function Header() {
     {
       name: "Mens", 
       link: "/mens", 
-      iconComponent: <Users className="w-5 h-5" />,
-      // Updated structure with nested subcategories
+      iconComponent: <img src="/images/Icon/menu-icons/Men's.svg" alt="Mens" className="w-5 h-5" />,
       sub: [
         {
           category: "Gold",
@@ -146,7 +129,7 @@ export default function Header() {
     {
       name: "Coins", 
       link: "/coins", 
-      iconComponent: <Coins className="w-5 h-5" />,
+      iconComponent: <img src="/images/Icon/menu-icons/Coins.svg" alt="Coins" className="w-5 h-5" />,
       sub: [
         { name: "Gold", link: "/coins/gold" },
         { name: "Silver", link: "/coins/silver" },
@@ -155,23 +138,23 @@ export default function Header() {
     {
       name: "Gifting", 
       link: "/gifting", 
-      iconComponent: <Gift className="w-5 h-5" />,
+      iconComponent: <img src="/images/Icon/menu-icons/Gifting.svg" alt="Gifting" className="w-5 h-5" />,
       sub: [
-        { name: "Starting from 250-500", link: "/gifting/starting-from-250-500" },
-        { name: "500-1000", link: "/gifting/500-1000" },
-        { name: "1k-2k", link: "/gifting/1k-2k" },
-        { name: "2k-5k", link: "/gifting/2k-5k" },
-        { name: "5k-10k", link: "/gifting/5k-10k" },
-        { name: "10k-15k", link: "/gifting/10k-15k" },
-        { name: "15k-20k", link: "/gifting/15k-20k" },
-        { name: "20k or Above ysical-20k", link: "/gifting/20k-or-above-20k" },
-        { name: "Exclusive", link: "/gifting/exclusive" },
+        { name: "Starting from 250-500", link: "/gifting" },
+        { name: "500-1000", link: "/gifting" },
+        { name: "1k-2k", link: "/gifting" },
+        { name: "2k-5k", link: "/gifting" },
+        { name: "5k-10k", link: "/gifting" },
+        { name: "10k-15k", link: "/gifting" },
+        { name: "15k-20k", link: "/gifting" },
+        { name: "20k or Above ysical-20k", link: "/gifting" },
+        { name: "Exclusive", link: "/gifting" },
       ],
     },
     { 
       name: "Birth Stones", 
       link: "/birthstones", 
-      iconComponent: <Sparkles className="w-5 h-5" /> 
+      iconComponent: <img src="/images/Icon/menu-icons/Birth Stones.svg" alt="Birth Stones" className="w-5 h-5" /> 
     },
   ], []);
 
@@ -188,7 +171,7 @@ export default function Header() {
           const transformedMenus = menus.map(menu => ({
             name: menu.name,
             link: menu.link,
-            iconComponent: getIconComponent(menu.name), // Convert icon name to component
+            iconComponent: getIconComponent(menu.name), // Convert icon name to image component
             sub: menu.hasNestedStructure ? menu.nestedSub : menu.sub,
             hasNestedStructure: menu.hasNestedStructure,
           }));
@@ -205,22 +188,25 @@ export default function Header() {
     };
     fetchMenus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // defaultCategories is stable via useMemo, so safe to omit
+  }, []);
 
-  // Helper function to convert icon names to Lucide components
+  // Helper function to convert icon names to image components
   const getIconComponent = (name) => {
-    switch(name.toLowerCase()) {
-      case 'home': return <Home className="w-5 h-5" />;
-      case 'collections': return <Gem className="w-5 h-5" />;
-      case 'gold': return <Gem className="w-5 h-5 text-yellow-500" />;
-      case 'diamond': return <Diamond className="w-5 h-5" />;
-      case 'silver': return <Gem className="w-5 h-5 text-gray-400" />;
-      case 'mens': return <Users className="w-5 h-5" />;
-      case 'coins': return <Coins className="w-5 h-5" />;
-      case 'gifting': return <Gift className="w-5 h-5" />;
-      case 'birth stones': return <Sparkles className="w-5 h-5" />;
-      default: return <Gem className="w-5 h-5" />;
-    }
+    // Map backend menu names to image paths
+    const iconMap = {
+      'home': '/icons/home-icon.png',
+      'collections': '/icons/collections-icon.png',
+      'gold': '/icons/gold-icon.png',
+      'diamond': '/icons/diamond-icon.png',
+      'silver': '/icons/silver-icon.png',
+      'mens': '/icons/mens-icon.png',
+      'coins': '/icons/coins-icon.png',
+      'gifting': '/icons/gifting-icon.png',
+      'birth stones': '/icons/birthstones-icon.png',
+    };
+
+    const iconPath = iconMap[name.toLowerCase()] || '/icons/default-icon.png';
+    return <img src={iconPath} alt={name} className="w-5 h-5" />;
   };
 
   // 🧠 Fetch all products on mount
@@ -295,7 +281,7 @@ export default function Header() {
         <div className="relative hidden md:flex flex-col w-[30%]">
           <div className="flex items-center rounded-xl border border-[#A7968F] px-3 py-2">
             <span className="mr-2 text-[#A7968F]">
-              <Search className="w-4 h-4" />
+              <img src="/images/Icon/menu-icons/search.svg" alt="Search" className="w-4 h-4" />
             </span>
             <input
               type="text"
@@ -330,7 +316,7 @@ export default function Header() {
             to="/about"
             className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
           >
-            <Info className="w-4 h-4" />
+            <img src="/images/Icon/menu-icons/about.svg" alt="About" className="w-4 h-4" />
             <span>About Vinayak</span>
           </Link>
 
@@ -341,7 +327,7 @@ export default function Header() {
             to="/contact"
             className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
           >
-            <Phone className="w-4 h-4" />
+            <img src="/images/Icon/menu-icons/call.svg" alt="Contact" className="w-4 h-4" />
             <span>Contact Us</span>
           </Link>
 
@@ -354,7 +340,7 @@ export default function Header() {
             rel="noopener noreferrer"
             className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
           >
-            <MapPin className="w-4 h-4" />
+            <img src="/images/Icon/menu-icons/location.svg" alt="Store Location" className="w-4 h-4" />
             <span>Visit Our Store</span>
           </a>
 
@@ -392,7 +378,7 @@ export default function Header() {
       <div className="relative flex md:hidden flex-col w-[90%] mx-auto mb-3">
         <div className="flex items-center bg-white rounded-full border border-[#c7a46d] px-3 py-2">
           <span className="mr-2 text-[#A7968F]">
-            <Search className="w-4 h-4" />
+            <img src="/icons/search-icon.png" alt="Search" className="w-4 h-4" />
           </span>
           <input
             type="text"
@@ -431,7 +417,7 @@ export default function Header() {
             <Link
               to={cat.link}
               onClick={(e) => { e.preventDefault(); navigate(cat.link); setMenuOpen(false); }}
-              className="relative flex items-center gap-2 text-[#5A2B1A] px-4 py-2 hover:text-[#b68d52] rounded-xl text-sm md:text-base transition-all duration-300 after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-[#5A2B1A] after:transition-all after:duration-300 group-hover:after:w-full"
+              className="relative flex items-center gap-2 text-[#5A2B1A] px-4 py-2  rounded-xl text-sm md:text-base transition-all duration-300 after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-[#5A2B1A] after:transition-all after:duration-300 group-hover:after:w-full"
             >
               {cat.iconComponent}
               {cat.name}
@@ -536,7 +522,7 @@ export default function Header() {
           aria-label="Open Enquiry Cart"
           className="flex md:hidden items-center justify-center gap-2 bg-gradient-to-b from-[#5A2B1A] via-[#7B4A2A] to-[#2E0D02] text-white px-4 py-2 rounded-full text-sm font-medium shadow-md border border-[#b68d52] hover:scale-105 transition-transform duration-200"
         >
-          <ShoppingBag className="w-4 h-4" />
+          <img src="/icons/cart-icon.png" alt="Enquiry Cart" className="w-4 h-4" />
           <span>Enquiry</span>
           {enquiryItems.length > 0 && (
             <span className="ml-2 bg-[#FFF7E0] text-[#5A2B1A] font-bold text-xs px-2 py-[3px] rounded-full border border-[#d1b890] shadow-sm">

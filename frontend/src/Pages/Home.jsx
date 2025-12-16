@@ -102,33 +102,43 @@ export default function Home() {
       </div>
 
     {/* ---------- VINAYAK CATEGORIES ---------- */}
-<section className=" pt-3 sm:pt-6">
+{/* ---------- VINAYAK COLLECTIONS ---------- */}
+<section className="pt-3 sm:pt-6">
   <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wider cinzelfont">
-    VINAYAK CATEGORIES
+    VINAYAK COLLECTIONS
   </h2>
-  <p className="text-black mt-2 mainfont tracking-wider text-lg">
-    Discover Your Perfect Fit - Shop By Category
+  <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
+    Discover Our Latest Jewellery Launches
   </p>
 
-  <div className=" flex flex-col sm:flex-row justify-center items-center sm:gap-6 px-4">
-    {/* CARD 1 */}
-    <div className="relative w-full  sm:w-[380px] lg:w-[550px] h-[200px] sm:h-[320px] lg:h-[300px] rounded-2xl overflow-hidden flex items-center justify-center">
+  <div className="flex flex-col sm:flex-row justify-center items-center sm:gap-6 px-4">
+    {/* CARD 1 - GIFT COLLECTION */}
+    <Link 
+      to="/alljewellery?category=Gifting" 
+      state={{ scrollToTop: true }}
+      className="relative w-full sm:w-[380px] lg:w-[550px] h-[200px] sm:h-[320px] lg:h-[300px] rounded-2xl overflow-hidden flex items-center justify-center group"
+    >
       <img
         src="/images/zftj.png"
         alt="Vinayak Gift Range"
-        className="max-w-full max-h-full object-contain  sm:p-3"
+        className="max-w-full max-h-full object-contain sm:p-3 group-hover:scale-105 transition-transform duration-300"
       />
-    
-    </div>
+      
+    </Link>
 
-    {/* CARD 2 */}
-    <div className="relative w-full  sm:w-[380px] lg:w-[550px] h-[200px] sm:h-[320px] lg:h-[300px] rounded-2xl overflow-hidden flex items-center justify-center">
+    {/* CARD 2 - WEDDING COLLECTION */}
+    <Link 
+      to="/alljewellery?category=Wedding%20Collection" 
+      state={{ scrollToTop: true }}
+      className="relative w-full sm:w-[380px] lg:w-[550px] h-[200px] sm:h-[320px] lg:h-[300px] rounded-2xl overflow-hidden flex items-center justify-center group mt-4 sm:mt-0"
+    >
       <img
         src="/images/vinayak-6.jpg"
         alt="Vinayak Mangalsutra"
-        className="max-w-full max-h-full object-contain sm:p-3"
+        className="max-w-full max-h-full object-contain sm:p-3 group-hover:scale-105 transition-transform duration-300"
       />
-    </div>
+     
+    </Link>
   </div>
 </section>
 
@@ -151,10 +161,10 @@ export default function Home() {
   <div className="max-w-6xl mx-auto text-center px-4">
     {/* Section Heading */}
     <h2 className="text-2xl sm:text-3xl font-semibold text-[#140100] tracking-[2px] cinzelfont">
-      VINAYAK COLLECTIONS
+      VINAYAK CATEGORIES
     </h2>
     <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
-      Discover Our Latest Jewellery Launches
+        Discover Your Perfect Fit - Shop By Category
     </p>
 
     {/* Collection Grid */}

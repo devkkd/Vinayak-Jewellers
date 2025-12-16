@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from "react";
 import ContactSection from "../components/ContactSection";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -15,31 +17,6 @@ import {
   coinsCategories
 } from "../data/admincategories";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FiFilter,
-  FiChevronRight,
-  FiSearch,
-  FiHeart,
-  FiEye,
-  FiChevronLeft,
-  FiChevronRight as FiRight,
-} from "react-icons/fi";
-import { TbDiamond, TbCrown } from "react-icons/tb";
-// Import Lucide React icons
-import {
-  Home,          // for Home/All Jewellery
-  Gem,           // for Gold, Silver, Diamond
-  Heart,         // for Wedding Collection
-  Gift,          // for Gifting
-  Sparkles,      // for Birth Stones
-  ShoppingBag,   // alternative for Collections
-  Diamond as LucideDiamond, // alternative for Diamond
-  CircleDollarSign, // for Gold/Coins
-  Trophy,         // for premium collections
-  CircleStar
-} from "lucide-react";
-
-
 
 /**
  * AllJewellery (Light theme with dark accents)
@@ -71,18 +48,14 @@ export default function AllJewellery() {
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All Jewellery");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
-  const [selectedCollectionItem, setSelectedCollectionItem] = useState(null); // For Collections submenu items
+  const [selectedCollectionItem, setSelectedCollectionItem] = useState(null);
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [collectionsMenu, setCollectionsMenu] = useState(null);
-  // Add this state
-const [selectedMainSubcategory, setSelectedMainSubcategory] = useState("");
-const [selectedNestedSubcategory, setSelectedNestedSubcategory] = useState("");
+  const [selectedMainSubcategory, setSelectedMainSubcategory] = useState("");
+  const [selectedNestedSubcategory, setSelectedNestedSubcategory] = useState("");
   
   const searchParams = new URLSearchParams(location.search);
-
-  // Extract collectionItem from URL if present
   const urlCollectionItem = params.collectionItem;
-
   const isMobile = useMobile();
   const categoryScrollRef = useRef(null);
   const subcategoryScrollRef = useRef(null);
@@ -94,16 +67,17 @@ const [selectedNestedSubcategory, setSelectedNestedSubcategory] = useState("");
       setSelectedCategory(categoryFromUrl);
     }
 
-      window.scrollTo({
+    window.scrollTo({
       top: 0,
       left: 0,
-      behavior: 'instant' // Use 'instant' for immediate scrolling
+      behavior: 'instant'
     });
   }, [location.search]);
 
-    useEffect(() => {
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
   useEffect(() => {
     if (location.state?.scrollToTop) {
       window.scrollTo({
@@ -111,33 +85,33 @@ const [selectedNestedSubcategory, setSelectedNestedSubcategory] = useState("");
         left: 0,
         behavior: 'instant'
       });
-      // Clear the state
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, navigate]);
-// Update when category changes
-const handleCategorySelect = (cat) => {
-  setSelectedCategory(cat);
-  setSelectedSubcategory("");
-  setSelectedMainSubcategory("");
-  setSelectedNestedSubcategory("");
-  setSelectedCollectionItem(null);
-  if (subcategoryScrollRef.current) subcategoryScrollRef.current.scrollLeft = 0;
-  navigate('/alljewellery', { replace: true });
-};
 
-// Update when main subcategory is selected
-const handleMainSubcategorySelect = (sub) => {
-  setSelectedMainSubcategory(sub);
-  setSelectedNestedSubcategory("");
-  setSelectedSubcategory(sub); // Also set this for filtering
-};
+  // Update when category changes
+  const handleCategorySelect = (cat) => {
+    setSelectedCategory(cat);
+    setSelectedSubcategory("");
+    setSelectedMainSubcategory("");
+    setSelectedNestedSubcategory("");
+    setSelectedCollectionItem(null);
+    if (subcategoryScrollRef.current) subcategoryScrollRef.current.scrollLeft = 0;
+    navigate('/alljewellery', { replace: true });
+  };
 
-// Update when nested subcategory is selected
-const handleNestedSubcategorySelect = (nestedSub) => {
-  setSelectedNestedSubcategory(nestedSub);
-  setSelectedSubcategory(nestedSub); // Use nested subcategory for filtering
-};
+  // Update when main subcategory is selected
+  const handleMainSubcategorySelect = (sub) => {
+    setSelectedMainSubcategory(sub);
+    setSelectedNestedSubcategory("");
+    setSelectedSubcategory(sub);
+  };
+
+  // Update when nested subcategory is selected
+  const handleNestedSubcategorySelect = (nestedSub) => {
+    setSelectedNestedSubcategory(nestedSub);
+    setSelectedSubcategory(nestedSub);
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -153,229 +127,128 @@ const handleNestedSubcategorySelect = (nestedSub) => {
   }, []);
 
   console.log("Filtering product:", products[1]);
-  // Get appropriate icon component for each category
-  const getCategoryIcon = (categoryName) => {
+
+  // Get appropriate icon component for each category - Updated to support active state
+  const getCategoryIcon = (categoryName, isActive = false) => {
     const iconProps = { className: "w-6 h-6 md:w-7 md:h-7" };
 
-    switch (categoryName) {
-      case "All Collection":
-        return <Home {...iconProps} />;
-      case "Gold":
-        return <CircleStar {...iconProps} className={`${iconProps.className}`} />;
-      case "Silver":
-        return <CircleStar {...iconProps} className={`${iconProps.className}`} />;
-      case "Diamond":
-        return <Gem {...iconProps} className={`${iconProps.className}`} />;
-      case "Wedding Collection":
-        return <Heart {...iconProps} className={`${iconProps.className}`} />;
-      case "Gifting":
-        return <Gift {...iconProps} className={`${iconProps.className}`} />;
-      case "Birth Stones":
-        return <Sparkles {...iconProps} className={`${iconProps.className}`} />;
-      case "Mens":
-        return <Gift {...iconProps} className={`${iconProps.className}`} />;
-      case "Coins":
-        return <CircleDollarSign {...iconProps} className={`${iconProps.className}`} />;
-      default:
-        return <ShoppingBag {...iconProps} />;
+    // Helper function to get icon path
+    const getIconPath = (baseName) => {
+      if (isActive) {
+        // Use white version for active state
+      return `/images/Icon/menu-icons/${baseName}-white.svg`;
+      }
+      return `/images/Icon/menu-icons/${baseName}.svg`;
+    };
 
+    switch (categoryName) {
+      case "All Jewellery":
+        return <img src={getIconPath("Collections")} alt="All Jewellery" {...iconProps} />;
+      case "Gold":
+        return <img src={getIconPath("Gold")} alt="Gold" {...iconProps} />;
+      case "Silver":
+        return <img src={getIconPath("Silver")} alt="Silver" {...iconProps} />;
+      case "Diamond":
+        return <img src={getIconPath("Diamond")} alt="Diamond" {...iconProps} />;
+      case "Wedding Collection":
+        return <img src={getIconPath("Diamond")} alt="Wedding Collection" {...iconProps} />;
+      case "Gifting":
+        return <img src={getIconPath("Gifting")} alt="Gifting" {...iconProps} />;
+      case "Birth Stones":
+        return <img src={getIconPath("Birth Stones")} alt="Birth Stones" {...iconProps} />;
+      case "Mens":
+        return <img src={getIconPath("Men's")} alt="Mens" {...iconProps} />;
+      case "Coins":
+        return <img src={getIconPath("Coins")} alt="Coins" {...iconProps} />;
+      default:
+        return <img src={getIconPath("Collections")} alt="Collection" {...iconProps} />;
     }
   };
 
-  // const categories = {
-  //   "All Jewellery": {
-  //     icon: getCategoryIcon("All Jewellery"),
-  //     subcategories: [],
-  //   },
-  //   "Gold": {
-  //     icon: getCategoryIcon("Gold"),
-  //     subcategories: goldCategories.map((c) => c.category),
-  //   },
-  //   "Silver": {
-  //     icon: getCategoryIcon("Silver"),
-  //     subcategories: silverCategories.map((c) => c.category),
-  //   },
-  //   "Diamond": {
-  //     icon: getCategoryIcon("Diamond"),
-  //     subcategories: diamondCategories.map((c) => c.category),
-  //   },
-  //   "Wedding Collection": {
-  //     icon: getCategoryIcon("Wedding Collection"),
-  //     subcategories: weddingCategories.map((c) => c.category),
-  //   },
-  //   "Gifting": {
-  //     icon: getCategoryIcon("Gifting"),
-  //     subcategories: giftingCategories.map((c) => c.category),
-  //   },
-  //   "Birth Stones": {
-  //     icon: getCategoryIcon("Birth Stones"),
-  //     subcategories: birthStoneCategories.map((c) => c.category),
-  //   },
-  //   "Coins": {
-  //     icon: getCategoryIcon("Coins"),
-  //     subcategories: coinsCategories.map((c) => c.category), // Add this
-  //   },
-  //   "Mens": {
-  //     icon: getCategoryIcon("Mens"),
-  //     subcategories: mensCategories.map((c) => c.category), // Add this
-  //   },
-  // };
-
-  // const filtered =
-  //   selectedCategory === "All Jewellery"
-  //     ? products
-  //     : products.filter((p) => {
-  //       // Normalize collection check (case-insensitive)
-  //       const productCollection = (p.collection || "").toLowerCase().trim();
-  //       const productCategory = (p.category || "").toLowerCase().trim();
-  //       const selectedCollection = (selectedCategory || "").toLowerCase().trim();
-
-  //       // Check if collection matches (try both collection and category fields)
-  //       const matchesCollection =
-  //         productCollection === selectedCollection ||
-  //         productCategory === selectedCollection ||
-  //         productCollection.includes(selectedCollection) ||
-  //         selectedCollection.includes(productCollection);
-
-  //       if (!matchesCollection) return false;
-
-  //       // If subcategory selected, filter by subcategory (case-insensitive, partial match)
-  //       if (selectedSubcategory) {
-  //         const productSub = (p.subcategory || "").toLowerCase().trim();
-  //         const productCat = (p.category || "").toLowerCase().trim();
-  //         const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
-
-  //         // Try exact match with subcategory
-  //         if (productSub === selectedSub) return true;
-
-  //         // Try exact match with category
-  //         if (productCat === selectedSub) return true;
-
-  //         // Try partial match
-  //         if (productSub.includes(selectedSub) || selectedSub.includes(productSub)) return true;
-  //         if (productCat.includes(selectedSub) || selectedSub.includes(productCat)) return true;
-
-  //         return false;
-  //       }
-
-  //       return true;
-  //     });
-
-  // src/data/admincategories.js - Keep this file as is, it already has nested structure
-
-// In your AllJewellery component, update the categories object:
-
-const categories = {
-  "All Jewellery": {
-    icon: getCategoryIcon("All Jewellery"),
-    subcategories: [],
-  },
-  "Gold": {
-    icon: getCategoryIcon("Gold"),
-    subcategories: goldCategories.map((c) => c.category),
-  },
-  "Silver": {
-    icon: getCategoryIcon("Silver"),
-    subcategories: silverCategories.map((c) => c.category),
-  },
-  "Diamond": {
-    icon: getCategoryIcon("Diamond"),
-    subcategories: diamondCategories.map((c) => c.category),
-  },
-  "Wedding Collection": {
-    icon: getCategoryIcon("Wedding Collection"),
-    subcategories: weddingCategories.map((c) => c.category),
-  },
-  "Gifting": {
-    icon: getCategoryIcon("Gifting"),
-    subcategories: giftingCategories.map((c) => c.category),
-  },
-  "Birth Stones": {
-    icon: getCategoryIcon("Birth Stones"),
-    subcategories: birthStoneCategories.map((c) => c.category),
-  },
-  "Mens": {
-    icon: getCategoryIcon("Mens"),
-    subcategories: mensCategories.map((c) => c.category),
-    // Store the detailed subcategories for nested display
-    detailedSubcategories: mensCategories,
-  },
-  "Coins": {
-    icon: getCategoryIcon("Coins"),
-    subcategories: coinsCategories.map((c) => c.category),
-    detailedSubcategories: coinsCategories,
-  },
-};
-  // const filtered = products.filter((p) => {
-
-
-  //   const productCategory = (p.collection || p.category || "")
-  //     .toLowerCase()
-  //     .trim();
-
-  //   const productSubcategory = (p.subcategory || "")
-  //     .toLowerCase()
-  //     .trim();
-
-  //   const selectedCat = selectedCategory.toLowerCase().trim();
-  //   const selectedSub = selectedSubcategory.toLowerCase().trim();
-
-  //   // 1️⃣ Category filter
-  //   if (selectedCategory !== "All Jewellery") {
-  //     if (productCategory !== selectedCat) return false;
-  //   }
-
-  //   // 2️⃣ Subcategory filter (ONLY when selected)
-  //   if (selectedSubcategory) {
-  //     if (productSubcategory !== selectedSub) return false;
-  //   }
-
-  //   return true;
-  // });
-
+  // Categories object with icon as function
+  const categories = {
+    "All Jewellery": {
+      icon: (isActive) => getCategoryIcon("All Jewellery", isActive),
+      subcategories: [],
+    },
+    "Gold": {
+      icon: (isActive) => getCategoryIcon("Gold", isActive),
+      subcategories: goldCategories.map((c) => c.category),
+    },
+    "Silver": {
+      icon: (isActive) => getCategoryIcon("Silver", isActive),
+      subcategories: silverCategories.map((c) => c.category),
+    },
+    "Diamond": {
+      icon: (isActive) => getCategoryIcon("Diamond", isActive),
+      subcategories: diamondCategories.map((c) => c.category),
+    },
+    "Wedding Collection": {
+      icon: (isActive) => getCategoryIcon("Wedding Collection", isActive),
+      subcategories: weddingCategories.map((c) => c.category),
+    },
+    "Gifting": {
+      icon: (isActive) => getCategoryIcon("Gifting", isActive),
+      subcategories: giftingCategories.map((c) => c.category),
+    },
+    "Birth Stones": {
+      icon: (isActive) => getCategoryIcon("Birth Stones", isActive),
+      subcategories: birthStoneCategories.map((c) => c.category),
+    },
+    "Mens": {
+      icon: (isActive) => getCategoryIcon("Mens", isActive),
+      subcategories: mensCategories.map((c) => c.category),
+      detailedSubcategories: mensCategories,
+    },
+    "Coins": {
+      icon: (isActive) => getCategoryIcon("Coins", isActive),
+      subcategories: coinsCategories.map((c) => c.category),
+      detailedSubcategories: coinsCategories,
+    },
+  };
 
   const filtered = products.filter((p) => {
-  // Convert to lowercase for case-insensitive comparison
-  const productCategory = (p.collection || p.category || "").toLowerCase().trim();
-  const productSubcategory = (p.subcategory || "").toLowerCase().trim();
-  const selectedCat = selectedCategory.toLowerCase().trim();
-  
-  // 1️⃣ Category filter
-  if (selectedCategory !== "All Jewellery") {
-    if (productCategory !== selectedCat) return false;
-  }
+    // Convert to lowercase for case-insensitive comparison
+    const productCategory = (p.collection || p.category || "").toLowerCase().trim();
+    const productSubcategory = (p.subcategory || "").toLowerCase().trim();
+    const selectedCat = selectedCategory.toLowerCase().trim();
+    
+    // 1️⃣ Category filter
+    if (selectedCategory !== "All Jewellery") {
+      if (productCategory !== selectedCat) return false;
+    }
 
-  // 2️⃣ Handle Mens category filtering differently
-  if (selectedCategory === "Mens" || selectedCategory === "Coins") {
-    // For Mens and Coins, we need to check both levels
-    if (selectedMainSubcategory) {
-      // Check if product's subcategory matches selected main subcategory
-      const mainSubMatch = productSubcategory.includes(selectedMainSubcategory.toLowerCase()) ||
-                          productCategory.includes(selectedMainSubcategory.toLowerCase());
-      
-      if (!mainSubMatch) return false;
-      
-      // If nested subcategory is selected, check further
-      if (selectedNestedSubcategory) {
-        const nestedMatch = productSubcategory.includes(selectedNestedSubcategory.toLowerCase()) ||
-                           (p.material || "").toLowerCase().includes(selectedNestedSubcategory.toLowerCase()) ||
-                           (p.description || "").toLowerCase().includes(selectedNestedSubcategory.toLowerCase());
+    // 2️⃣ Handle Mens category filtering differently
+    if (selectedCategory === "Mens" || selectedCategory === "Coins") {
+      // For Mens and Coins, we need to check both levels
+      if (selectedMainSubcategory) {
+        // Check if product's subcategory matches selected main subcategory
+        const mainSubMatch = productSubcategory.includes(selectedMainSubcategory.toLowerCase()) ||
+                            productCategory.includes(selectedMainSubcategory.toLowerCase());
         
-        return nestedMatch;
+        if (!mainSubMatch) return false;
+        
+        // If nested subcategory is selected, check further
+        if (selectedNestedSubcategory) {
+          const nestedMatch = productSubcategory.includes(selectedNestedSubcategory.toLowerCase()) ||
+                            (p.material || "").toLowerCase().includes(selectedNestedSubcategory.toLowerCase()) ||
+                            (p.description || "").toLowerCase().includes(selectedNestedSubcategory.toLowerCase());
+          
+          return nestedMatch;
+        }
+      }
+    } else {
+      // Original logic for other categories
+      if (selectedSubcategory) {
+        if (productSubcategory !== selectedSubcategory.toLowerCase().trim() && 
+            productCategory !== selectedSubcategory.toLowerCase().trim()) {
+          return false;
+        }
       }
     }
-  } else {
-    // Original logic for other categories
-    if (selectedSubcategory) {
-      if (productSubcategory !== selectedSubcategory.toLowerCase().trim() && 
-          productCategory !== selectedSubcategory.toLowerCase().trim()) {
-        return false;
-      }
-    }
-  }
 
-  return true;
-});
+    return true;
+  });
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -392,6 +265,7 @@ const categories = {
     if (!categoryScrollRef.current) return;
     categoryScrollRef.current.scrollLeft += dir * 220;
   };
+
   const scrollSubcategories = (dir) => {
     if (!subcategoryScrollRef.current) return;
     subcategoryScrollRef.current.scrollLeft += dir * 160;
@@ -430,7 +304,7 @@ const categories = {
         {/* Header - compact */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <FiFilter className="text-accent text-lg" />
+            {/* <img src="/images/Icon/menu-icons/Collections.svg" alt="Filter" className="w-5 h-5 text-accent" /> */}
             <h1 className="text-lg md:text-xl font-serif font-semibold text-accent">
               Collections
             </h1>
@@ -441,58 +315,46 @@ const categories = {
             <div className="text-sm text-gray-700 bg-gray-200 px-3 py-1 rounded-full">
               {filtered.length} Products
             </div>
-            {/* <div className="hidden md:flex items-center border border-gray-100 rounded-full px-2">
-              <FiSearch className="text-gray-400 ml-1" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-40 md:w-64 text-sm px-2 py-1 bg-transparent focus:outline-none"
-                onChange={() => {}}
-              />
-            </div> */}
           </div>
         </div>
 
         {/* Category Tabs */}
-        <div className="relative mb-6 ">
+        <div className="relative mb-6">
           <div className="md:flex md:items-start md:gap-6">
+            {/* Left sidebar - Category buttons */}
             <div
               ref={categoryScrollRef}
-              className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-3 b pb-2" : "flex-col gap-2 md:w-64"} scroll-smooth`}
+              className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-3 pb-2" : "flex-col gap-1 md:w-64"} scroll-smooth`}
             >
               {Object.keys(categories).map((cat) => {
                 const active = selectedCategory === cat;
-                const categoryIcon = categories[cat].icon;
+                const CategoryIcon = categories[cat].icon; // This is now a function
+                
                 return (
                   <button
                     key={cat}
-                    onClick={() => {
-                      setSelectedCategory(cat);
-                      setSelectedSubcategory("");
-                      setSelectedCollectionItem(null);
-                      if (subcategoryScrollRef.current) subcategoryScrollRef.current.scrollLeft = 0;
-                      // Navigate to base alljewellery route when changing category
-                      if (cat !== "Collections" || !urlCollectionItem) {
-                        navigate('/alljewellery', { replace: true });
-                      }
-                    }}
-                    className={`flex-shrink-0 ${isMobile ? "px-4 py-2 " : "px-3 py-2"} rounded-lg transition-colors bg-amber-300 duration-150 text-left flex items-center gap-3 ${active
-                      ? "btn-accent shadow-sm bg-amber-300"
-                      : "bg-gray-200 border border-gray-100  text-accent hover:bg-gray-50"
-                      }`}
+                    onClick={() => handleCategorySelect(cat)}
+                    className={`flex-shrink-0 ${isMobile ? "px-4 py-2" : "px-3 py-2"} rounded-lg transition-colors duration-150 text-left flex items-center gap-3 ${
+                      active
+                        ? "bg-gradient-to-r from-[#5C1D02] to-[#140100] shadow-sm text-white"
+                        : "bg-[#fff4dc] border border-gray-100 text-accent hover:bg-gray-50"
+                    }`}
                     style={{ fontSize: isMobile ? 13 : 14 }}
                   >
                     <div className="flex items-center justify-center w-6 h-6 md:w-7 md:h-7">
-                      {categoryIcon}
+                      {/* Pass active state to get correct icon (white for active, colored for inactive) */}
+                      {CategoryIcon(active)}
                     </div>
                     <span className="whitespace-nowrap font-medium">{cat}</span>
                   </button>
                 );
               })}
             </div>
-            <div>
+
+            {/* Right content area */}
+            <div className="flex-1">
               {/* Subcategory area */}
-              {/* <div className="flex-1 md:pl-4 mt-3 md:mt-0">
+              <div className="md:pl-4 mt-3 md:mt-0">
                 <AnimatePresence>
                   {selectedCategory !== "All Jewellery" &&
                     categories[selectedCategory].subcategories?.length > 0 && (
@@ -503,15 +365,34 @@ const categories = {
                         className="overflow-hidden"
                       >
                         <div className="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100">
+                          {/* Level 1 Subcategories */}
                           <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-sm md:text-base font-semibold text-accent">Select Subcategory</h3>
+                            <h3 className="text-sm md:text-base font-semibold text-accent">
+                              {selectedCategory === "Mens" || selectedCategory === "Coins" 
+                                ? "Select Category" 
+                                : "Select Subcategory"}
+                            </h3>
                             {isMobile && categories[selectedCategory].subcategories.length > 3 && (
                               <div className="flex gap-1">
-                                <button onClick={() => scrollSubcategories(-1)} className="p-1 rounded-md bg-gray-50 border">
-                                  <FiChevronLeft className="text-sm text-gray-600" />
+                                <button 
+                                  onClick={() => scrollSubcategories(-1)} 
+                                  className="p-1 rounded-md bg-gray-50 border"
+                                >
+                                  <img 
+                                    src="/images/Icon/arrow-left.svg" 
+                                    alt="Previous" 
+                                    className="w-3 h-3" 
+                                  />
                                 </button>
-                                <button onClick={() => scrollSubcategories(1)} className="p-1 rounded-md bg-gray-50 border">
-                                  <FiChevronRight className="text-sm text-gray-600" />
+                                <button 
+                                  onClick={() => scrollSubcategories(1)} 
+                                  className="p-1 rounded-md bg-gray-50 border"
+                                >
+                                  <img 
+                                    src="/images/Icon/arrow-right.svg" 
+                                    alt="Next" 
+                                    className="w-3 h-3" 
+                                  />
                                 </button>
                               </div>
                             )}
@@ -519,14 +400,19 @@ const categories = {
 
                           <div
                             ref={subcategoryScrollRef}
-                            className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-2 pb-2" : "flex-wrap gap-2"} scroll-smooth`}
+                            className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-2 pb-2" : "flex-wrap gap-2"} scroll-smooth mb-4`}
                           >
                             <button
-                              onClick={() => setSelectedSubcategory("")}
-                              className={`flex-shrink-0 px-3 py-1 rounded-md text-sm ${selectedSubcategory === ""
-                                ? "bg-accent-gradient text-white"
-                                : "bg-gray-50 text-accent border border-gray-100"
-                                }`}
+                              onClick={() => {
+                                setSelectedMainSubcategory("");
+                                setSelectedNestedSubcategory("");
+                                setSelectedSubcategory("");
+                              }}
+                              className={`flex-shrink-0 px-3 py-1 rounded-md text-sm ${
+                                !selectedMainSubcategory
+                                  ? "bg-gradient-to-r from-[#5C1D02] to-[#140100] text-white"
+                                  : "bg-gray-50 text-accent border border-gray-100"
+                              }`}
                             >
                               All {selectedCategory}
                             </button>
@@ -534,167 +420,64 @@ const categories = {
                             {categories[selectedCategory].subcategories.map((sub) => (
                               <button
                                 key={sub}
-                                onClick={() => setSelectedSubcategory(sub)}
-                                className={`flex-shrink-0 px-3 py-1 rounded-md text-sm whitespace-nowrap ${selectedSubcategory === sub
-                                  ? "bg-accent-gradient text-white"
-                                  : "bg-white text-accent border border-gray-100 hover:bg-gray-50"
-                                  }`}
+                                onClick={() => handleMainSubcategorySelect(sub)}
+                                className={`flex-shrink-0 px-3 py-1 rounded-md text-sm whitespace-nowrap ${
+                                  selectedMainSubcategory === sub
+                                    ? "bg-gradient-to-r from-[#5C1D02] to-[#140100] text-white"
+                                    : "bg-white text-accent border border-gray-100 hover:bg-gray-50"
+                                }`}
                               >
                                 {sub}
                               </button>
                             ))}
                           </div>
+
+                          {/* Level 2 (Nested) Subcategories for Mens */}
+                          {selectedCategory === "Mens" && selectedMainSubcategory && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-4 pt-4 border-t border-gray-100"
+                            >
+                              <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                                Select {selectedMainSubcategory} Type
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  onClick={() => setSelectedNestedSubcategory("")}
+                                  className={`px-3 py-1 rounded-md text-sm ${
+                                    !selectedNestedSubcategory
+                                      ? "bg-[#fff4dc] text-[#5C1D02] border border-[#5C1D02]"
+                                      : "bg-gray-50 text-gray-700 border border-gray-200"
+                                  }`}
+                                >
+                                  All {selectedMainSubcategory}
+                                </button>
+                                
+                                {mensCategories
+                                  .find(cat => cat.category === selectedMainSubcategory)
+                                  ?.subcategories.map((nestedSub) => (
+                                    <button
+                                      key={nestedSub}
+                                      onClick={() => handleNestedSubcategorySelect(nestedSub)}
+                                      className={`px-3 py-1 rounded-md text-sm whitespace-nowrap ${
+                                        selectedNestedSubcategory === nestedSub
+                                          ? "bg-[#fff4dc] text-[#5C1D02] border border-[#5C1D02]"
+                                          : "bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100"
+                                      }`}
+                                    >
+                                      {nestedSub}
+                                    </button>
+                                  ))}
+                              </div>
+                            </motion.div>
+                          )}
                         </div>
                       </motion.div>
                     )}
                 </AnimatePresence>
-              </div> */}
+              </div>
 
-
-              {/* Subcategory area */}
-<div className="flex-1 md:pl-4 mt-3 md:mt-0">
-  <AnimatePresence>
-    {selectedCategory !== "All Jewellery" &&
-      categories[selectedCategory].subcategories?.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="overflow-hidden"
-        >
-          <div className="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100">
-            {/* Level 1 Subcategories */}
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm md:text-base font-semibold text-accent">
-                {selectedCategory === "Mens" || selectedCategory === "Coins" 
-                  ? "Select Category" 
-                  : "Select Subcategory"}
-              </h3>
-              {isMobile && categories[selectedCategory].subcategories.length > 3 && (
-                <div className="flex gap-1">
-                  <button onClick={() => scrollSubcategories(-1)} className="p-1 rounded-md bg-gray-50 border">
-                    <FiChevronLeft className="text-sm text-gray-600" />
-                  </button>
-                  <button onClick={() => scrollSubcategories(1)} className="p-1 rounded-md bg-gray-50 border">
-                    <FiChevronRight className="text-sm text-gray-600" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div
-              ref={subcategoryScrollRef}
-              className={`flex ${isMobile ? "overflow-x-auto scrollbar-hide space-x-2 pb-2" : "flex-wrap gap-2"} scroll-smooth mb-4`}
-            >
-              <button
-                onClick={() => {
-                  setSelectedMainSubcategory("");
-                  setSelectedNestedSubcategory("");
-                  setSelectedSubcategory("");
-                }}
-                className={`flex-shrink-0 px-3 py-1 rounded-md text-sm ${!selectedMainSubcategory
-                  ? "bg-accent-gradient text-white"
-                  : "bg-gray-50 text-accent border border-gray-100"
-                  }`}
-              >
-                All {selectedCategory}
-              </button>
-
-              {categories[selectedCategory].subcategories.map((sub) => (
-                <button
-                  key={sub}
-                  onClick={() => handleMainSubcategorySelect(sub)}
-                  className={`flex-shrink-0 px-3 py-1 rounded-md text-sm whitespace-nowrap ${selectedMainSubcategory === sub
-                    ? "bg-accent-gradient text-white"
-                    : "bg-white text-accent border border-gray-100 hover:bg-gray-50"
-                    }`}
-                >
-                  {sub}
-                </button>
-              ))}
-            </div>
-
-            {/* Level 2 (Nested) Subcategories for Mens and Coins */}
-            {selectedCategory === "Mens" && selectedMainSubcategory && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-4 pt-4 border-t border-gray-100"
-              >
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">
-                  Select {selectedMainSubcategory} Type
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setSelectedNestedSubcategory("")}
-                    className={`px-3 py-1 rounded-md text-sm ${!selectedNestedSubcategory
-                      ? "bg-[#fff4dc] text-[#5C1D02] border border-[#5C1D02]"
-                      : "bg-gray-50 text-gray-700 border border-gray-200"
-                      }`}
-                  >
-                    All {selectedMainSubcategory}
-                  </button>
-                  
-                  {mensCategories
-                    .find(cat => cat.category === selectedMainSubcategory)
-                    ?.subcategories.map((nestedSub) => (
-                      <button
-                        key={nestedSub}
-                        onClick={() => handleNestedSubcategorySelect(nestedSub)}
-                        className={`px-3 py-1 rounded-md text-sm whitespace-nowrap ${selectedNestedSubcategory === nestedSub
-                          ? "bg-[#fff4dc] text-[#5C1D02] border border-[#5C1D02]"
-                          : "bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100"
-                          }`}
-                      >
-                        {nestedSub}
-                      </button>
-                    ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* {selectedCategory === "Coins" && selectedMainSubcategory && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-4 pt-4 border-t border-gray-100"
-              >
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">
-                  Select {selectedMainSubcategory} Type
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setSelectedNestedSubcategory("")}
-                    className={`px-3 py-1 rounded-md text-sm ${!selectedNestedSubcategory
-                      ? "bg-[#fff4dc] text-[#5C1D02] border border-[#5C1D02"
-                      : "bg-gray-50 text-gray-700 border border-gray-200"
-                      }`}
-                  >
-                    All {selectedMainSubcategory}
-                  </button>
-                  
-                  {coinsCategories
-                    .find(cat => cat.category === selectedMainSubcategory)
-                    ?.subcategories.map((nestedSub) => (
-                      <button
-                        key={nestedSub}
-                        onClick={() => handleNestedSubcategorySelect(nestedSub)}
-                        className={`px-3 py-1 rounded-md text-sm whitespace-nowrap ${selectedNestedSubcategory === nestedSub
-                          ? "bg-blue-100 text-blue-700 border border-blue-200"
-                          : "bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100"
-                          }`}
-                      >
-                        {nestedSub}
-                      </button>
-                    ))}
-                </div>
-              </motion.div>
-            )} */}
-          </div>
-        </motion.div>
-      )}
-  </AnimatePresence>
-</div>
               {/* Product Grid */}
               <AnimatePresence mode="wait">
                 <motion.div
@@ -707,7 +490,7 @@ const categories = {
                   {filtered.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
                       {filtered.map((product) => {
-                        // Get primary image - support both images array and single image field
+                        // Get primary image
                         const primaryImage =
                           (product.images && product.images.length > 0)
                             ? product.images[0]
@@ -760,8 +543,6 @@ const categories = {
           </div>
         </div>
       </div>
-
-
 
       {/* Contact Section */}
       <div className="bg-white border-t border-gray-100">

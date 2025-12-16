@@ -6,12 +6,11 @@ import "swiper/css/pagination";
 const BannerSlider = () => {
   const banners = [
     
-    "/images/banner2.jpeg",
-   "/images/vinayak jewellers  (1).jpg",
-    "/images/banner3.jpg",
-    "/images/banner4.jpeg",
- "/images/vinayak jewellers  (1).jpg",
-     "/images/banner3.jpg",
+    "/images/banner/1.jpg",
+   "/images/banner/2.jpg",
+    "/images/banner/3.jpg",
+    "/images/banner/4.jpg",
+ 
   ];
 
   return (
