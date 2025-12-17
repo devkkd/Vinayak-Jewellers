@@ -253,17 +253,17 @@ export default function Home() {
                 title: "Purity Certified",
                 desc: "Guaranteed Authenticity With Hallmark Standards.",
               },
-              {
-                icon: "/images/assurance/Group 43.svg",
-                title: "Responsibly Sourced",
-                desc: "Ethically Obtained Materials You Can Trust.",
-              },
+              
               {
                 icon: "/images/assurance/Group 42.svg",
                 title: "Complete Transparency",
                 desc: "100% Clarity In Quality And Value.",
               },
-             
+             {
+                icon: "/images/assurance/Group 43.svg",
+                title: "Responsibly Sourced",
+                desc: "Ethically Obtained Materials You Can Trust.",
+              },
               {
                 icon: "/images/assurance/Group 40.svg",
                 title: "Trust & Clarity",
