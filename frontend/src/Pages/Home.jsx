@@ -248,6 +248,11 @@ export default function Home() {
                 title: "Master Craftsmanship",
                 desc: "Every Piece Is Made With Expert Attention To Detail.",
               },
+               {
+                icon: "/images/assurance/Group 41.svg",
+                title: "Purity Certified",
+                desc: "Guaranteed Authenticity With Hallmark Standards.",
+              },
               {
                 icon: "/images/assurance/Group 43.svg",
                 title: "Responsibly Sourced",
@@ -258,11 +263,7 @@ export default function Home() {
                 title: "Complete Transparency",
                 desc: "100% Clarity In Quality And Value.",
               },
-              {
-                icon: "/images/assurance/Group 41.svg",
-                title: "Purity Certified",
-                desc: "Guaranteed Authenticity With Hallmark Standards.",
-              },
+             
               {
                 icon: "/images/assurance/Group 40.svg",
                 title: "Trust & Clarity",
