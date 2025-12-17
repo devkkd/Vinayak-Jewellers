@@ -244,27 +244,27 @@ export default function Home() {
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-8">
             {[
               {
-                icon: "public/images/assurance/Group 44.svg",
+                icon: "/images/assurance/Group 44.svg",
                 title: "Master Craftsmanship",
                 desc: "Every Piece Is Made With Expert Attention To Detail.",
               },
               {
-                icon: "public/images/assurance/Group 43.svg",
+                icon: "/images/assurance/Group 43.svg",
                 title: "Responsibly Sourced",
                 desc: "Ethically Obtained Materials You Can Trust.",
               },
               {
-                icon: "public/images/assurance/Group 42.svg",
+                icon: "/images/assurance/Group 42.svg",
                 title: "Complete Transparency",
                 desc: "100% Clarity In Quality And Value.",
               },
               {
-                icon: "public/images/assurance/Group 41.svg",
+                icon: "/images/assurance/Group 41.svg",
                 title: "Purity Certified",
                 desc: "Guaranteed Authenticity With Hallmark Standards.",
               },
               {
-                icon: "public/images/assurance/Group 40.svg",
+                icon: "/images/assurance/Group 40.svg",
                 title: "Trust & Clarity",
                 desc: "20+ Years Of Transparent Processes For Peace Of Mind.",
               },
