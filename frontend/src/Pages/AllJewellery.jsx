@@ -117,6 +117,7 @@ export default function AllJewellery() {
     const fetchProducts = async () => {
       try {
         const data = await listBackendProducts();
+          console.log("Filtering product:", data);
         setProducts(data || []);
       } catch (err) {
         console.error("Failed to fetch products", err);
@@ -126,7 +127,7 @@ export default function AllJewellery() {
     fetchProducts();
   }, []);
 
-  console.log("Filtering product:", products[1]);
+
 
   // Get appropriate icon component for each category - Updated to support active state
   const getCategoryIcon = (categoryName, isActive = false) => {
