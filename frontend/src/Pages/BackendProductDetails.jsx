@@ -71,29 +71,22 @@ const BackendProductDetails = () => {
           )}
         </div>
 
-        {/* PRODUCT INFO */}
-        <div className="flex flex-col w-full md:w-1/2">
-          <h2 className="text-3xl font-bold cinzelfont text-[#0E0100] mb-4">
-            {product.productName}
-          </h2>
-
+       <div className="flex flex-col items-start w-full md:w-1/2">
+          <h2 className="text-3xl font-bold cinzelfont text-[#0E0100] mb-4">{product.productName}</h2>
           <p className="text-sm text-[#7A2D0E] mb-2">SKU: {product.sku}</p>
-
           {(product.collection || product.category) && (
             <p className="text-sm text-[#7A2D0E] mb-2">
               Category: {product.collection || product.category}
               {product.subcategory ? ` → ${product.subcategory}` : ""}
             </p>
           )}
-
-          <div
-            className="text-[#2E1A08] mb-6 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: product.details || "" }}
+          <div 
+            className="text-[#2E1A08] mb-6 leading-relaxed [&_p]:mb-2 [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:mb-1 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_u]:underline"
+            dangerouslySetInnerHTML={{ __html: product.details || '' }}
           />
-
-          <button
-            onClick={() => setModalOpen(true)}
-            className="bg-[#681F00] w-1/2 text-white text-sm px-6 py-3 rounded-full hover:bg-[#5a2b1a]"
+          <button 
+            onClick={() => setModalOpen(true)} 
+            className="bg-[#681F00] text-white text-sm px-6 py-3 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300"
           >
             Enquiry Now →
           </button>
