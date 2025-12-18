@@ -27,7 +27,7 @@ async function testLogin() {
   // Test with new admin credentials
   const email = "admin@vinayakjewellers.com";
   const password = "Admin@12345";
-  const apiUrl = "http://localhost:5000/api/auth/login";
+  const apiUrl = "https://vinayak-jewellers-1.onrender.com/api/auth/login";
   
   console.log(`📧 Email: ${email}`);
   console.log(`🔗 API URL: ${apiUrl}\n`);
