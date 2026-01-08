@@ -149,56 +149,56 @@ export default function Gifting() {
         </div>
       )}
 
-      {/* Products Grid */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
-          {filteredProducts.map((product) => {
-            // Get primary image - support both images array and single image field
-            const primaryImage = (product.images && product.images.length > 0) 
-              ? product.images[0] 
-              : (product.image || "");
-            
-            return (
-            <div key={product._id} className="flex flex-col items-start">
-              {/* Product Image */}
-              <div
-                onClick={() => navigate(`/backend-product/${product._id}`)}
-                className="w-full bg-[#FFF4DC] h-[400px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer transition-all duration-300 flex justify-center items-center"
-              >
-                {primaryImage ? (
-                  <img
-                    src={primaryImage}
-                    alt={product.productName}
-                    className="w-full h-[400px] object-cover rounded-2xl hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-[400px] flex items-center justify-center text-gray-400">
-                    No image
-                  </div>
-                )}
+{/* Products Grid */}
+{filteredProducts.length > 0 ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
+    {filteredProducts.map((product) => {
+      // Get primary image - support both images array and single image field
+      const primaryImage = (product.images && product.images.length > 0) 
+        ? product.images[0] 
+        : (product.image || "");
+      
+      return (
+        <div key={product._id} className="flex flex-col h-full"> {/* Changed to h-full */}
+          {/* Product Image */}
+          <div
+            onClick={() => navigate(`/backend-product/${product._id}`)}
+            className="w-full bg-[#FFF4DC] h-[400px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer transition-all duration-300 flex justify-center items-center"
+          >
+            {primaryImage ? (
+              <img
+                src={primaryImage}
+                alt={product.productName}
+                className="w-full h-[400px] object-cover rounded-2xl hover:scale-105 transition-transform duration-500"
+              />
+            ) : (
+              <div className="w-full h-[400px] flex items-center justify-center text-gray-400">
+                No image
               </div>
+            )}
+          </div>
 
-              {/* Product Details */}
-              <div className="w-full mt-4 text-center sm:text-left">
-                <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide">
-                  {product.productName}
-                </h4>
-                <button
-                  onClick={() => openModal(product)}
-                  className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer"
-                >
-                  Enquiry Now →
-                </button>
-              </div>
-            </div>
-            );
-          })}
+          {/* Product Details */}
+          <div className="flex flex-col flex-grow mt-4"> {/* Changed to flex-col flex-grow */}
+            <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide flex-grow"> {/* Added flex-grow */}
+              {product.productName}
+            </h4>
+            <button
+              onClick={() => openModal(product)}
+              className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer w-full sm:w-auto" /* Added w-full sm:w-auto */
+            >
+              Enquiry Now →
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="text-center text-[#0E0100] py-10 font-medium">
-          No products found.
-        </div>
-      )}
+      );
+    })}
+  </div>
+) : (
+  <div className="text-center text-[#0E0100] py-10 font-medium">
+    No products found.
+  </div>
+)}
 
       {/* Contact Section */}
       <ContactSection />

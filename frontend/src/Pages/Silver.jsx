@@ -103,84 +103,110 @@ export default function Silver() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSubcategory, categories, products]);
 
-  // Filter products by category/subcategory with improved matching
-  const filteredProducts = products.filter((product) => {
-    // Normalize collection/category check (case-insensitive)
-    const productCollection = (product.collection || "").toLowerCase().trim();
-    const productCategory = (product.category || "").toLowerCase().trim();
-    const productSub = (product.subcategory || "").toLowerCase().trim();
-    const isSilver = productCollection === "silver" || productCategory === "silver";
-    
-    if (!isSilver) return false;
-    
-    // If URL has subcategory, use it directly for filtering
-    if (urlSubcategory) {
-      const urlNormalized = (urlSubcategory || "").toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
-      
-      // Try matching with product subcategory
-      if (productSub) {
-        const productSubNormalized = productSub.replace(/\s+/g, ' ');
-        if (productSubNormalized === urlNormalized) return true;
-        if (productSubNormalized.includes(urlNormalized) || urlNormalized.includes(productSubNormalized)) return true;
-        // Singular/plural match
-        const productSubSingular = productSubNormalized.replace(/s$/, '');
-        const urlSingular = urlNormalized.replace(/s$/, '');
-        if (productSubSingular === urlSingular && productSubSingular.length > 0) return true;
-      }
-      
-      // Try matching with product category
-      if (productCategory) {
-        const productCatNormalized = productCategory.replace(/\s+/g, ' ');
-        if (productCatNormalized === urlNormalized) return true;
-        if (productCatNormalized.includes(urlNormalized) || urlNormalized.includes(productCatNormalized)) return true;
-        // Singular/plural match
-        const productCatSingular = productCatNormalized.replace(/s$/, '');
-        const urlSingular = urlNormalized.replace(/s$/, '');
-        if (productCatSingular === urlSingular && productCatSingular.length > 0) return true;
-      }
-      
-      // Try matching with product name
-      const productName = (product.productName || "").toLowerCase().trim();
-      if (productName.includes(urlNormalized)) return true;
-      
-      return false;
-    }
-    
-    // If no category/subcategory selected, show all products in collection
-    if (!selectedCategory && !selectedSubcategory) return true;
-    
-    // If subcategory selected, filter by subcategory (case-insensitive, partial match)
-    if (selectedSubcategory) {
-      const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
-      
-      // Try exact match first
-      if (productSub === selectedSub) return true;
-      
-      // Try partial match (contains) - handles "Ring" vs "Rings", "Chain" vs "Chains"
-      if (productSub.includes(selectedSub) || selectedSub.includes(productSub)) return true;
-      
-      // Also check if product category matches subcategory (fallback)
-      if (productCategory === selectedSub || productCategory.includes(selectedSub) || selectedSub.includes(productCategory)) return true;
-      
-      return false;
-    }
-    
-    // If category selected, filter by category (case-insensitive, partial match)
-    if (selectedCategory) {
-      const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
-      
-      // Try exact match
-      if (productCategory === selectedCategoryName) return true;
-      
-      // Try partial match
-      if (productCategory.includes(selectedCategoryName) || selectedCategoryName.includes(productCategory)) return true;
-      
-      return false;
-    }
-    
-    return true;
-  });
 
+
+  // Helper function for strict word matching
+const strictWordMatch = (productValue, searchValue) => {
+  if (!productValue || !searchValue) return false;
+  
+  const normalizedProduct = productValue.toLowerCase().trim();
+  const normalizedSearch = searchValue.toLowerCase().trim();
+  
+  // Exact match
+  if (normalizedProduct === normalizedSearch) return true;
+  
+  // Singular/plural exact match
+  if (normalizedProduct === normalizedSearch + 's') return true;
+  if (normalizedProduct + 's' === normalizedSearch) return true;
+  
+  // Split into words and check for whole word matches
+  const productWords = normalizedProduct.split(/[\s-]+/);
+  const searchWords = normalizedSearch.split(/[\s-]+/);
+  
+  for (const searchWord of searchWords) {
+    for (const productWord of productWords) {
+      // Exact word match
+      if (productWord === searchWord) return true;
+      
+      // Singular/plural word match
+      if (productWord === searchWord + 's') return true;
+      if (productWord + 's' === searchWord) return true;
+    }
+  }
+  
+  return false;
+};
+
+// Filter products by category/subcategory with strict word matching
+// Filter products by category/subcategory
+const filteredProducts = products.filter((product) => {
+  // Check if it's a silver product
+  const productCollection = (product.collection || "").toLowerCase().trim();
+  const productCategory = (product.category || "").toLowerCase().trim();
+  const isSilver = productCollection === "silver" || productCategory === "silver";
+  
+  if (!isSilver) return false;
+  
+  // If no URL subcategory, show all silver products
+  if (!urlSubcategory) return true;
+  
+  const urlNormalized = (urlSubcategory || "").toLowerCase().trim();
+  
+  // Get product subcategory
+  const productSub = (product.subcategory || "").toLowerCase().trim();
+  
+  // If product has no subcategory, don't show it when filtering by subcategory
+  if (!productSub) return false;
+  
+  // Special handling for "ring" - check whole word only
+  if (urlNormalized === 'ring' || urlNormalized === 'rings') {
+    // Check if subcategory is exactly "ring" or "rings" (case insensitive)
+    if (productSub === 'ring' || productSub === 'rings') {
+      return true;
+    }
+    
+    // Also check if subcategory ends with "ring" as a whole word
+    // This handles cases like "silver ring" or "gold ring"
+    const words = productSub.split(/\s+/);
+    for (const word of words) {
+      if (word === 'ring' || word === 'rings') {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  // Special handling for "earring" - check whole word only
+  if (urlNormalized === 'earring' || urlNormalized === 'earrings') {
+    if (productSub === 'earring' || productSub === 'earrings') {
+      return true;
+    }
+    
+    const words = productSub.split(/\s+/);
+    for (const word of words) {
+      if (word === 'earring' || word === 'earrings') {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  // For other subcategories, use more flexible matching
+  // Direct match
+  if (productSub === urlNormalized) return true;
+  
+  // Singular/plural match
+  if (productSub === urlNormalized + 's') return true;
+  if (productSub + 's' === urlNormalized) return true;
+  
+  // Contains match (for multi-word subcategories)
+  if (productSub.includes(urlNormalized)) return true;
+  if (urlNormalized.includes(productSub)) return true;
+  
+  return false;
+});
   const openModal = (product) => {
     setSelectedProduct(product);
     setModalOpen(true);
@@ -287,56 +313,56 @@ export default function Silver() {
         </div>
       )}
 
-      {/* Products Grid */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
-          {filteredProducts.map((product) => {
-            // Get primary image - support both images array and single image field
-            const primaryImage = (product.images && product.images.length > 0) 
-              ? product.images[0] 
-              : (product.image || "");
-            
-            return (
-            <div key={product._id} className="flex flex-col items-start">
-              {/* Product Image */}
-              <div
-                onClick={() => navigate(`/backend-product/${product._id}`)}
-                className="w-full bg-[#FFF4DC] h-[360px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex justify-center items-center"
-              >
-                {primaryImage ? (
-                  <img
-                    src={primaryImage}
-                    alt={product.productName}
-                    className="w-[300px] h-[400px] object-cover hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-[360px] flex items-center justify-center text-gray-400">
-                    No image
-                  </div>
-                )}
+{/* Products Grid */}
+{filteredProducts.length > 0 ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
+    {filteredProducts.map((product) => {
+      // Get primary image - support both images array and single image field
+      const primaryImage = (product.images && product.images.length > 0) 
+        ? product.images[0] 
+        : (product.image || "");
+      
+      return (
+        <div key={product._id} className="flex flex-col h-full"> {/* Changed to h-full */}
+          {/* Product Image */}
+          <div
+            onClick={() => navigate(`/backend-product/${product._id}`)}
+            className="w-full bg-[#FFF4DC] h-[360px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex justify-center items-center"
+          >
+            {primaryImage ? (
+              <img
+                src={primaryImage}
+                alt={product.productName}
+                className="w-[300px] h-[400px] object-cover hover:scale-105 transition-transform duration-500"
+              />
+            ) : (
+              <div className="w-full h-[360px] flex items-center justify-center text-gray-400">
+                No image
               </div>
+            )}
+          </div>
 
-              {/* Product Info */}
-              <div className="w-full mt-4 text-center sm:text-left">
-                <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide">
-                  {product.productName}
-                </h4>
-                <button
-                  onClick={() => openModal(product)}
-                  className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer"
-                >
-                  Enquiry Now →
-                </button>
-              </div>
-            </div>
-            );
-          })}
+          {/* Product Info */}
+          <div className="flex flex-col flex-grow mt-4"> {/* Changed to flex-col flex-grow */}
+            <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide flex-grow"> {/* Added flex-grow */}
+              {product.productName}
+            </h4>
+            <button
+              onClick={() => openModal(product)}
+              className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer w-full sm:w-auto" /* Added w-full sm:w-auto */
+            >
+              Enquiry Now →
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="text-center text-[#0E0100] py-10 font-medium">
-          No products found.
-        </div>
-      )}
+      );
+    })}
+  </div>
+) : (
+  <div className="text-center text-[#0E0100] py-10 font-medium">
+    No products found.
+  </div>
+)}
 
       {/* Contact Section */}
       <ContactSection />

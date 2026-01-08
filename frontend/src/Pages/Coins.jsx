@@ -100,47 +100,46 @@ export default function Coins() {
       </div>
 
 
-      {/* Products Grid */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          {filteredProducts.map((product) => {
-            const image =
-              product.images?.[0] || product.image || "";
+{/* Products Grid */}
+{filteredProducts.length > 0 ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+    {filteredProducts.map((product) => {
+      const image = product.images?.[0] || product.image || "";
 
-            return (
-              <div key={product._id}>
-                <div
-                  onClick={() => navigate(`/backend-product/${product._id}`)}
-                  className="h-[380px] bg-[#FFF4DC] rounded-2xl flex items-center justify-center cursor-pointer"
-                >
-                  <img
-                    src={image}
-                    alt={product.productName}
-                    className="h-full object-cover rounded-2xl hover:scale-105 transition"
-                  />
-                </div>
+      return (
+        <div key={product._id} className="flex flex-col h-full"> {/* Added flex flex-col h-full */}
+          <div
+            onClick={() => navigate(`/backend-product/${product._id}`)}
+            className="h-[380px] bg-[#FFF4DC] rounded-2xl flex items-center justify-center cursor-pointer"
+          >
+            <img
+              src={image}
+              alt={product.productName}
+              className="h-full object-cover rounded-2xl hover:scale-105 transition"
+            />
+          </div>
 
-                <div className="mt-4 text-center">
-                  <h4 className="text-sm font-medium text-[#0E0100] mb-2">
-                    {product.productName}
-                  </h4>
+          <div className="mt-4 text-center flex flex-col flex-grow"> {/* Changed to flex flex-col flex-grow */}
+            <h4 className="text-sm font-medium text-[#0E0100] mb-2 flex-grow"> {/* Added flex-grow */}
+              {product.productName}
+            </h4>
 
-                  <button
-                    onClick={() => openModal(product)}
-                    className="bg-[#681F00] text-white text-xs px-5 py-2 rounded-full"
-                  >
-                    Enquiry Now →
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+            <button
+              onClick={() => openModal(product)}
+              className="bg-[#681F00] text-white text-xs px-5 py-2 rounded-full w-full sm:w-auto" /* Added w-full sm:w-auto */
+            >
+              Enquiry Now →
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="text-center text-[#0E0100] font-medium mt-10">
-          No coins found
-        </div>
-      )}
+      );
+    })}
+  </div>
+) : (
+  <div className="text-center text-[#0E0100] font-medium mt-10">
+    No coins found
+  </div>
+)}
 
       {/* Contact */}
       <ContactSection />

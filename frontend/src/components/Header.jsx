@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSearch } from "../context/SearchContext";
 import { useEnquiry } from "../context/EnquiryContext";
@@ -15,6 +15,10 @@ export default function Header() {
   const [allProducts, setAllProducts] = useState([]);
   const { setSearchTerm } = useSearch();
   const { enquiryItems } = useEnquiry();
+  
+  // Create refs for search components
+  const searchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -25,23 +29,58 @@ export default function Header() {
       link: "/", 
       iconComponent: <img src="/images/Icon/menu-icons/home.svg" alt="Home" className="w-5 h-5" /> 
     },
-    {
-      name: "Collections", 
-      link: "/alljewellery", 
-      iconComponent: <img src="/images/Icon/menu-icons/Collections.svg" alt="Collections" className="w-5 h-5" />,
-      sub: [
-        { name: "Gold Wedding", link: "/alljewellery/collections/gold-wedding" },
-        { name: "Gold Traditional", link: "/alljewellery/collections/gold-traditional" },
-        { name: "Gold rajasthani collection", link: "/alljewellery/collections/gold-rajasthani-collection" },
-        { name: "Rose gold collection", link: "/alljewellery/collections/rose-gold-collection" },
-        { name: "Diamond Wedding collection", link: "/alljewellery/collections/diamond-wedding-collection" },
-        { name: "Diamond Solitaire", link: "/alljewellery/collections/diamond-solitaire" },
-        { name: "Silver Utensils", link: "/alljewellery/collections/silver-utensils" },
-        { name: "Silver traditional jewellery", link: "/alljewellery/collections/silver-traditional-jewellery" },
-        { name: "Silver fancy jewellery", link: "/alljewellery/collections/silver-fancy-jewellery" },
-        { name: "Gift Collection", link: "/alljewellery/collections/gift-collection" },
-      ],
+    // Header component में Collections subcategory items को update करें:
+
+// Collections के subitems को इस प्रकार update करें:
+{
+
+  name: "Collections", 
+  link: "/alljewellery", 
+  iconComponent: <img src="/images/Icon/menu-icons/Collections.svg" alt="Collections" className="w-5 h-5" />,
+  sub: [
+    { 
+      name: "Gold Wedding", 
+      link: "/alljewellery?category=Gold&subcategory=gold-wedding" 
     },
+    { 
+      name: "Gold Traditional", 
+      link: "/alljewellery?category=Gold&subcategory=gold-traditional" 
+    },
+    { 
+      name: "Gold rajasthani collection", 
+      link: "/alljewellery?category=Gold&subcategory=gold-rajasthani-collection" 
+    },
+    { 
+      name: "Rose gold collection", 
+      link: "/alljewellery?category=Gold&subcategory=rose-gold-collection" 
+    },
+    { 
+      name: "Diamond Wedding collection", 
+      link: "/alljewellery?category=Diamond&subcategory=diamond-wedding-collection" 
+    },
+    { 
+      name: "Diamond Solitaire", 
+      link: "/alljewellery?category=Diamond&subcategory=diamond-solitaire" 
+    },
+    { 
+      name: "Silver Utensils", 
+      link: "/alljewellery?category=Silver&subcategory=silver-utensils" 
+    },
+    { 
+      name: "Silver traditional jewellery", 
+      link: "/alljewellery?category=Silver&subcategory=silver-traditional-jewellery" 
+    },
+    { 
+      name: "Silver fancy jewellery", 
+      link: "/alljewellery?category=Silver&subcategory=silver-fancy-jewellery" 
+    },
+    { 
+      name: "Gift Collection", 
+      link: "/alljewellery?category=Gifting&subcategory=gift-collection" 
+    },
+  ],
+},
+
     {
       name: "Gold", 
       link: "/gold", 
@@ -63,8 +102,8 @@ export default function Header() {
       link: "/diamond", 
       iconComponent: <img src="/images/Icon/menu-icons/Diamond.svg" alt="Diamond" className="w-5 h-5" />,
       sub: [
-        { name: "Ring", link: "/diamond/rings" },
-        { name: "Earrings", link: "/diamond/earrings" },
+        { name: "Ring", link: "/diamond/ring" },
+        { name: "Earrings", link: "/diamond/earring" },
         { name: "Necklace", link: "/diamond/necklaces" },
         { name: "Bangles", link: "/diamond/bangles" },
         { name: "Mangalsutra", link: "/diamond/mangalsutra" },
@@ -82,8 +121,8 @@ export default function Header() {
         { name: "Anklets / payals", link: "/silver/anklets" },
         { name: "Kamar belt or satka", link: "/silver/kamar-belt" },
         { name: "Pooja articles", link: "/silver/pooja-articles" },
-        { name: "Ring", link: "/silver/rings" },
-        { name: "Earrings", link: "/silver/earrings" },
+        { name: "Ring", link: "/silver/ring" },
+        { name: "Earrings", link: "/silver/earring" },
         { name: "Pendant", link: "/silver/pendants" },
         { name: "Chains", link: "/silver/chains" },
         { name: "Pendal set", link: "/silver/pendal-set" },
@@ -139,17 +178,17 @@ export default function Header() {
       name: "Gifting", 
       link: "/gifting", 
       iconComponent: <img src="/images/Icon/menu-icons/Gifting.svg" alt="Gifting" className="w-5 h-5" />,
-      sub: [
-        { name: "Starting from 250-500", link: "/gifting" },
-        { name: "500-1000", link: "/gifting" },
-        { name: "1k-2k", link: "/gifting" },
-        { name: "2k-5k", link: "/gifting" },
-        { name: "5k-10k", link: "/gifting" },
-        { name: "10k-15k", link: "/gifting" },
-        { name: "15k-20k", link: "/gifting" },
-        { name: "20k or Above ysical-20k", link: "/gifting" },
-        { name: "Exclusive", link: "/gifting" },
-      ],
+      // sub: [
+      //   { name: "Starting from 250-500", link: "/gifting" },
+      //   { name: "500-1000", link: "/gifting" },
+      //   { name: "1k-2k", link: "/gifting" },
+      //   { name: "2k-5k", link: "/gifting" },
+      //   { name: "5k-10k", link: "/gifting" },
+      //   { name: "10k-15k", link: "/gifting" },
+      //   { name: "15k-20k", link: "/gifting" },
+      //   { name: "20k or Above ysical-20k", link: "/gifting" },
+      //   { name: "Exclusive", link: "/gifting" },
+      // ],
     },
     { 
       name: "Birth Stones", 
@@ -160,6 +199,33 @@ export default function Header() {
 
   // State for categories (will use backend menus if available, else default)
   const [categories, setCategories] = useState(defaultCategories);
+
+  // Handle click outside to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if click is outside both desktop and mobile search components
+      if (
+        searchRef.current && 
+        !searchRef.current.contains(event.target) &&
+        mobileSearchRef.current && 
+        !mobileSearchRef.current.contains(event.target)
+      ) {
+        setSuggestions([]);
+      }
+    };
+
+    // Add event listener when suggestions are shown
+    if (suggestions.length > 0) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    // Cleanup event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [suggestions.length]);
 
   // 🧠 Fetch menus from backend and merge with defaults
   useEffect(() => {
@@ -278,7 +344,7 @@ export default function Header() {
         </div>
 
         {/* === Desktop Search Bar === */}
-        <div className="relative hidden md:flex flex-col w-[30%]">
+        <div className="relative hidden md:flex flex-col w-[30%]" ref={searchRef}>
           <div className="flex items-center rounded-xl border border-[#A7968F] px-3 py-2">
             <span className="mr-2 text-[#A7968F]">
               <img src="/images/Icon/menu-icons/search.svg" alt="Search" className="w-4 h-4" />
@@ -375,7 +441,7 @@ export default function Header() {
       </div>
 
       {/* === Mobile Search Bar === */}
-      <div className="relative flex md:hidden flex-col w-[90%] mx-auto mb-3">
+      <div className="relative flex md:hidden flex-col w-[90%] mx-auto mb-3" ref={mobileSearchRef}>
         <div className="flex items-center bg-white rounded-full border border-[#c7a46d] px-3 py-2">
           <span className="mr-2 text-[#A7968F]">
             <img src="/icons/search-icon.png" alt="Search" className="w-4 h-4" />

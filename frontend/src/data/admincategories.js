@@ -31,7 +31,7 @@ export const giftingCategories = [
 
 export const goldCategories = [
   { category: "Ring", subcategories: [] },
-  { category: "Earrings", subcategories: [] },
+  { category: "Earrings", subcategories: ["Earrings"] },
   { category: "Necklace - 22 karat - 18 karat", subcategories: [] },
   { category: "Bangles", subcategories: [] },
   { category: "Mangalsutra", subcategories: [] },

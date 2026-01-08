@@ -235,87 +235,58 @@ export default function AboutUs() {
       </section>
 
       {/* Vinayak Assurance */}
-      <section className="bg-[#FFF7E0] py-12 md:py-20 w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 w-full flex flex-col items-center gap-2">
-          <h2 className="text-2xl md:text-3xl uppercase font-[500] text-[#0E0100] font-cinzel tracking-wider text-center">
-            Vinayak Assurance
+        <section className="pb-3 sm:pb-8 pt-4 sm:pt-6 bg-[#FFF9E6]">
+        <div className="max-w-6xl mx-auto text-center px-4">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wide">
+            VINAYAK ASSURANCE
           </h2>
-
-          <p className="text-center capitalize font-sans font-light mb-10 text-base md:text-[18px] leading-relaxed tracking-wide max-w-3xl">
-            Designed with precision, treasured by you.
+          <p className="text-gray-700 mt-2">
+            Designed With Precision, Treasured By You.
           </p>
 
-          {/* Icons Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 w-full">
-            {/* Icon 1 */}
-            <div className="flex flex-col items-center text-center gap-3">
-              <img
-                src="/images/diamondContactPage.png"
-                alt="Diamond"
-                className="w-12 h-12 md:w-12 md:h-12 border rounded-full border-black p-2 object-contain"
-              />
-              <h5 className="font-[600]">Master Craftsmanship</h5>
-              <p className="font-light text-sm md:text-base">
-                Every piece is made <br /> with expert <br /> attention to
-                detail.
-              </p>
-            </div>
-
-            {/* Icon 2 */}
-            <div className="flex flex-col items-center text-center gap-3">
-              <img
-                src="/images/diamondContactPage.png"
-                alt="Diamond"
-                className="w-12 h-12 md:w-12 md:h-12 border rounded-full border-black p-2 object-contain"
-              />
-              <h5 className="font-[600]">Responsibly Sourced</h5>
-              <p className="font-light text-sm md:text-base">
-                Ethically obtained <br /> materials you can trust.
-              </p>
-            </div>
-
-            {/* Icon 3 */}
-            <div className="flex flex-col items-center text-center gap-3">
-              <img
-                src="/images/diamondContactPage.png"
-                alt="Diamond"
-                className="w-12 h-12 md:w-12 md:h-12 border rounded-full border-black p-2 object-contain"
-              />
-              <h5 className="font-[600]">
-                Complete <br /> Transparency
-              </h5>
-              <p className="font-light text-sm md:text-base">
-                <strong className="font-bold">100%</strong> clarity in quality
-                and value.
-              </p>
-            </div>
-
-            {/* Icon 4 */}
-            <div className="flex flex-col items-center text-center gap-3">
-              <img
-                src="/images/diamondContactPage.png"
-                alt="Diamond"
-                className="w-12 h-12 md:w-12 md:h-12 border rounded-full border-black p-2 object-contain"
-              />
-              <h5 className="font-[600]">Purity Certified</h5>
-              <p className="font-light text-sm md:text-base">
-                Guaranteed authenticity <br /> with hallmark standards.
-              </p>
-            </div>
-
-            {/* Icon 5 */}
-            <div className="flex flex-col items-center text-center gap-3">
-              <img
-                src="/images/diamondContactPage.png"
-                alt="Diamond"
-                className="w-12 h-12 md:w-12 md:h-12 border rounded-full border-black p-2 object-contain"
-              />
-              <h5 className="font-[600]">Trust & Clarity</h5>
-              <p className="font-light text-sm md:text-base">
-                <strong className="font-bold">20+ Years</strong> of trust &
-                transparent processes.
-              </p>
-            </div>
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-8">
+            {[
+              {
+                icon: "/images/assurance/Group 44.svg",
+                title: "Master Craftsmanship",
+                desc: "Every Piece Is Made With Expert Attention To Detail.",
+              },
+               {
+                icon: "/images/assurance/Group 41.svg",
+                title: "Purity Certified",
+                desc: "Guaranteed Authenticity With Hallmark Standards.",
+              },
+              
+              {
+                icon: "/images/assurance/Group 42.svg",
+                title: "Complete Transparency",
+                desc: "100% Clarity In Quality And Value.",
+              },
+             {
+                icon: "/images/assurance/Group 43.svg",
+                title: "Responsibly Sourced",
+                desc: "Ethically Obtained Materials You Can Trust.",
+              },
+              {
+                icon: "/images/assurance/Group 40.svg",
+                title: "Trust & Clarity",
+                desc: "20+ Years Of Transparent Processes For Peace Of Mind.",
+              },
+            ].map((item, index) => (
+              <div key={index} className="text-center">
+                <div className="flex justify-center items-center w-16 h-16 mx-auto bg-[#E2C887]/20 rounded-full text-3xl mb-4">
+                 <img
+                    src={item.icon}
+                    alt={item.title}
+                    className="w-12 h-12 object-contain"
+                  />
+                </div>
+                <h3 className="text-lg font-semibold text-[#3B2E1E]">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-700 mt-2">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

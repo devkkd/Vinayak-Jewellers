@@ -149,83 +149,186 @@ export default function Diamond() {
   }, [urlSubcategory, categories, products]);
 
   // Filter products with improved matching
-  const filteredProducts = products.filter((product) => {
-    // Normalize collection/category check (case-insensitive)
-    const productCollection = (product.collection || "").toLowerCase().trim();
-    const productCategory = (product.category || "").toLowerCase().trim();
-    const productSubcategory = (product.subcategory || "").toLowerCase().trim();
-    const isDiamond = productCollection === "diamond" || productCategory === "diamond";
+  // const filteredProducts = products.filter((product) => {
+  //   // Normalize collection/category check (case-insensitive)
+  //   const productCollection = (product.collection || "").toLowerCase().trim();
+  //   const productCategory = (product.category || "").toLowerCase().trim();
+  //   const productSubcategory = (product.subcategory || "").toLowerCase().trim();
+  //   const isDiamond = productCollection === "diamond" || productCategory === "diamond";
     
-    if (!isDiamond) return false;
+  //   if (!isDiamond) return false;
     
-    // If URL has subcategory, use it directly for filtering
-    if (urlSubcategory) {
-      const urlNormalized = (urlSubcategory || "").toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
+  //   // If URL has subcategory, use it directly for filtering
+  //   if (urlSubcategory) {
+  //     const urlNormalized = (urlSubcategory || "").toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
       
-      // Try matching with product subcategory
-      if (productSubcategory) {
-        const productSubNormalized = productSubcategory.replace(/\s+/g, ' ');
-        if (productSubNormalized === urlNormalized) return true;
-        if (productSubNormalized.includes(urlNormalized) || urlNormalized.includes(productSubNormalized)) return true;
-        // Singular/plural match
-        const productSubSingular = productSubNormalized.replace(/s$/, '');
-        const urlSingular = urlNormalized.replace(/s$/, '');
-        if (productSubSingular === urlSingular && productSubSingular.length > 0) return true;
-      }
+  //     // Try matching with product subcategory
+  //     if (productSubcategory) {
+  //       const productSubNormalized = productSubcategory.replace(/\s+/g, ' ');
+  //       if (productSubNormalized === urlNormalized) return true;
+  //       if (productSubNormalized.includes(urlNormalized) || urlNormalized.includes(productSubNormalized)) return true;
+  //       // Singular/plural match
+  //       const productSubSingular = productSubNormalized.replace(/s$/, '');
+  //       const urlSingular = urlNormalized.replace(/s$/, '');
+  //       if (productSubSingular === urlSingular && productSubSingular.length > 0) return true;
+  //     }
       
-      // Try matching with product category
-      if (productCategory) {
-        const productCatNormalized = productCategory.replace(/\s+/g, ' ');
-        if (productCatNormalized === urlNormalized) return true;
-        if (productCatNormalized.includes(urlNormalized) || urlNormalized.includes(productCatNormalized)) return true;
-        // Singular/plural match
-        const productCatSingular = productCatNormalized.replace(/s$/, '');
-        const urlSingular = urlNormalized.replace(/s$/, '');
-        if (productCatSingular === urlSingular && productCatSingular.length > 0) return true;
-      }
+  //     // Try matching with product category
+  //     if (productCategory) {
+  //       const productCatNormalized = productCategory.replace(/\s+/g, ' ');
+  //       if (productCatNormalized === urlNormalized) return true;
+  //       if (productCatNormalized.includes(urlNormalized) || urlNormalized.includes(productCatNormalized)) return true;
+  //       // Singular/plural match
+  //       const productCatSingular = productCatNormalized.replace(/s$/, '');
+  //       const urlSingular = urlNormalized.replace(/s$/, '');
+  //       if (productCatSingular === urlSingular && productCatSingular.length > 0) return true;
+  //     }
       
-      // Try matching with product name
-      const productName = (product.productName || "").toLowerCase().trim();
-      if (productName.includes(urlNormalized)) return true;
+  //     // Try matching with product name
+  //     const productName = (product.productName || "").toLowerCase().trim();
+  //     if (productName.includes(urlNormalized)) return true;
       
-      return false;
-    }
+  //     return false;
+  //   }
     
-    // If no category/subcategory selected, show all products in collection
-    if (!selectedCategory && !selectedSubcategory) return true;
+  //   // If no category/subcategory selected, show all products in collection
+  //   if (!selectedCategory && !selectedSubcategory) return true;
     
-    // If subcategory selected, prioritize subcategory matching
-    if (selectedSubcategory) {
-      const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
+  //   // If subcategory selected, prioritize subcategory matching
+  //   if (selectedSubcategory) {
+  //     const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
       
-      // Try exact match first
-      if (productSubcategory === selectedSub) return true;
+  //     // Try exact match first
+  //     if (productSubcategory === selectedSub) return true;
       
-      // Try partial match (contains) - handles "Ring" vs "Rings", "Chain" vs "Chains"
-      if (productSubcategory.includes(selectedSub) || selectedSub.includes(productSubcategory)) return true;
+  //     // Try partial match (contains) - handles "Ring" vs "Rings", "Chain" vs "Chains"
+  //     if (productSubcategory.includes(selectedSub) || selectedSub.includes(productSubcategory)) return true;
       
-      // Also check if product category matches subcategory (fallback)
-      if (productCategory === selectedSub || productCategory.includes(selectedSub) || selectedSub.includes(productCategory)) return true;
+  //     // Also check if product category matches subcategory (fallback)
+  //     if (productCategory === selectedSub || productCategory.includes(selectedSub) || selectedSub.includes(productCategory)) return true;
       
-      return false;
-    }
+  //     return false;
+  //   }
     
-    // If only category selected (no subcategory), filter by category
-    if (selectedCategory) {
-      const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
+  //   // If only category selected (no subcategory), filter by category
+  //   if (selectedCategory) {
+  //     const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
       
-      // Try exact match
-      if (productCategory === selectedCategoryName) return true;
+  //     // Try exact match
+  //     if (productCategory === selectedCategoryName) return true;
       
-      // Try partial match
-      if (productCategory.includes(selectedCategoryName) || selectedCategoryName.includes(productCategory)) return true;
+  //     // Try partial match
+  //     if (productCategory.includes(selectedCategoryName) || selectedCategoryName.includes(productCategory)) return true;
       
-      return false;
-    }
+  //     return false;
+  //   }
     
-    return true;
-  });
+  //   return true;
+  // });
+// Replace your filteredProducts logic with this:
 
+// Helper function for strict matching
+const strictMatch = (productValue, searchValue) => {
+  if (!productValue || !searchValue) return false;
+  
+  const normalizedProduct = productValue.toLowerCase().trim().replace(/\s+/g, ' ');
+  const normalizedSearch = searchValue.toLowerCase().trim().replace(/\s+/g, ' ');
+  
+  // Exact match
+  if (normalizedProduct === normalizedSearch) return true;
+  
+  // Singular/plural match only for same root word
+  const productSingular = normalizedProduct.replace(/s$/, '');
+  const searchSingular = normalizedSearch.replace(/s$/, '');
+  
+  // Check if they have the same root (to avoid "earring" matching "ring")
+  if (productSingular === searchSingular && productSingular.length > 0) {
+    // Additional check: make sure the words are the same
+    // For example, "earring" becomes "earring" (no change when removing 's')
+    // while "ring" becomes "ring"
+    // So we need to check if the original words are actually the same or singular/plural
+    if (normalizedProduct === normalizedSearch) return true;
+    if (normalizedProduct === normalizedSearch + 's') return true;
+    if (normalizedProduct + 's' === normalizedSearch) return true;
+    
+    // For cases like "earrings" -> "earring" and "ring" -> "ring"
+    // Check if they're different words with same singular form
+    return false;
+  }
+  
+  // Word boundary check - only match whole words
+  const productWords = normalizedProduct.split(' ');
+  const searchWords = normalizedSearch.split(' ');
+  
+  for (const searchWord of searchWords) {
+    for (const productWord of productWords) {
+      if (productWord === searchWord) return true;
+      if (productWord === searchWord + 's') return true;
+      if (productWord + 's' === searchWord) return true;
+    }
+  }
+  
+  return false;
+};
+
+const filteredProducts = products.filter((product) => {
+  // Normalize collection/category check (case-insensitive)
+  const productCollection = (product.collection || "").toLowerCase().trim();
+  const productCategory = (product.category || "").toLowerCase().trim();
+  const productSubcategory = (product.subcategory || "").toLowerCase().trim();
+  
+  // First check if it's a diamond product
+  const isDiamond = productCollection === "diamond" || productCategory === "diamond";
+  if (!isDiamond) return false;
+  
+  // If no URL subcategory, show all diamond products
+  if (!urlSubcategory) return true;
+  
+  // Normalize URL subcategory
+  const urlNormalized = (urlSubcategory || "").toLowerCase().trim()
+    .replace(/-/g, ' ')
+    .replace(/\s+/g, ' ');
+  
+  // Try exact match first with product subcategory
+  if (productSubcategory) {
+    const normalizedSubcategory = productSubcategory
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ');
+    
+    // Use strict matching
+    if (strictMatch(normalizedSubcategory, urlNormalized)) {
+      return true;
+    }
+    
+    // Additional: check if subcategory contains the word as a whole word
+    const subWords = normalizedSubcategory.split(/[\s-]+/);
+    const searchWords = urlNormalized.split(/[\s-]+/);
+    
+    for (const searchWord of searchWords) {
+      for (const subWord of subWords) {
+        // Whole word matching only
+        if (subWord === searchWord) return true;
+        if (subWord === searchWord + 's') return true;
+        if (subWord + 's' === searchWord) return true;
+      }
+    }
+  }
+  
+  // Check product category as fallback
+  if (productCategory) {
+    const normalizedCategory = productCategory
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ');
+    
+    if (strictMatch(normalizedCategory, urlNormalized)) {
+      return true;
+    }
+  }
+  
+  return false;
+});
   // Get primary image helper
   const getPrimaryImage = (product) => {
     if (product.images && product.images.length > 0) return product.images[0];
@@ -298,52 +401,52 @@ export default function Diamond() {
         </div>
       )}
 
-      {/* Product Grid */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
-          {filteredProducts.map((product) => {
-            const primaryImage = getPrimaryImage(product);
-            return (
-              <div key={product._id} className="flex flex-col items-start">
-                {/* Product Image */}
-                <div
-                  onClick={() => navigate(`/backend-product/${product._id}`)}
-                  className="w-full bg-[#FFF4DC] h-[400px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer transition-all duration-300 flex justify-center items-center"
-                >
-                  {primaryImage ? (
-                    <img
-                      src={primaryImage}
-                      alt={product.productName}
-                      className="w-full h-[400px] object-cover rounded-2xl hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-[400px] flex items-center justify-center text-gray-400">
-                      No image
-                    </div>
-                  )}
-                </div>
-
-                {/* Product Details */}
-                <div className="w-full mt-4 text-center sm:text-left">
-                  <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide">
-                    {product.productName}
-                  </h4>
-                  <button
-                    onClick={() => openModal(product)}
-                    className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer"
-                  >
-                    Enquiry Now →
-                  </button>
-                </div>
+ {/* Product Grid */}
+{filteredProducts.length > 0 ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
+    {filteredProducts.map((product) => {
+      const primaryImage = getPrimaryImage(product);
+      return (
+        <div key={product._id} className="flex flex-col h-full"> {/* Changed to h-full */}
+          {/* Product Image */}
+          <div
+            onClick={() => navigate(`/backend-product/${product._id}`)}
+            className="w-full bg-[#FFF4DC] h-[400px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer transition-all duration-300 flex justify-center items-center"
+          >
+            {primaryImage ? (
+              <img
+                src={primaryImage}
+                alt={product.productName}
+                className="w-full h-[400px] object-cover rounded-2xl hover:scale-105 transition-transform duration-500"
+              />
+            ) : (
+              <div className="w-full h-[400px] flex items-center justify-center text-gray-400">
+                No image
               </div>
-            );
-          })}
+            )}
+          </div>
+
+          {/* Product Details */}
+          <div className="flex flex-col flex-grow mt-4"> {/* Changed to flex-col flex-grow */}
+            <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide flex-grow"> {/* Added flex-grow */}
+              {product.productName}
+            </h4>
+            <button
+              onClick={() => openModal(product)}
+              className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer w-full sm:w-auto" /* Added w-full sm:w-auto */
+            >
+              Enquiry Now →
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="text-center text-[#0E0100] py-10 font-medium">
-          No products found.
-        </div>
-      )}
+      );
+    })}
+  </div>
+) : (
+  <div className="text-center text-[#0E0100] py-10 font-medium">
+    No products found.
+  </div>
+)}
 
       {/* Contact Section */}
       <ContactSection />

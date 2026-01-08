@@ -88,7 +88,7 @@ export default function SearchResults() {
                     <img
                       src={primaryImage}
                       alt={product.productName}
-                      className="w-[240px] h-[240px] object-contain hover:scale-105 transition-transform duration-500"
+                      className="w-full  object-cover hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
                     <div className="text-gray-400">No image</div>
