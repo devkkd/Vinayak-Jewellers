@@ -219,14 +219,14 @@ export default function Home() {
     {/* Compact Category Grid */}
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">
       {[
-        { name: "Collections", category: "All Jewellery", img: "/images/category/8.jpg" },
-        { name: "Gold", category: "Gold", img: "/images/category/1.jpg" },
-        { name: "Diamond", category: "Diamond", img: "/images/category/3.jpg" },
-        { name: "Silver", category: "Silver", img: "/images/category/2.jpg" },
-        { name: "Men's", category: "Mens", img: "/images/category/4.jpg" },
-        { name: "Coins", category: "Coins", img: "/images/category/5.jpg" },
-        { name: "Gifting", category: "Gifting", img: "/images/category/6.jpg" },
-        { name: "Birth Stones", category: "Birth Stones", img: "/images/category/7.jpg" },
+        { name: "Collections", category: "All Jewellery", img: "/images/categories/1.jpg.jpeg" },
+        { name: "Gold", category: "Gold", img: "/images/categories/2.jpg.jpeg" },
+        { name: "Diamond", category: "Diamond", img: "/images/categories/3.jpg.jpeg" },
+        { name: "Silver", category: "Silver", img: "/images/categories/4.jpg.jpeg" },
+        { name: "Men's", category: "Mens", img: "/images/categories/5.jpg.jpeg" },
+        { name: "Coins", category: "Coins", img: "/images/categories/6.jpg.jpeg" },
+        { name: "Gifting", category: "Gifting", img: "/images/categories/7.jpg.jpeg" },
+        { name: "Birth Stones", category: "Birth Stones", img: "/images/categories/8.jpg.jpeg" },
       ].map((item, index) => (
         <Link
           key={index}
