@@ -128,7 +128,7 @@ export default function Home() {
         {/* Compact Image */}
         <div className="relative h-[220px] sm:h-[280px] overflow-hidden">
           <img
-            src="/images/collections/1.jpg"
+            src="/images/collections/gift.jpg"
             alt="Vinayak Gift Range"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -151,16 +151,16 @@ export default function Home() {
         </div>
       </Link>
 
-      {/* CARD 2 - WEDDING COLLECTION */}
+      {/* CARD 2 - MANGALSUTRA COLLECTION */}
       <Link 
-        to="/alljewellery?category=Wedding%20Collection" 
+        to="/alljewellery?category=Gold&subcategory=Mangalsutra" 
         state={{ scrollToTop: true }}
         className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
       >
         {/* Compact Image */}
         <div className="relative h-[220px] sm:h-[280px] overflow-hidden">
           <img
-            src="/images/collections/2.jpg"
+            src="/images/collections/mangal.jpg"
             alt="Vinayak Wedding Collection"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -169,7 +169,7 @@ export default function Home() {
         {/* Compact Content */}
         <div className="p-4 sm:p-5">
           <h3 className="text-lg sm:text-xl font-bold text-[#5A2B1A] cinzelfont mb-1">
-            Wedding Collection
+            Mangalsutra Collection
           </h3>
           <p className="text-[#7a563f] text-sm mb-3">
             Exquisite designs for your special day

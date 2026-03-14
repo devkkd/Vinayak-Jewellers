@@ -205,7 +205,7 @@ export default function AboutUs() {
               <div className="w-full md:w-[55%] flex justify-center items-center">
                 <div className="w-full">
                   <img
-                    src="/images/visionForward.png"
+                    src="/images/v.jpg.jpeg"
                     alt="Heritage"
                     className="rounded-4xl h-[280px] w-[600px]"
                   />

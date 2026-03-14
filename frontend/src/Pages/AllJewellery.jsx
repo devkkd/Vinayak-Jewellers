@@ -60,11 +60,20 @@ export default function AllJewellery() {
   const categoryScrollRef = useRef(null);
   const subcategoryScrollRef = useRef(null);
 
-  // Read category from URL query parameter
+  // Read category and subcategory from URL query parameters
   useEffect(() => {
     const categoryFromUrl = searchParams.get('category');
+    const subcategoryFromUrl = searchParams.get('subcategory');
+
     if (categoryFromUrl && categories[categoryFromUrl]) {
       setSelectedCategory(categoryFromUrl);
+      if (subcategoryFromUrl) {
+        setSelectedMainSubcategory(subcategoryFromUrl);
+        setSelectedSubcategory(subcategoryFromUrl);
+      } else {
+        setSelectedMainSubcategory("");
+        setSelectedSubcategory("");
+      }
     }
 
     window.scrollTo({

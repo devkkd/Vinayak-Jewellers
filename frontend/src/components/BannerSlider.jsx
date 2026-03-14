@@ -15,10 +15,10 @@ const BannerSlider = () => {
 
   // Mobile banners (you can add separate mobile images here)
   const mobileBanners = [
-   "/images/banner/1.jpg",
-    "/images/banner/2.jpg",
-    "/images/banner/3.jpg",
-    "/images/banner/4.jpg",
+   "/images/banner/mobile-3.png",
+    "/images/banner/mobile-4.png",
+    "/images/banner/mobile-1.png",
+    "/images/banner/mobile-2.png",
   ];
 
   return (

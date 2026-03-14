@@ -55,8 +55,7 @@ const Footer = () => {
             VISIT OUR STORE
           </h2>
           <p className="text-[#0E0100] max-w-2xl mx-auto capitalize font-sans font-light flex justify-center text-base md:text-xl leading-relaxed lg:whitespace-nowrap">
-            Explore an exclusive range of lab grown diamond jewellery, crafted
-            with brilliance and care.
+            Visit us at Vidyadhar Nagar, Jaipur — and experience our collection of gold, diamond & silver jewellery in person.
           </p>
         </div>
   {/* Map Section with Enhanced Design */}
