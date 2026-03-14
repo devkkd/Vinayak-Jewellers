@@ -4,43 +4,81 @@ import "swiper/css";
 import "swiper/css/pagination";
 
 const BannerSlider = () => {
-  const banners = [
-    
+  // Desktop banners
+  const desktopBanners = [
     "/images/banner/1.jpg",
-   "/images/banner/2.jpg",
+    "/images/banner/2.jpg",
     "/images/banner/3.jpg",
     "/images/banner/4.jpg",
- 
+  ];
+
+  // Mobile banners (you can add separate mobile images here)
+  const mobileBanners = [
+   "/images/banner/1.jpg",
+    "/images/banner/2.jpg",
+    "/images/banner/3.jpg",
+    "/images/banner/4.jpg",
   ];
 
   return (
     <div className="relative w-full overflow-hidden">
-      <Swiper
-        modules={[Autoplay, Pagination]}
-        spaceBetween={0}
-        centeredSlides
-        autoplay={{
-          delay: 3000,
-          disableOnInteraction: false,
-        }}
-        pagination={{ clickable: true }}
-        loop
-        className="w-full"
-      >
-        {banners.map((src, i) => (
-          <SwiperSlide key={i}>
-            {/* Use a responsive wrapper */}
-            <div className="relative w-full h-auto">
-              <img
-                src={src}
-                alt={`banner-${i + 1}`}
-                className="w-full h-auto max-h-[90vh] object-contain sm:object-cover"
-                loading="lazy"
-              />
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      {/* Desktop Banner Slider */}
+      <div className="hidden sm:block">
+        <Swiper
+          modules={[Autoplay, Pagination]}
+          spaceBetween={0}
+          centeredSlides
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false,
+          }}
+          pagination={{ clickable: true }}
+          loop
+          className="w-full"
+        >
+          {desktopBanners.map((src, i) => (
+            <SwiperSlide key={i}>
+              <div className="relative w-full h-[450px] lg:h-[550px] xl:h-[600px]">
+                <img
+                  src={src}
+                  alt={`desktop-banner-${i + 1}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+
+      {/* Mobile Banner Slider */}
+      <div className="block sm:hidden">
+        <Swiper
+          modules={[Autoplay, Pagination]}
+          spaceBetween={0}
+          centeredSlides
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false,
+          }}
+          pagination={{ clickable: true }}
+          loop
+          className="w-full"
+        >
+          {mobileBanners.map((src, i) => (
+            <SwiperSlide key={i}>
+              <div className="relative w-full h-[300px] xs:h-[350px] sm:h-[400px]">
+                <img
+                  src={src}
+                  alt={`mobile-banner-${i + 1}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
     </div>
   );
 };

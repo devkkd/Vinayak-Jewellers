@@ -35,7 +35,7 @@ export default function AboutUs() {
               <div className="w-full md:w-[55%] flex justify-center items-center">
                 <div className="w-full ">
                   <img
-                    src="/images/Heritage1.png"
+                    src="/images/jaipur.png"
                     alt=""
                     className="rounded-4xl h-[320px] w-full"
                   />
@@ -49,7 +49,7 @@ export default function AboutUs() {
               <div className="w-full md:w-[55%] flex justify-center items-center">
                 <div className="w-full">
                   <img
-                    src="/images/store4.png"
+                    src="/images/shop.jpeg"
                     alt="Heritage"
                     className="rounded-4xl h-[320px] w-full"
                   />

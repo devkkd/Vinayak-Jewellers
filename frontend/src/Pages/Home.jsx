@@ -102,44 +102,89 @@ export default function Home() {
         <div className="w-[250px] h-[1px] bg-gradient-to-r from-[#140100] via-[#5C1D02] to-[#140100]" />
       </div>
 
-    {/* ---------- VINAYAK CATEGORIES ---------- */}
-{/* ---------- VINAYAK COLLECTIONS ---------- */}
-<section className="pt-3 sm:pt-6">
-  <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wider cinzelfont">
-    VINAYAK COLLECTIONS
-  </h2>
-  <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
-    Discover Our Latest Jewellery Launches
-  </p>
+    {/* ---------- VINAYAK COLLECTIONS ---------- */}
+<section className="pt-3 sm:pt-6 pb-6 sm:pb-8 bg-[#FFF9E6]">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    
+    {/* Compact Header */}
+    <div className="text-center mb-6 sm:mb-8">
+      <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wider cinzelfont">
+        VINAYAK COLLECTIONS
+      </h2>
+      <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
+        Discover Our Latest Jewellery Launches
+      </p>
+    </div>
 
-  <div className="flex flex-col sm:flex-row justify-center items-center rounded-2xl sm:gap-6 px-4">
-    {/* CARD 1 - GIFT COLLECTION */}
-    <Link 
-      to="/alljewellery?category=Gifting" 
-      state={{ scrollToTop: true }}
-      className="relative w-full sm:w-[380px] lg:w-[550px] h-[200px] sm:h-[320px] lg:h-[300px] rounded-2xl overflow-hidden flex items-center justify-center group"
-    >
-      <img
-        src="/images/collections/1.jpg"
-        alt="Vinayak Gift Range"
-        className="max-w-full max-h-full rounded-4xl object-contain sm:p-3 group-hover:scale-105 transition-transform duration-300"
-      />
+    {/* Compact 2-Column Grid */}
+    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
       
-    </Link>
+      {/* CARD 1 - GIFT COLLECTION */}
+      <Link 
+        to="/alljewellery?category=Gifting" 
+        state={{ scrollToTop: true }}
+        className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+      >
+        {/* Compact Image */}
+        <div className="relative h-[220px] sm:h-[280px] overflow-hidden">
+          <img
+            src="/images/collections/1.jpg"
+            alt="Vinayak Gift Range"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+        
+        {/* Compact Content */}
+        <div className="p-4 sm:p-5">
+          <h3 className="text-lg sm:text-xl font-bold text-[#5A2B1A] cinzelfont mb-1">
+            Gift Collection
+          </h3>
+          <p className="text-[#7a563f] text-sm mb-3">
+            Perfect gifts for every occasion
+          </p>
+          <div className="flex items-center text-[#b68d52] font-semibold text-sm">
+            <span>Explore</span>
+            <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </Link>
 
-    {/* CARD 2 - WEDDING COLLECTION */}
-    <Link 
-      to="/alljewellery?category=Wedding%20Collection" 
-      state={{ scrollToTop: true }}
-      className="relative w-full sm:w-[380px] lg:w-[550px] h-[200px] sm:h-[320px] lg:h-[300px] rounded-2xl overflow-hidden flex items-center justify-center group mt-4 sm:mt-0"
-    >
-      <img
-        src="/images/collections/2.jpg"
-        alt="Vinayak Mangalsutra"
-        className="max-w-full max-h-full rounded-4xl object-contain sm:p-3 group-hover:scale-105 transition-transform duration-300"
-      />
-     
-    </Link>
+      {/* CARD 2 - WEDDING COLLECTION */}
+      <Link 
+        to="/alljewellery?category=Wedding%20Collection" 
+        state={{ scrollToTop: true }}
+        className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+      >
+        {/* Compact Image */}
+        <div className="relative h-[220px] sm:h-[280px] overflow-hidden">
+          <img
+            src="/images/collections/2.jpg"
+            alt="Vinayak Wedding Collection"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+        
+        {/* Compact Content */}
+        <div className="p-4 sm:p-5">
+          <h3 className="text-lg sm:text-xl font-bold text-[#5A2B1A] cinzelfont mb-1">
+            Wedding Collection
+          </h3>
+          <p className="text-[#7a563f] text-sm mb-3">
+            Exquisite designs for your special day
+          </p>
+          <div className="flex items-center text-[#b68d52] font-semibold text-sm">
+            <span>Explore</span>
+            <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </Link>
+
+    </div>
+
   </div>
 </section>
 
@@ -157,19 +202,22 @@ export default function Home() {
 
     
 
-            {/* ---------- VINAYAK COLLECTIONS ---------- */}
-<section className="pb-3 sm:pb-8 py-3 sm:pt-6">
-  <div className="max-w-6xl mx-auto text-center px-4">
+            {/* ---------- VINAYAK CATEGORIES ---------- */}
+<section className="py-6 sm:py-8 bg-[#FFF9E6]">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    
     {/* Section Heading */}
-    <h2 className="text-2xl sm:text-3xl font-semibold text-[#140100] tracking-[2px] cinzelfont">
-      VINAYAK CATEGORIES
-    </h2>
-    <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
+    <div className="text-center mb-6 sm:mb-8">
+      <h2 className="text-2xl sm:text-3xl font-semibold text-[#140100] tracking-[2px] cinzelfont">
+        VINAYAK CATEGORIES
+      </h2>
+      <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
         Discover Your Perfect Fit - Shop By Category
-    </p>
+      </p>
+    </div>
 
-    {/* Collection Grid */}
-    <div className="mt-6 sm:mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-6 ">
+    {/* Compact Category Grid */}
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">
       {[
         { name: "Collections", category: "All Jewellery", img: "/images/category/8.jpg" },
         { name: "Gold", category: "Gold", img: "/images/category/1.jpg" },
@@ -183,43 +231,29 @@ export default function Home() {
         <Link
           key={index}
           to={`/alljewellery?category=${encodeURIComponent(item.category)}`}
-           state={{ scrollToTop: true }}
-          className="flex flex-col items-center text-center group no-underline"
+          state={{ scrollToTop: true }}
+          className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
         >
-          {/* Image box */}
-          <div className=" rounded-2xl overflow-hidden  hover:scale-105 transition-transform duration-300 w-full">
+          {/* Image with proper aspect ratio */}
+          <div className="relative h-[180px] sm:h-[220px] bg-gradient-to-b from-[#FFF7E0] to-white overflow-hidden">
             <img
               src={item.img}
               alt={item.name}
-              className="w-full h-64 object-contain"
+              className="w-full h-full object-contain p-3 sm:p-4 group-hover:scale-105 transition-transform duration-500"
             />
           </div>
-
-          {/* Title below image */}
-          <p className="mt-4 text-[#140100] text-[15px] tracking-[1px] uppercase mainfont font-normal">
-            {item.name}
-          </p>
+          
+          {/* Compact Title */}
+          <div className="p-3 sm:p-4 text-center bg-white">
+            <p className="text-[#140100] text-sm sm:text-[15px] tracking-[1px] uppercase mainfont font-medium">
+              {item.name}
+            </p>
+          </div>
         </Link>
       ))}
     </div>
   </div>
-
-
-            {/* View All Card (linked) */}
-            {/* <Link
-              to="/alljewellery"
-              className="flex flex-col justify-center items-center bg-white rounded-2xl shadow-md h-64 border border-[#140100]/20 hover:shadow-lg hover:scale-105 transition-transform duration-300"
-            >
-              <p className="text-3xl font-semibold text-[#140100]">10+</p>
-              <p className="text-[#3B2E1E] text-[13px] mt-1 cinzelfont">
-                Categories to Choose From
-              </p>
-              <button className="mt-3 text-[#3B2E1E] border border-[#E2C887] rounded-full px-6 py-1 text-[13px] hover:bg-[#E2C887]/20 transition">
-                View All →
-              </button>
-            </Link> */}
-         
-      </section>
+</section>
 
       {/* Decorative Line + Logo */}
       <div className="relative flex items-center justify-center mt-8 sm:mt-8">
@@ -399,7 +433,7 @@ export default function Home() {
 
 
                {/* View on Instagram Button - Show on Hover */}
-               <div className="absolute inset-0 flex items-center justify-center z-20 opacity-100  transition-opacity duration-300 ">
+               {/* <div className="absolute inset-0 flex items-center justify-center z-20 opacity-100  transition-opacity duration-300 ">
                  <a
                    href="https://www.instagram.com/vinayak_jewellers_jaipur?igsh=Z2dzcWgyZThtY2o="
                    target="_blank"
@@ -407,10 +441,8 @@ export default function Home() {
                    className=" text-white text-[12px] px-4 py-2 rounded-full text-sm font-light  hover:scale-105 transition-transform duration-200 flex items-center gap-1"
                  >
                   <img src="/public/images/Icon/video-play.svg" className="w-4 h-4"/>
-                
-                   SEE REELS
                  </a>
-               </div>
+               </div> */}
              </div>
            ))}
          </div>

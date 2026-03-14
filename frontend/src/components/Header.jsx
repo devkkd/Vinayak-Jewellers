@@ -330,23 +330,23 @@ export default function Header() {
   return (
     <header className="bg-[#FFF4DC] border-b border-[#b68d52] text-[#5A2B1A] font-sans w-full sticky top-0 z-50">
       {/* === Top Header Section === */}
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-10 py-2">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-3 sm:px-4 md:px-6 lg:px-10 py-2">
         {/* Left: Logo */}
         <div
-          className="flex items-center cursor-pointer"
+          className="flex items-center cursor-pointer flex-shrink-0"
           onClick={() => navigate("/")}
         >
           <img
             src="/images/934a6aba-bdcc-4aef-ac80-b229a136329c-removebg-preview.png"
-            className="h-14 sm:h-16 md:h-24 w-auto object-cover"
+            className="h-12 sm:h-14 md:h-16 lg:h-20 xl:h-24 w-auto object-cover"
             alt="Vinayak Logo"
           />
         </div>
 
         {/* === Desktop Search Bar === */}
-        <div className="relative hidden md:flex flex-col w-[30%]" ref={searchRef}>
+        <div className="relative hidden lg:flex flex-col w-[35%] xl:w-[30%]" ref={searchRef}>
           <div className="flex items-center rounded-xl border border-[#A7968F] px-3 py-2">
-            <span className="mr-2 text-[#A7968F]">
+            <span className="mr-2 text-[#A7968F] flex-shrink-0">
               <img src="/images/Icon/menu-icons/search.svg" alt="Search" className="w-4 h-4" />
             </span>
             <input
@@ -355,7 +355,7 @@ export default function Header() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleSearch}
               placeholder="Search Gold, Diamond, Silver"
-              className="w-full text-[#A7968F] outline-none text-sm bg-transparent mainfont"
+              className="w-full text-[#A7968F] outline-none text-xs lg:text-sm bg-transparent mainfont"
             />
           </div>
 
@@ -376,53 +376,72 @@ export default function Header() {
         </div>
 
         {/* === Desktop Links + Cart === */}
-        <div className="hidden md:flex items-center gap-4 text-sm font-light text-[#5A2B1A] mainfont">
+        <div className="hidden lg:flex items-center gap-2 xl:gap-4 text-xs xl:text-sm font-light text-[#5A2B1A] mainfont flex-shrink-0">
           {/* About */}
           <Link
             to="/about"
-            className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
+            className="flex items-center gap-1 xl:gap-2 transition-colors hover:text-[#b68d52] whitespace-nowrap"
           >
-            <img src="/images/Icon/menu-icons/about.svg" alt="About" className="w-4 h-4" />
-            <span>About Vinayak</span>
+            <img src="/images/Icon/menu-icons/about.svg" alt="About" className="w-3.5 xl:w-4 h-3.5 xl:h-4 flex-shrink-0" />
+            <span className="hidden xl:inline">About Vinayak</span>
+            <span className="xl:hidden">About</span>
           </Link>
 
-          <span className="h-5 w-[1px] bg-[#b68d52]" />
+          <span className="h-4 xl:h-5 w-[1px] bg-[#b68d52]" />
 
           {/* Contact */}
           <Link
             to="/contact"
-            className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
+            className="flex items-center gap-1 xl:gap-2 transition-colors hover:text-[#b68d52] whitespace-nowrap"
           >
-            <img src="/images/Icon/menu-icons/call.svg" alt="Contact" className="w-4 h-4" />
-            <span>Contact Us</span>
+            <img src="/images/Icon/menu-icons/call.svg" alt="Contact" className="w-3.5 xl:w-4 h-3.5 xl:h-4 flex-shrink-0" />
+            <span className="hidden xl:inline">Contact Us</span>
+            <span className="xl:hidden">Contact</span>
           </Link>
 
-          <span className="h-5 w-[1px] bg-[#b68d52]" />
+          <span className="h-4 xl:h-5 w-[1px] bg-[#b68d52]" />
 
           {/* Store Location */}
           <a
             href="https://www.google.com/maps?ll=26.959695,75.778472&z=15&t=m&hl=en&gl=IN&mapclient=embed&cid=17692495985853724670"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 transition-colors hover:text-[#b68d52]"
+            className="flex items-center gap-1 xl:gap-2 transition-colors hover:text-[#b68d52] whitespace-nowrap"
           >
-            <img src="/images/Icon/menu-icons/location.svg" alt="Store Location" className="w-4 h-4" />
-            <span>Visit Our Store</span>
+            <img src="/images/Icon/menu-icons/location.svg" alt="Store Location" className="w-3.5 xl:w-4 h-3.5 xl:h-4 flex-shrink-0" />
+            <span className="hidden xl:inline">Visit Our Store</span>
+            <span className="xl:hidden">Store</span>
+          </a>
+
+          <span className="h-4 xl:h-5 w-[1px] bg-[#b68d52]" />
+
+          {/* WhatsApp Button */}
+          <a
+            href="https://wa.me/+919414156451"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 xl:gap-2 transition-colors  whitespace-nowrap"
+          >
+            <svg className="w-3.5 xl:w-4 h-3.5 xl:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+            <span className="hover:text-[#b68d52] ">WhatsApp</span>
           </a>
 
           {/* Enquiry Cart */}
           <Link
             to="/enquiry"
             aria-label="Open Enquiry Cart"
-            className="flex items-center gap-2 bg-gradient-to-b from-[#5A2B1A] via-[#7B4A2A] to-[#2E0D02]
-                       text-white px-4 py-2 rounded-full font-medium shadow-lg border border-[#b68d52]
-                       hover:scale-[1.03] hover:shadow-xl transition-transform duration-200"
+            className="flex items-center gap-1.5 xl:gap-2 bg-gradient-to-b from-[#5A2B1A] via-[#7B4A2A] to-[#2E0D02]
+                       text-white px-3 xl:px-4 py-1.5 xl:py-2 rounded-full font-medium shadow-lg border border-[#b68d52]
+                       hover:scale-[1.03] hover:shadow-xl transition-transform duration-200 whitespace-nowrap"
           >
-            <ShoppingBag className="w-5 h-5" />
-            <span>Enquiry Cart</span>
+            <ShoppingBag className="w-4 xl:w-5 h-4 xl:h-5 flex-shrink-0" />
+            <span className="hidden xl:inline">Enquiry Cart</span>
+            <span className="xl:hidden">Cart</span>
 
             {enquiryItems.length > 0 && (
-              <span className="ml-2 bg-[#FFF7E0] text-[#5A2B1A] font-bold text-xs px-2 py-[3px] rounded-full
+              <span className="ml-1 xl:ml-2 bg-[#FFF7E0] text-[#5A2B1A] font-bold text-xs px-1.5 xl:px-2 py-[2px] xl:py-[3px] rounded-full
                                border border-[#d1b890] shadow-sm">
                 {enquiryItems.length}
               </span>
@@ -432,7 +451,7 @@ export default function Header() {
 
         {/* === Mobile Menu Toggle === */}
         <button
-          className="md:hidden text-[#0E0100] text-2xl"
+          className="lg:hidden text-[#0E0100] text-xl sm:text-2xl flex-shrink-0 p-2"
           onClick={toggleMenu}
           aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
@@ -441,10 +460,12 @@ export default function Header() {
       </div>
 
       {/* === Mobile Search Bar === */}
-      <div className="relative flex md:hidden flex-col w-[90%] mx-auto mb-3" ref={mobileSearchRef}>
+      <div className="relative flex lg:hidden flex-col w-[90%] sm:w-[85%] md:w-[80%] mx-auto mb-3" ref={mobileSearchRef}>
         <div className="flex items-center bg-white rounded-full border border-[#c7a46d] px-3 py-2">
-          <span className="mr-2 text-[#A7968F]">
-            <img src="/icons/search-icon.png" alt="Search" className="w-4 h-4" />
+          <span className="mr-2 text-[#A7968F] flex-shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </span>
           <input
             type="text"
@@ -452,7 +473,7 @@ export default function Header() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleSearch}
             placeholder="Search Gold, Diamond, Silver"
-            className="w-full text-[#A7968F] outline-none text-sm bg-transparent mainfont"
+            className="w-full text-[#A7968F] outline-none text-xs sm:text-sm bg-transparent mainfont placeholder:text-[#A7968F]"
           />
         </div>
 
@@ -472,7 +493,7 @@ export default function Header() {
       </div>
 
       {/* === Bottom Navigation (Mobile & Desktop) === */}
-      <nav className={`${menuOpen ? "flex" : "hidden"} md:flex flex-wrap justify-center gap-3 md:gap-6 py-3`}>
+      <nav className={`${menuOpen ? "flex" : "hidden"} lg:flex flex-wrap justify-center gap-2 sm:gap-3 lg:gap-4 xl:gap-6 py-2 sm:py-3 px-2`}>
         {categories.map((cat, index) => (
           <div
             key={index}
@@ -483,10 +504,10 @@ export default function Header() {
             <Link
               to={cat.link}
               onClick={(e) => { e.preventDefault(); navigate(cat.link); setMenuOpen(false); }}
-              className="relative flex items-center gap-2 text-[#5A2B1A] px-4 py-2  rounded-xl text-sm md:text-base transition-all duration-300 after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-[#5A2B1A] after:transition-all after:duration-300 group-hover:after:w-full"
+              className="relative flex items-center gap-1.5 lg:gap-2 text-[#5A2B1A] px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm lg:text-base transition-all duration-300 after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-[#5A2B1A] after:transition-all after:duration-300 group-hover:after:w-full whitespace-nowrap"
             >
-              {cat.iconComponent}
-              {cat.name}
+              <span className="flex-shrink-0">{cat.iconComponent}</span>
+              <span>{cat.name}</span>
             </Link>
 
             {/* Only show dropdown if category has sub items */}
@@ -496,10 +517,10 @@ export default function Header() {
        top-[110%] left-1/2 -translate-x-1/2
        bg-[#FFF7E0] text-[#5A2B1A]
        shadow-xl rounded-xl
-       px-4 py-3 z-50 min-w-max`}
+       px-3 sm:px-4 py-2 sm:py-3 z-50 min-w-max max-w-[90vw]`}
               >
                 {/* Heading */}
-                <h3 className="text-center uppercase font-bold text-16px text-[#0E0100] mb-2">
+                <h3 className="text-center uppercase font-bold text-sm sm:text-base text-[#0E0100] mb-2">
                   {cat.name}
                 </h3>
 
@@ -507,7 +528,7 @@ export default function Header() {
                 <hr className="border-[#d1b890] mb-2" />
 
                 {/* Sub-items in 2 columns */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
                   {cat.sub.map((sub, i) => (
                     <Link
                       key={i}
@@ -518,7 +539,7 @@ export default function Header() {
                         setOpenSub(null);
                         navigate(sub.link);
                       }}
-                      className="px-4 py-1 text-sm hover:underline rounded-lg text-left cursor-pointer"
+                      className="px-3 sm:px-4 py-1 text-xs sm:text-sm hover:underline rounded-lg text-left cursor-pointer whitespace-nowrap"
                     >
                       {sub.name}
                     </Link>
@@ -532,29 +553,29 @@ export default function Header() {
               <div
                 className={`absolute ${openSub === index ? "block" : "hidden"} group-hover:block top-[110%] left-1/2 -translate-x-1/2 z-50`}
               >
-                <div className="w-[min(600px,85vw)] bg-[#FFF4DC] text-[#5A2B1A] shadow-2xl rounded-2xl overflow-hidden transition-all duration-200 ease-out">
+                <div className="w-[min(600px,90vw)] bg-[#FFF4DC] text-[#5A2B1A] shadow-2xl rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-200 ease-out">
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-[#FFF7E0] to-[#FFF4DC] px-6 py-4 ">
-                    <h3 className="text-center uppercase font-bold text-16px text-[#0E0100] mb-2">{cat.name}</h3>
-                    <hr className="border-[#d1b890] " />
+                  <div className="bg-gradient-to-r from-[#FFF7E0] to-[#FFF4DC] px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
+                    <h3 className="text-center uppercase font-bold text-sm sm:text-base text-[#0E0100] mb-1 sm:mb-2">{cat.name}</h3>
+                    <hr className="border-[#d1b890]" />
                   </div>
 
                   {/* Content Grid */}
-                  <div className="p-2 grid grid-cols-1 md:grid-cols-3 gap-6  ">
+                  <div className="p-2 sm:p-3 lg:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                     {cat.sub.map((category, catIndex) => (
                       <div
                         key={catIndex}
-                        className="group/metal px-5"
+                        className="group/metal px-2 sm:px-3 lg:px-5"
                       >
                         {/* Metal Category Header with Icon */}
-                        <div className="flex items-center gap-3  pb-3">
-                          <h3 className="font-bold text-12px  text-[#0E0100]">
+                        <div className="flex items-center gap-2 sm:gap-3 pb-2 sm:pb-3">
+                          <h3 className="font-bold text-xs sm:text-sm text-[#0E0100]">
                             {category.category}
                           </h3>
                         </div>
 
                         {/* Items List - All items shown directly (no subdropdown) */}
-                        <ul className="space-y-1">
+                        <ul className="space-y-0.5 sm:space-y-1">
                           {category.items.map((item, itemIndex) => (
                             <li key={itemIndex}>
                               <Link
@@ -565,7 +586,7 @@ export default function Header() {
                                   setOpenSub(null);
                                   navigate(item.link);
                                 }}
-                                className="block py-1 text-sm text-[#7a563f] rounded-md hover:bg-[#FFF4DC] hover:text-[#5A2B1A] transition-all duration-150 border border-transparent hover:underline cursor-pointer"
+                                className="block py-0.5 sm:py-1 text-xs sm:text-sm text-[#7a563f] rounded-md hover:bg-[#FFF4DC] hover:text-[#5A2B1A] transition-all duration-150 border border-transparent hover:underline cursor-pointer"
                               >
                                 {item.name}
                               </Link>
@@ -581,17 +602,31 @@ export default function Header() {
           </div>
         ))}
 
+        {/* Mobile WhatsApp Button */}
+        <a
+          href="https://wa.me/919876543210"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setMenuOpen(false)}
+          className="flex lg:hidden items-center justify-center gap-1.5 sm:gap-2 bg-[#25D366] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium shadow-md hover:bg-[#20BA5A] hover:scale-105 transition-all duration-200 whitespace-nowrap"
+        >
+          <svg className="w-3.5 sm:w-4 h-3.5 sm:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+          </svg>
+          <span>WhatsApp</span>
+        </a>
+
         {/* Mobile Cart */}
         <Link
           to="/enquiry"
           onClick={() => setMenuOpen(false)}
           aria-label="Open Enquiry Cart"
-          className="flex md:hidden items-center justify-center gap-2 bg-gradient-to-b from-[#5A2B1A] via-[#7B4A2A] to-[#2E0D02] text-white px-4 py-2 rounded-full text-sm font-medium shadow-md border border-[#b68d52] hover:scale-105 transition-transform duration-200"
+          className="flex lg:hidden items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-b from-[#5A2B1A] via-[#7B4A2A] to-[#2E0D02] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium shadow-md border border-[#b68d52] hover:scale-105 transition-transform duration-200 whitespace-nowrap"
         >
-          <img src="/icons/cart-icon.png" alt="Enquiry Cart" className="w-4 h-4" />
+          <ShoppingBag className="w-3.5 sm:w-4 h-3.5 sm:h-4 flex-shrink-0" />
           <span>Enquiry</span>
           {enquiryItems.length > 0 && (
-            <span className="ml-2 bg-[#FFF7E0] text-[#5A2B1A] font-bold text-xs px-2 py-[3px] rounded-full border border-[#d1b890] shadow-sm">
+            <span className="ml-1 sm:ml-2 bg-[#FFF7E0] text-[#5A2B1A] font-bold text-xs px-1.5 sm:px-2 py-[2px] sm:py-[3px] rounded-full border border-[#d1b890] shadow-sm">
               {enquiryItems.length}
             </span>
           )}
