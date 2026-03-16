@@ -208,7 +208,7 @@ const Footer = () => {
                     href="https://www.instagram.com/vinayak_jewellers_jaipur/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full  flex items-center justify-center text-white hover:scale-110 transition-transform shadow-md"
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center text-white hover:scale-110 transition-transform shadow-md"
                   >
                     <FaInstagram size={18} />
                   </a>
