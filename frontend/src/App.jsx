@@ -50,6 +50,7 @@ import ManageProducts from "./Pages/AdminDashboard/ManageProducts";
 import ManageCategories from "./Pages/AdminDashboard/ManageCategories";
 import ManageMenus from "./Pages/AdminDashboard/ManageMenus";
 import ManageEnquiries from "./Pages/AdminDashboard/ManageEnquiries";
+import ManageInstagramReels from "./Pages/AdminDashboard/ManageInstagramReels";
 import AddProduct from "./Pages/AdminDashboard/AddProduct";
 import BulkUpload from "./Pages/AdminDashboard/BulkUpload";
 
@@ -97,6 +98,7 @@ function App() {
                 <Route path="categories" element={<ManageCategories />} />
                 <Route path="menus" element={<ManageMenus />} />
                 <Route path="enquiries" element={<ManageEnquiries />} />
+                <Route path="instagram-reels" element={<ManageInstagramReels />} />
               </Route>
 
               {/* 💎 Jewellery Pages */}

@@ -122,12 +122,12 @@ const Footer = () => {
                   <div className="space-y-2 text-sm text-[#7a563f]">
                     <div className="flex justify-between">
                       <span className="font-medium">Monday - Saturday</span>
-                      <span>10:00 AM - 8:00 PM</span>
+                      <span>10:30 AM - 8:30 PM</span>
                     </div>
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                       <span className="font-medium">Sunday</span>
                       <span>11:00 AM - 7:00 PM</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

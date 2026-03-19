@@ -9,6 +9,7 @@ import {
   FaEnvelope,
   FaSignOutAlt,
   FaUpload,
+  FaInstagram,
 } from "react-icons/fa";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
@@ -34,6 +35,7 @@ const AdminDashboard = () => {
     { to: "/dashboard/categories", label: "Categories", icon: <FaThList /> },
     { to: "/dashboard/menus", label: "Manage Menus", icon: <FaThList /> },
     { to: "/dashboard/enquiries", label: "Enquiries", icon: <FaEnvelope /> },
+    { to: "/dashboard/instagram-reels", label: "Instagram Reels", icon: <FaInstagram /> },
   ];
 
   // 🧠 Fetch Dashboard Data from API

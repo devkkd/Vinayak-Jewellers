@@ -234,8 +234,90 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* Vinayak Assurance */}
-        <section className="pb-3 sm:pb-8 pt-4 sm:pt-6 bg-[#FFF9E6]">
+      {/* ---------- MEET THE FOUNDER ---------- */}
+      <section className="bg-[#FFF7E0] py-14 md:py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-12">
+
+          {/* Top label */}
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <span className="h-px w-10 bg-[#b68d52]" />
+            <span className="text-[11px] tracking-[0.25em] uppercase font-semibold text-[#b68d52] mainfont">
+              Est. 2005 · Jaipur, Rajasthan
+            </span>
+            <span className="h-px w-10 bg-[#b68d52]" />
+          </div>
+
+          {/* Main row — stretch so both sides match height */}
+          <div className="flex flex-col md:flex-row gap-10 items-stretch">
+
+            {/* Left — Image fills full height of right content */}
+            <div className="w-full md:w-[42%] flex-shrink-0">
+              <div className="relative h-full min-h-[320px] rounded-2xl overflow-hidden shadow-xl border border-[#b68d52]/30">
+                <img
+                  src="/images/founder.jpg"
+                  alt="Founder of Vinayak Jewellers"
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+                {/* Dark gradient at bottom for name overlay */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#2E0D02]/90 via-[#5A2B1A]/50 to-transparent px-5 pt-10 pb-5">
+                  <p className="text-white cinzelfont text-lg font-semibold leading-tight">Mr. Vinay Gupta</p>
+                  <p className="text-[#e2c887] mainfont text-xs mt-1 tracking-wide">Founder & Director, Vinayak Jewellers</p>
+                  <p className="text-[#e2c887]/70 mainfont text-[11px] mt-0.5">Vidhyadhar Nagar, Jaipur · Est. 2005</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — Content */}
+            <div className="w-full md:w-[58%] flex flex-col justify-center">
+
+              <h2 className="text-3xl md:text-4xl cinzelfont font-[600] text-[#5A2B1A] leading-tight mb-3">
+                Meet the Founder
+              </h2>
+              <div className="w-12 h-[3px] bg-[#b68d52] rounded-full mb-6" />
+
+              <p className="text-[#3B2E1E] mainfont text-[15px] leading-relaxed mb-4">
+                Founded in <span className="font-semibold text-[#5A2B1A]">2005</span>, Vinayak Jewellers was built on a single belief — that every family deserves jewellery they can trust. Starting from a humble showroom in Vidhyadhar Nagar, Jaipur, the founder's vision was to blend Rajasthan's rich jewellery heritage with modern craftsmanship and complete transparency.
+              </p>
+
+              <p className="text-[#3B2E1E] mainfont text-[15px] leading-relaxed mb-6">
+                Over two decades, that vision has grown into one of Jaipur's most trusted names in gold, diamond, and silver jewellery — serving thousands of families with hallmark certified pieces and honest pricing.
+              </p>
+
+              {/* Quote */}
+              <div className="bg-[#FFEAC5] border-l-4 border-[#b68d52] rounded-r-xl px-5 py-4 mb-7">
+                <p className="text-[#5A2B1A] cinzelfont italic text-[15px] md:text-base leading-relaxed">
+                  "We don't just sell jewellery — we earn trust, one family at a time."
+                </p>
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center gap-6 sm:gap-8">
+                <div>
+                  <p className="text-2xl font-bold cinzelfont text-[#5A2B1A]">20+</p>
+                  <p className="text-[11px] text-[#7a563f] mainfont mt-0.5 uppercase tracking-wider">Years of Trust</p>
+                </div>
+                <div className="h-8 w-px bg-[#b68d52]/40" />
+                <div>
+                  <p className="text-2xl font-bold cinzelfont text-[#5A2B1A]">10K+</p>
+                  <p className="text-[11px] text-[#7a563f] mainfont mt-0.5 uppercase tracking-wider">Happy Families</p>
+                </div>
+                <div className="h-8 w-px bg-[#b68d52]/40" />
+                <div>
+                  <p className="text-2xl font-bold cinzelfont text-[#5A2B1A]">100%</p>
+                  <p className="text-[11px] text-[#7a563f] mainfont mt-0.5 uppercase tracking-wider">Hallmark Certified</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+     {/* ---------- VINAYAK ASSURANCE ---------- */}
+      <section className="pb-3 sm:pb-8 pt-4 sm:pt-6 ">
         <div className="max-w-6xl mx-auto text-center px-4">
           <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wide">
             VINAYAK ASSURANCE
@@ -244,25 +326,24 @@ export default function AboutUs() {
             Designed With Precision, Treasured By You.
           </p>
 
-          <div className="mt-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-8">
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-8">
             {[
               {
                 icon: "/images/assurance/Group 44.svg",
                 title: "Master Craftsmanship",
                 desc: "Every Piece Is Made With Expert Attention To Detail.",
               },
-               {
+              {
                 icon: "/images/assurance/Group 41.svg",
                 title: "Purity Certified",
                 desc: "Guaranteed Authenticity With Hallmark Standards.",
               },
-              
               {
                 icon: "/images/assurance/Group 42.svg",
                 title: "Complete Transparency",
                 desc: "100% Clarity In Quality And Value.",
               },
-             {
+              {
                 icon: "/images/assurance/Group 43.svg",
                 title: "Responsibly Sourced",
                 desc: "Ethically Obtained Materials You Can Trust.",
@@ -272,8 +353,14 @@ export default function AboutUs() {
                 title: "Trust & Clarity",
                 desc: "20+ Years Of Transparent Processes For Peace Of Mind.",
               },
+              {
+                icon: "/images/assurance/Group 44.svg",
+                title: "Easy Exchange",
+                desc: "Hassle-Free Exchange Policy On All Jewellery.",
+                mobileOnly: true,
+              },
             ].map((item, index) => (
-              <div key={index} className="text-center">
+              <div key={index} className={`text-center ${item.mobileOnly ? "md:hidden" : ""}`}>
                 <div className="flex justify-center items-center w-16 h-16 mx-auto bg-[#E2C887]/20 rounded-full text-3xl mb-4">
                  <img
                     src={item.icon}

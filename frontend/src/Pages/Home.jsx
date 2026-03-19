@@ -1,12 +1,52 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import BannerSlider from "../components/BannerSlider";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getReels } from "../api/instagramReelAPI";
 
 export default function Home() {
-  const [hoveredReel, setHoveredReel] = useState(null);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [perView, setPerView] = useState(3);
+  const [reels, setReels] = useState([]);
+  const [reelIndex, setReelIndex] = useState(0);
+  const [desktopPage, setDesktopPage] = useState(0);
+  const touchStartX = useRef(0);
+  const mobileVideoRefs = useRef([]);
+  const desktopVideoRefs = useRef([]);
+
+  // Play active mobile video, pause others
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      mobileVideoRefs.current.forEach((vid, i) => {
+        if (!vid) return;
+        if (i === reelIndex) {
+          vid.currentTime = 0;
+          vid.play().catch(() => {});
+        } else {
+          vid.pause();
+          vid.currentTime = 0;
+        }
+      });
+    }, 520);
+    return () => clearTimeout(timer);
+  }, [reelIndex, reels]);
+
+  // Play visible desktop videos (4 visible from desktopPage), pause others
+  useEffect(() => {
+    // wait for slide animation to finish before playing
+    const timer = setTimeout(() => {
+      desktopVideoRefs.current.forEach((vid, i) => {
+        if (!vid) return;
+        if (i >= desktopPage && i < desktopPage + 4) {
+          vid.play().catch(() => {});
+        } else {
+          vid.pause();
+          vid.currentTime = 0;
+        }
+      });
+    }, 520);
+    return () => clearTimeout(timer);
+  }, [desktopPage, reels]);
 
   useEffect(() => {
     const updatePerView = () => {
@@ -19,6 +59,12 @@ export default function Home() {
     window.addEventListener("resize", updatePerView);
     return () => window.removeEventListener("resize", updatePerView);
   }, []);
+
+  // Fetch reels from backend
+  useEffect(() => {
+    getReels().then((data) => setReels(data || [])).catch(() => {});
+  }, []);
+
 
   const reviews = [
     {
@@ -45,7 +91,7 @@ export default function Home() {
       name: "Raj Sharma",
       location: "Bangalore",
       rating: 4,
-      review: "Beautiful interior ! clean and hygienic washroom. very close to Premanandji maharaj’s ashram.. isckon. within the radius of 1 kms you will find all the major temples. highly recommended",
+      review: "Beautiful interior ! clean and hygienic washroom. very close to Premanandji maharaj�s ashram.. isckon. within the radius of 1 kms you will find all the major temples. highly recommended",
       image: "/images/reviews/unnamed.png",      
       verified: true,
     },
@@ -202,11 +248,9 @@ export default function Home() {
 
     
 
-            {/* ---------- VINAYAK CATEGORIES ---------- */}
+{/* ---------- VINAYAK CATEGORIES ---------- */}
 <section className="py-6 sm:py-8 bg-[#FFF9E6]">
   <div className="max-w-7xl mx-auto px-4 sm:px-6">
-    
-    {/* Section Heading */}
     <div className="text-center mb-6 sm:mb-8">
       <h2 className="text-2xl sm:text-3xl font-semibold text-[#140100] tracking-[2px] cinzelfont">
         VINAYAK CATEGORIES
@@ -215,43 +259,33 @@ export default function Home() {
         Discover Your Perfect Fit - Shop By Category
       </p>
     </div>
+  </div>
 
-    {/* Compact Category Grid */}
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">
-      {[
-        { name: "Collections", category: "All Jewellery", img: "/images/categories/1.jpg.jpeg" },
-        { name: "Gold", category: "Gold", img: "/images/categories/2.jpg.jpeg" },
-        { name: "Diamond", category: "Diamond", img: "/images/categories/3.jpg.jpeg" },
-        { name: "Silver", category: "Silver", img: "/images/categories/4.jpg.jpeg" },
-        { name: "Men's", category: "Mens", img: "/images/categories/5.jpg.jpeg" },
-        { name: "Coins", category: "Coins", img: "/images/categories/6.jpg.jpeg" },
-        { name: "Gifting", category: "Gifting", img: "/images/categories/7.jpg.jpeg" },
-        { name: "Birth Stones", category: "Birth Stones", img: "/images/categories/8.jpg.jpeg" },
-      ].map((item, index) => (
-        <Link
-          key={index}
-          to={`/alljewellery?category=${encodeURIComponent(item.category)}`}
-          state={{ scrollToTop: true }}
-          className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
-        >
-          {/* Image with proper aspect ratio */}
-          <div className="relative h-[180px] sm:h-[220px] bg-gradient-to-b from-[#FFF7E0] to-white overflow-hidden">
-            <img
-              src={item.img}
-              alt={item.name}
-              className="w-full h-full object-contain p-3 sm:p-4 group-hover:scale-105 transition-transform duration-500"
-            />
-          </div>
-          
-          {/* Compact Title */}
-          <div className="p-3 sm:p-4 text-center bg-white">
-            <p className="text-[#140100] text-sm sm:text-[15px] tracking-[1px] uppercase mainfont font-medium">
-              {item.name}
-            </p>
-          </div>
-        </Link>
-      ))}
-    </div>
+  {/* Full-bleed image grid, no gap */}                                      
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 sm:gap-9  max-w-5xl justify-center items-center mx-5 sm:mx-auto">
+    {[
+      { name: "Collections", category: "All Jewellery", img: "/images/categories/1.jpg.jpeg" },
+      { name: "Gold", category: "Gold", img: "/images/categories/2.jpg.jpeg" },
+      { name: "Diamond", category: "Diamond", img: "/images/categories/3.jpg.jpeg" },
+      { name: "Silver", category: "Silver", img: "/images/categories/4.jpg.jpeg" },
+      { name: "Men's", category: "Mens", img: "/images/categories/5.jpg.jpeg" },
+      { name: "Coins", category: "Coins", img: "/images/categories/6.jpg.jpeg" },
+      { name: "Gifting", category: "Gifting", img: "/images/categories/7.jpg.jpeg" },
+      { name: "Birth Stones", category: "Birth Stones", img: "/images/categories/8.jpg.jpeg" },
+    ].map((item, index) => (
+      <Link
+        key={index}
+        to={`/alljewellery?category=${encodeURIComponent(item.category)}`}
+        state={{ scrollToTop: true }}
+        className="group block aspect-[3/4] overflow-hidden"
+      >
+        <img
+          src={item.img}
+          alt={item.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      </Link>
+    ))}
   </div>
 </section>
 
@@ -276,25 +310,24 @@ export default function Home() {
             Designed With Precision, Treasured By You.
           </p>
 
-          <div className="mt-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-4 sm:gap-8">
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-8">
             {[
               {
                 icon: "/images/assurance/Group 44.svg",
                 title: "Master Craftsmanship",
                 desc: "Every Piece Is Made With Expert Attention To Detail.",
               },
-               {
+              {
                 icon: "/images/assurance/Group 41.svg",
                 title: "Purity Certified",
                 desc: "Guaranteed Authenticity With Hallmark Standards.",
               },
-              
               {
                 icon: "/images/assurance/Group 42.svg",
                 title: "Complete Transparency",
                 desc: "100% Clarity In Quality And Value.",
               },
-             {
+              {
                 icon: "/images/assurance/Group 43.svg",
                 title: "Responsibly Sourced",
                 desc: "Ethically Obtained Materials You Can Trust.",
@@ -304,8 +337,14 @@ export default function Home() {
                 title: "Trust & Clarity",
                 desc: "20+ Years Of Transparent Processes For Peace Of Mind.",
               },
+              {
+                icon: "/images/assurance/Group 44.svg",
+                title: "Easy Exchange",
+                desc: "Hassle-Free Exchange Policy On All Jewellery.",
+                mobileOnly: true,
+              },
             ].map((item, index) => (
-              <div key={index} className="text-center">
+              <div key={index} className={`text-center ${item.mobileOnly ? "md:hidden" : ""}`}>
                 <div className="flex justify-center items-center w-16 h-16 mx-auto bg-[#E2C887]/20 rounded-full text-3xl mb-4">
                  <img
                     src={item.icon}
@@ -341,7 +380,7 @@ export default function Home() {
             SHOP BY OCCASION
           </h2>
           <p className="text-[#1d1413] mt-2 mainfont tracking-wider text-[16px]">
-            Celebrate Every Moment – Jewellery For Every Occasion
+            Celebrate Every Moment � Jewellery For Every Occasion
           </p>
 
           <div className="mt-6 sm:mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-8">
@@ -351,10 +390,11 @@ export default function Home() {
               { name: "Gold Rajasthani Collection", img: "/images/ocassion/11.jpg" },
               { name: "Rose Gold Collection", img: "/images/ocassion/12.jpg" },
               { name: "Diamond Wedding Collection", img: "/images/ocassion/13.jpg" },
+              { name: "Mangalsutra Collection", img: "/images/ocassion/14.jpg", mobileOnly: true },
             ].map((item, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center text-center group"
+                className={`flex flex-col items-center text-center group ${item.mobileOnly ? "md:hidden" : ""}`}
               >
                 {/* Image box */}
                 <div className=" rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300 w-full">
@@ -395,59 +435,133 @@ export default function Home() {
             Discover Our Latest Designs & Beautiful Moments
          </p>
 
-         {/* Instagram Reels Grid - 4 blocks */}
-         <div className="mt-10 sm:mt-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6">
-           {[
-             { id: 1, img: "/images/video/WhatsApp Image 2025-12-18 at 4.13.13 PM.jpeg", video: "/images/video/22kt Hallmark Jewellery.mp4" },
-             { id: 2, img: "/images/video/WhatsApp Image 2025-12-18 at 4.13.45 PM.jpeg", video: "/images/video/SnapInsta.to_AQPi4R_iFN7GIsKvwRn2PYvvASVNk2nMwiREQWtfH2GWJWbTXiXC9aEkKDTjiGq3xKsJg1-4fhn5evhF-Ec8iH9PYyNShG-qMsnl2f0.mp4" },
-             { id: 3, img: "/images/video/1000317026.jpg", video: "/images/video/SnapInsta.to_AQNMkNfwYM2ODvqIeGR2QlYWm_C2qjwhSoj3TQBDeqkZ4aQpWAoE66ubQ-geeov53Ab4S1Awbg5t1UfQzxHU8Me4uMwQmdMvrawoWe4.mp4" },
-             { id: 4, img: "/images/video/WhatsApp Image 2025-12-18 at 4.14.08 PM.jpeg", video: "/images/video/SnapInsta.to_AQMlI47k7pNC1xRMAWYI2qgiIuLd6h5RaQ4wShZwqua4aNlwUFGm8KJ0UQueG_1Vfir1HQz5N4xW6rroy89m5r-2dfJSoq80JFzvjic (1).mp4" },
-           ].map((reel) => (
-             <div
-               key={reel.id}
-               className="relative w-full h-[26rem] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group"
-               onMouseEnter={() => setHoveredReel(reel.id)}
-               onMouseLeave={() => setHoveredReel(null)}
-             >
-               {/* Video or Image */}
-               {hoveredReel === reel.id ? (
-                 <video
-                   autoPlay
-                   muted
-                   loop
-                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+         {reels.length === 0 ? (
+           <div className="mt-10 flex flex-col items-center justify-center gap-3 py-16 text-[#7a563f]">
+             <p className="text-sm">No reels uploaded yet. Check back soon!</p>
+           </div>
+         ) : (
+           <>
+             {/* MOBILE: sliding carousel with dots + swipe */}
+             <div className="mt-8 md:hidden">
+               <div
+                 className="overflow-hidden w-full max-w-[260px] mx-auto rounded-2xl shadow-xl"
+                 onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+                 onTouchEnd={(e) => {
+                   const diff = touchStartX.current - e.changedTouches[0].clientX;
+                   if (diff > 40) setReelIndex((p) => Math.min(p + 1, reels.length - 1));
+                   else if (diff < -40) setReelIndex((p) => Math.max(p - 1, 0));
+                 }}
+               >
+                 <div
+                   className="flex transition-transform duration-500 ease-in-out"
+                   style={{ transform: `translateX(-${reelIndex * 260}px)` }}
                  >
-                   <source src={reel.video} type="video/mp4" />
-                   Your browser does not support the video tag.
-                 </video>
-               ) : (
-                 <img
-                   src={reel.img}
-                   alt={`Instagram Reel ${reel.id}`}
-                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                 />
-               )}
+                   {reels.map((reel, i) => (
+                     <div key={reel._id} className="relative flex-shrink-0 w-[260px] aspect-[9/16] bg-black">
+                       <video
+                         ref={(el) => (mobileVideoRefs.current[i] = el)}
+                         src={reel.videoUrl}
+                         className="absolute inset-0 w-full h-full object-cover"
+                         muted playsInline
+                         onEnded={() => setReelIndex((prev) => (prev === reels.length - 1 ? 0 : prev + 1))}
+                       />
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                     </div>
+                   ))}
+                 </div>
+               </div>
 
-                {/* Overlay */}
-               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/10 transition-all duration-300 z-10" />
-
-
-               {/* View on Instagram Button - Show on Hover */}
-               {/* <div className="absolute inset-0 flex items-center justify-center z-20 opacity-100  transition-opacity duration-300 ">
-                 <a
-                   href="https://www.instagram.com/vinayak_jewellers_jaipur?igsh=Z2dzcWgyZThtY2o="
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className=" text-white text-[12px] px-4 py-2 rounded-full text-sm font-light  hover:scale-105 transition-transform duration-200 flex items-center gap-1"
-                 >
-                  <img src="/public/images/Icon/video-play.svg" className="w-4 h-4"/>
-                 </a>
-               </div> */}
+               {/* Dots */}
+               <div className="flex justify-center gap-2 mt-4">
+                 {reels.map((_, i) => (
+                   <button
+                     key={i}
+                     onClick={() => setReelIndex(i)}
+                     className={`rounded-full transition-all duration-300 ${i === reelIndex ? "w-6 h-2 bg-[#b68d52]" : "w-2 h-2 bg-[#d1b890]"}`}
+                   />
+                 ))}
+               </div>
              </div>
-           ))}
+
+             {/* DESKTOP: scroll 1 at a time, show 4 visible, arrows outside, dots below */}
+             <div className="mt-10 hidden md:block">
+               {(() => {
+                 const total = reels.length;
+                 const maxPage = total > 4 ? total - 4 : 0;
+                 const prevPage = () => setDesktopPage((p) => Math.max(0, p - 1));
+                 const nextPage = () => setDesktopPage((p) => Math.min(maxPage, p + 1));
+                 // each reel card = 25% of container width, gap = 16px
+                 const cardWidthPct = 25;
+                 return (
+                   <>
+                     {/* Arrows + track row */}
+                     <div className="flex items-center gap-3">
+                       {/* Prev arrow */}
+                       <button onClick={prevPage} disabled={desktopPage === 0}
+                         className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFF4DC] border border-[#b68d52] shadow-md flex items-center justify-center text-[#5A2B1A] hover:bg-[#FFEAC5] transition disabled:opacity-30">
+                         <ChevronLeft className="w-5 h-5" />
+                       </button>
+
+                       {/* Sliding window */}
+                       <div className="flex-1 overflow-hidden">
+                         <div
+                           className="flex gap-4 transition-transform duration-500 ease-in-out"
+                           style={{ transform: `translateX(calc(-${desktopPage} * (25% + 4px)))` }}
+                         >
+                           {reels.map((reel, i) => (
+                             <div key={reel._id} className="relative flex-shrink-0 w-[calc(25%-12px)] aspect-[9/16] rounded-2xl overflow-hidden shadow-lg bg-black">
+                               <video
+                                 ref={(el) => (desktopVideoRefs.current[i] = el)}
+                                 src={reel.videoUrl}
+                                 className="absolute inset-0 w-full h-full object-cover"
+                                 muted loop playsInline
+                               />
+                               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+
+                       {/* Next arrow */}
+                       <button onClick={nextPage} disabled={desktopPage >= maxPage}
+                         className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFF4DC] border border-[#b68d52] shadow-md flex items-center justify-center text-[#5A2B1A] hover:bg-[#FFEAC5] transition disabled:opacity-30">
+                         <ChevronRight className="w-5 h-5" />
+                       </button>
+                     </div>
+
+                     {/* Dots — one per reel */}
+                     {total > 4 && (
+                       <div className="flex justify-center gap-2 mt-5">
+                         {reels.map((_, i) => (
+                           <button key={i}
+                             onClick={() => setDesktopPage(Math.min(i, maxPage))}
+                             className={`rounded-full transition-all duration-300 ${i === desktopPage ? "w-6 h-2 bg-[#b68d52]" : "w-2 h-2 bg-[#d1b890]"}`}
+                           />
+                         ))}
+                       </div>
+                     )}
+                   </>
+                 );
+               })()}
+             </div>
+           </>
+         )}
+
+         {/* Follow button */}
+         <div className="mt-8">
+           <a
+             href="https://www.instagram.com/vinayak_jewellers_jaipur/"
+             target="_blank"
+             rel="noopener noreferrer"
+             className="inline-flex items-center gap-2 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white px-6 py-2.5 rounded-full text-sm font-medium shadow-md hover:scale-105 transition-transform duration-200"
+           >
+             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+               <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+             </svg>
+             Follow @vinayak_jewellers_jaipur
+           </a>
          </div>
 
-   
         </div>
       </section>
 
@@ -507,7 +621,7 @@ export default function Home() {
                           {review.name}
                         </h4>
                         <p className="text-[#140100]/60 text-xs">
-                          {review.location} {review.verified && "✓"}
+                          {review.location} {review.verified && "?"}
                         </p>
                       </div>
                     </div>

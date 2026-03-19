@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
+import instagramReelRoutes from "./routes/instagramReelRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -47,6 +48,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/menus", menuRoutes);
+app.use("/api/instagram-reels", instagramReelRoutes);
 
 // ✅ Health check route
 app.get("/health", (_req, res) => res.json({ ok: true }));
