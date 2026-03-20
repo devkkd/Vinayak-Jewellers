@@ -14,10 +14,11 @@ const app = express();
 
 // ✅ Middleware setup
 const allowedOrigins = [
-  "https://vinayak.kontentkraftdigital.com", // your frontend live domain
-  "http://localhost:5173", // local development (Vite default)
-  "http://localhost:5174", // local development (alternative)
-  "http://localhost:3000", // local development (alternative)
+  "https://vinayak.kontentkraftdigital.com",
+  "https://vinayak-jewellers-frontend.onrender.com",
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:3000",
 ];
 
 app.use(
