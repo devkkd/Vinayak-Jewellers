@@ -16,6 +16,8 @@ const app = express();
 const allowedOrigins = [
   "https://vinayak.kontentkraftdigital.com",
   "https://vinayak-jewellers-frontend.onrender.com",
+  "https://vinayakjewellersjaipur.com",
+  "https://www.vinayakjewellersjaipur.com",
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:3000",
