@@ -6,7 +6,7 @@ import "swiper/css/pagination";
 const BannerSlider = () => {
   // Desktop banners
   const desktopBanners = [
-    "/images/banner/1.jpg",
+    "/images/banner/1.jpeg",
     "/images/banner/2.jpg",
     // "/images/banner/3.jpg",  
     "/images/vinayak-jewellers.png",
@@ -17,7 +17,7 @@ const BannerSlider = () => {
   const mobileBanners = [
    "/images/banner/mobile-3.png",
     "/images/banner/mobile-4.png",
-    "/images/banner/mobile-1.png",
+    "/images/banner/mobile-1.jpeg",
     "/images/banner/mobile-2.png",
   ];
 
@@ -72,7 +72,7 @@ const BannerSlider = () => {
                 <img
                   src={src}
                   alt={`mobile-banner-${i + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full object-contain"
                   loading="lazy"
                 />
               </div>

@@ -21,7 +21,7 @@ export default function Home() {
         if (!vid) return;
         if (i === reelIndex) {
           vid.currentTime = 0;
-          vid.play().catch(() => {});
+          vid.play().catch(() => { });
         } else {
           vid.pause();
           vid.currentTime = 0;
@@ -38,7 +38,7 @@ export default function Home() {
       desktopVideoRefs.current.forEach((vid, i) => {
         if (!vid) return;
         if (i >= desktopPage && i < desktopPage + 4) {
-          vid.play().catch(() => {});
+          vid.play().catch(() => { });
         } else {
           vid.pause();
           vid.currentTime = 0;
@@ -62,7 +62,7 @@ export default function Home() {
 
   // Fetch reels from backend
   useEffect(() => {
-    getReels().then((data) => setReels(data || [])).catch(() => {});
+    getReels().then((data) => setReels(data || [])).catch(() => { });
   }, []);
 
 
@@ -92,7 +92,7 @@ export default function Home() {
       location: "Bangalore",
       rating: 4,
       review: "Beautiful interior ! clean and hygienic washroom. very close to Premanandji maharaj�s ashram.. isckon. within the radius of 1 kms you will find all the major temples. highly recommended",
-      image: "/images/reviews/unnamed.png",      
+      image: "/images/reviews/unnamed.png",
       verified: true,
     },
     {
@@ -148,91 +148,91 @@ export default function Home() {
         <div className="w-[250px] h-[1px] bg-gradient-to-r from-[#140100] via-[#5C1D02] to-[#140100]" />
       </div>
 
-    {/* ---------- VINAYAK COLLECTIONS ---------- */}
-<section className="pt-3 sm:pt-6 pb-6 sm:pb-8 bg-[#FFF9E6]">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6">
-    
-    {/* Compact Header */}
-    <div className="text-center mb-6 sm:mb-8">
-      <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wider cinzelfont">
-        VINAYAK COLLECTIONS
-      </h2>
-      <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
-        Discover Our Latest Jewellery Launches
-      </p>
-    </div>
+      {/* ---------- VINAYAK COLLECTIONS ---------- */}
+      <section className="pt-3 sm:pt-6 pb-6 sm:pb-8 bg-[#FFF9E6]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-    {/* Compact 2-Column Grid */}
-    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-      
-      {/* CARD 1 - GIFT COLLECTION */}
-      <Link 
-        to="/alljewellery?category=Gifting" 
-        state={{ scrollToTop: true }}
-        className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
-      >
-        {/* Compact Image */}
-        <div className="relative h-[220px] sm:h-[280px] overflow-hidden">
-          <img
-            src="/images/collections/gift.jpg"
-            alt="Vinayak Gift Range"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        </div>
-        
-        {/* Compact Content */}
-        <div className="p-4 sm:p-5">
-          <h3 className="text-lg sm:text-xl font-bold text-[#5A2B1A] cinzelfont mb-1">
-            Gift Collection
-          </h3>
-          <p className="text-[#7a563f] text-sm mb-3">
-            Perfect gifts for every occasion
-          </p>
-          <div className="flex items-center text-[#b68d52] font-semibold text-sm">
-            <span>Explore</span>
-            <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+          {/* Compact Header */}
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wider cinzelfont">
+              VINAYAK COLLECTIONS
+            </h2>
+            <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
+              Discover Our Latest Jewellery Launches
+            </p>
           </div>
-        </div>
-      </Link>
 
-      {/* CARD 2 - MANGALSUTRA COLLECTION */}
-      <Link 
-        to="/alljewellery?category=Gold&subcategory=Mangalsutra" 
-        state={{ scrollToTop: true }}
-        className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
-      >
-        {/* Compact Image */}
-        <div className="relative h-[220px] sm:h-[280px] overflow-hidden">
-          <img
-            src="/images/collections/mangal.jpg"
-            alt="Vinayak Wedding Collection"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        </div>
-        
-        {/* Compact Content */}
-        <div className="p-4 sm:p-5">
-          <h3 className="text-lg sm:text-xl font-bold text-[#5A2B1A] cinzelfont mb-1">
-            Mangalsutra Collection
-          </h3>
-          <p className="text-[#7a563f] text-sm mb-3">
-            Exquisite designs for your special day
-          </p>
-          <div className="flex items-center text-[#b68d52] font-semibold text-sm">
-            <span>Explore</span>
-            <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+          {/* Compact 2-Column Grid */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+
+            {/* CARD 1 - GIFT COLLECTION */}
+            <Link
+              to="/alljewellery?category=Gifting"
+              state={{ scrollToTop: true }}
+              className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+            >
+              {/* Compact Image */}
+              <div className="relative h-[220px] sm:h-[280px] overflow-hidden">
+                <img
+                  src="/images/collections/gift.jpg"
+                  alt="Vinayak Gift Range"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              {/* Compact Content */}
+              <div className="p-4 sm:p-5">
+                <h3 className="text-lg sm:text-xl font-bold text-[#5A2B1A] cinzelfont mb-1">
+                  Gift Collection
+                </h3>
+                <p className="text-[#7a563f] text-sm mb-3">
+                  Perfect gifts for every occasion
+                </p>
+                <div className="flex items-center text-[#b68d52] font-semibold text-sm">
+                  <span>Explore</span>
+                  <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            {/* CARD 2 - MANGALSUTRA COLLECTION */}
+            <Link
+              to="/alljewellery?category=Gold&subcategory=Mangalsutra"
+              state={{ scrollToTop: true }}
+              className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+            >
+              {/* Compact Image */}
+              <div className="relative h-[220px] sm:h-[280px] overflow-hidden">
+                <img
+                  src="/images/collections/mangal.jpg"
+                  alt="Vinayak Wedding Collection"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              {/* Compact Content */}
+              <div className="p-4 sm:p-5">
+                <h3 className="text-lg sm:text-xl font-bold text-[#5A2B1A] cinzelfont mb-1">
+                  Mangalsutra Collection
+                </h3>
+                <p className="text-[#7a563f] text-sm mb-3">
+                  Exquisite designs for your special day
+                </p>
+                <div className="flex items-center text-[#b68d52] font-semibold text-sm">
+                  <span>Explore</span>
+                  <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
           </div>
+
         </div>
-      </Link>
-
-    </div>
-
-  </div>
-</section>
+      </section>
 
 
       {/* Decorative Line + Logo */}
@@ -246,48 +246,48 @@ export default function Home() {
         <div className="w-[250px] h-[1px] bg-gradient-to-r from-[#140100] via-[#5C1D02] to-[#140100]" />
       </div>
 
-    
 
-{/* ---------- VINAYAK CATEGORIES ---------- */}
-<section className="py-6 sm:py-8 bg-[#FFF9E6]">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6">
-    <div className="text-center mb-6 sm:mb-8">
-      <h2 className="text-2xl sm:text-3xl font-semibold text-[#140100] tracking-[2px] cinzelfont">
-        VINAYAK CATEGORIES
-      </h2>
-      <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
-        Discover Your Perfect Fit - Shop By Category
-      </p>
-    </div>
-  </div>
 
-  {/* Full-bleed image grid, no gap */}                                      
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 sm:gap-9  max-w-5xl justify-center items-center mx-5 sm:mx-auto">
-    {[
-      { name: "Collections", category: "All Jewellery", img: "/images/categories/1.jpg.jpeg" },
-      { name: "Gold", category: "Gold", img: "/images/categories/2.jpg.jpeg" },
-      { name: "Diamond", category: "Diamond", img: "/images/categories/3.jpg.jpeg" },
-      { name: "Silver", category: "Silver", img: "/images/categories/4.jpg.jpeg" },
-      { name: "Men's", category: "Mens", img: "/images/categories/5.jpg.jpeg" },
-      { name: "Coins", category: "Coins", img: "/images/categories/6.jpg.jpeg" },
-      { name: "Gifting", category: "Gifting", img: "/images/categories/7.jpg.jpeg" },
-      { name: "Birth Stones", category: "Birth Stones", img: "/images/categories/8.jpg.jpeg" },
-    ].map((item, index) => (
-      <Link
-        key={index}
-        to={`/alljewellery?category=${encodeURIComponent(item.category)}`}
-        state={{ scrollToTop: true }}
-        className="group block aspect-[3/4] overflow-hidden"
-      >
-        <img
-          src={item.img}
-          alt={item.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-      </Link>
-    ))}
-  </div>
-</section>
+      {/* ---------- VINAYAK CATEGORIES ---------- */}
+      <section className="py-6 sm:py-8 bg-[#FFF9E6]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-[#140100] tracking-[2px] cinzelfont">
+              VINAYAK CATEGORIES
+            </h2>
+            <p className="text-[#140100]/80 mt-2 mainfont tracking-wide text-[15px]">
+              Discover Your Perfect Fit - Shop By Category
+            </p>
+          </div>
+        </div>
+
+        {/* Full-bleed image grid, no gap */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 sm:gap-9  max-w-5xl justify-center items-center mx-5 sm:mx-auto">
+          {[
+            { name: "Collections", category: "All Jewellery", img: "/images/categories/1.jpg.jpeg" },
+            { name: "Gold", category: "Gold", img: "/images/categories/2.jpg.jpeg" },
+            { name: "Diamond", category: "Diamond", img: "/images/categories/3.jpg.jpeg" },
+            { name: "Silver", category: "Silver", img: "/images/categories/4.jpg.jpeg" },
+            { name: "Men's", category: "Mens", img: "/images/categories/5.jpg.jpeg" },
+            { name: "Coins", category: "Coins", img: "/images/categories/6.jpg.jpeg" },
+            { name: "Gifting", category: "Gifting", img: "/images/categories/7.jpg.jpeg" },
+            { name: "Birth Stones", category: "Birth Stones", img: "/images/categories/8.jpg.jpeg" },
+          ].map((item, index) => (
+            <Link
+              key={index}
+              to={`/alljewellery?category=${encodeURIComponent(item.category)}`}
+              state={{ scrollToTop: true }}
+              className="group block aspect-[3/4] overflow-hidden"
+            >
+              <img
+                src={item.img}
+                alt={item.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Decorative Line + Logo */}
       <div className="relative flex items-center justify-center mt-8 sm:mt-8">
@@ -346,7 +346,7 @@ export default function Home() {
             ].map((item, index) => (
               <div key={index} className={`text-center ${item.mobileOnly ? "md:hidden" : ""}`}>
                 <div className="flex justify-center items-center w-16 h-16 mx-auto bg-[#E2C887]/20 rounded-full text-3xl mb-4">
-                 <img
+                  <img
                     src={item.icon}
                     alt={item.title}
                     className="w-12 h-12 object-contain"
@@ -416,151 +416,151 @@ export default function Home() {
       </section>
 
 
-       <div className="relative flex items-center justify-center mt-8 sm:mt-8">
-       <div className="w-[250px] h-[1px] bg-gradient-to-r from-[#140100] via-[#5C1D02] to-[#140100]" />
-       <img
-         src="/images/logoContact.png"
-         alt="Vinayak Logo Divider"
-         className="mx-4 w-10 h-10 object-contain"
-       />
-       <div className="w-[250px] h-[1px] bg-gradient-to-r from-[#140100] via-[#5C1D02] to-[#140100]" />
-     </div>
+      <div className="relative flex items-center justify-center mt-8 sm:mt-8">
+        <div className="w-[250px] h-[1px] bg-gradient-to-r from-[#140100] via-[#5C1D02] to-[#140100]" />
+        <img
+          src="/images/logoContact.png"
+          alt="Vinayak Logo Divider"
+          className="mx-4 w-10 h-10 object-contain"
+        />
+        <div className="w-[250px] h-[1px] bg-gradient-to-r from-[#140100] via-[#5C1D02] to-[#140100]" />
+      </div>
 
-     <section className="pb-3 sm:pb-8 pt-6 sm:pt-8 bg-[#FFF9E6]">
-       <div className="max-w-6xl mx-auto text-center px-4">
-         <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wider cinzelfont">
-           FOLLOW US ON INSTAGRAM
-         </h2>
-         <p className="text-[#140100] mt-2 mainfont tracking-wider text-[15px]">
+      <section className="pb-3 sm:pb-8 pt-6 sm:pt-8 bg-[#FFF9E6]">
+        <div className="max-w-6xl mx-auto text-center px-4">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-[#3B2E1E] tracking-wider cinzelfont">
+            FOLLOW US ON INSTAGRAM
+          </h2>
+          <p className="text-[#140100] mt-2 mainfont tracking-wider text-[15px]">
             Discover Our Latest Designs & Beautiful Moments
-         </p>
+          </p>
 
-         {reels.length === 0 ? (
-           <div className="mt-10 flex flex-col items-center justify-center gap-3 py-16 text-[#7a563f]">
-             <p className="text-sm">No reels uploaded yet. Check back soon!</p>
-           </div>
-         ) : (
-           <>
-             {/* MOBILE: sliding carousel with dots + swipe */}
-             <div className="mt-8 md:hidden">
-               <div
-                 className="overflow-hidden w-full max-w-[260px] mx-auto rounded-2xl shadow-xl"
-                 onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
-                 onTouchEnd={(e) => {
-                   const diff = touchStartX.current - e.changedTouches[0].clientX;
-                   if (diff > 40) setReelIndex((p) => Math.min(p + 1, reels.length - 1));
-                   else if (diff < -40) setReelIndex((p) => Math.max(p - 1, 0));
-                 }}
-               >
-                 <div
-                   className="flex transition-transform duration-500 ease-in-out"
-                   style={{ transform: `translateX(-${reelIndex * 260}px)` }}
-                 >
-                   {reels.map((reel, i) => (
-                     <div key={reel._id} className="relative flex-shrink-0 w-[260px] aspect-[9/16] bg-black">
-                       <video
-                         ref={(el) => (mobileVideoRefs.current[i] = el)}
-                         src={reel.videoUrl}
-                         className="absolute inset-0 w-full h-full object-cover"
-                         muted playsInline
-                         onEnded={() => setReelIndex((prev) => (prev === reels.length - 1 ? 0 : prev + 1))}
-                       />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
-                     </div>
-                   ))}
-                 </div>
-               </div>
+          {reels.length === 0 ? (
+            <div className="mt-10 flex flex-col items-center justify-center gap-3 py-16 text-[#7a563f]">
+              <p className="text-sm">No reels uploaded yet. Check back soon!</p>
+            </div>
+          ) : (
+            <>
+              {/* MOBILE: sliding carousel with dots + swipe */}
+              <div className="mt-8 md:hidden">
+                <div
+                  className="overflow-hidden w-full max-w-[260px] mx-auto rounded-2xl shadow-xl"
+                  onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+                  onTouchEnd={(e) => {
+                    const diff = touchStartX.current - e.changedTouches[0].clientX;
+                    if (diff > 40) setReelIndex((p) => Math.min(p + 1, reels.length - 1));
+                    else if (diff < -40) setReelIndex((p) => Math.max(p - 1, 0));
+                  }}
+                >
+                  <div
+                    className="flex transition-transform duration-500 ease-in-out"
+                    style={{ transform: `translateX(-${reelIndex * 260}px)` }}
+                  >
+                    {reels.map((reel, i) => (
+                      <div key={reel._id} className="relative flex-shrink-0 w-[260px] aspect-[9/16] bg-black">
+                        <video
+                          ref={(el) => (mobileVideoRefs.current[i] = el)}
+                          src={reel.videoUrl}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          muted playsInline
+                          onEnded={() => setReelIndex((prev) => (prev === reels.length - 1 ? 0 : prev + 1))}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-               {/* Dots */}
-               <div className="flex justify-center gap-2 mt-4">
-                 {reels.map((_, i) => (
-                   <button
-                     key={i}
-                     onClick={() => setReelIndex(i)}
-                     className={`rounded-full transition-all duration-300 ${i === reelIndex ? "w-6 h-2 bg-[#b68d52]" : "w-2 h-2 bg-[#d1b890]"}`}
-                   />
-                 ))}
-               </div>
-             </div>
+                {/* Dots */}
+                <div className="flex justify-center gap-2 mt-4">
+                  {reels.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setReelIndex(i)}
+                      className={`rounded-full transition-all duration-300 ${i === reelIndex ? "w-6 h-2 bg-[#b68d52]" : "w-2 h-2 bg-[#d1b890]"}`}
+                    />
+                  ))}
+                </div>
+              </div>
 
-             {/* DESKTOP: scroll 1 at a time, show 4 visible, arrows outside, dots below */}
-             <div className="mt-10 hidden md:block">
-               {(() => {
-                 const total = reels.length;
-                 const maxPage = total > 4 ? total - 4 : 0;
-                 const prevPage = () => setDesktopPage((p) => Math.max(0, p - 1));
-                 const nextPage = () => setDesktopPage((p) => Math.min(maxPage, p + 1));
-                 // each reel card = 25% of container width, gap = 16px
-                 const cardWidthPct = 25;
-                 return (
-                   <>
-                     {/* Arrows + track row */}
-                     <div className="flex items-center gap-3">
-                       {/* Prev arrow */}
-                       <button onClick={prevPage} disabled={desktopPage === 0}
-                         className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFF4DC] border border-[#b68d52] shadow-md flex items-center justify-center text-[#5A2B1A] hover:bg-[#FFEAC5] transition disabled:opacity-30">
-                         <ChevronLeft className="w-5 h-5" />
-                       </button>
+              {/* DESKTOP: scroll 1 at a time, show 4 visible, arrows outside, dots below */}
+              <div className="mt-10 hidden md:block">
+                {(() => {
+                  const total = reels.length;
+                  const maxPage = total > 4 ? total - 4 : 0;
+                  const prevPage = () => setDesktopPage((p) => Math.max(0, p - 1));
+                  const nextPage = () => setDesktopPage((p) => Math.min(maxPage, p + 1));
+                  // each reel card = 25% of container width, gap = 16px
+                  const cardWidthPct = 25;
+                  return (
+                    <>
+                      {/* Arrows + track row */}
+                      <div className="flex items-center gap-3">
+                        {/* Prev arrow */}
+                        <button onClick={prevPage} disabled={desktopPage === 0}
+                          className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFF4DC] border border-[#b68d52] shadow-md flex items-center justify-center text-[#5A2B1A] hover:bg-[#FFEAC5] transition disabled:opacity-30">
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
 
-                       {/* Sliding window */}
-                       <div className="flex-1 overflow-hidden">
-                         <div
-                           className="flex gap-4 transition-transform duration-500 ease-in-out"
-                           style={{ transform: `translateX(calc(-${desktopPage} * (25% + 4px)))` }}
-                         >
-                           {reels.map((reel, i) => (
-                             <div key={reel._id} className="relative flex-shrink-0 w-[calc(25%-12px)] aspect-[9/16] rounded-2xl overflow-hidden shadow-lg bg-black">
-                               <video
-                                 ref={(el) => (desktopVideoRefs.current[i] = el)}
-                                 src={reel.videoUrl}
-                                 className="absolute inset-0 w-full h-full object-cover"
-                                 muted loop playsInline
-                               />
-                               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
-                             </div>
-                           ))}
-                         </div>
-                       </div>
+                        {/* Sliding window */}
+                        <div className="flex-1 overflow-hidden">
+                          <div
+                            className="flex gap-4 transition-transform duration-500 ease-in-out"
+                            style={{ transform: `translateX(calc(-${desktopPage} * (25% + 4px)))` }}
+                          >
+                            {reels.map((reel, i) => (
+                              <div key={reel._id} className="relative flex-shrink-0 w-[calc(25%-12px)] aspect-[9/16] rounded-2xl overflow-hidden shadow-lg bg-black">
+                                <video
+                                  ref={(el) => (desktopVideoRefs.current[i] = el)}
+                                  src={reel.videoUrl}
+                                  className="absolute inset-0 w-full h-full object-cover"
+                                  muted loop playsInline
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
 
-                       {/* Next arrow */}
-                       <button onClick={nextPage} disabled={desktopPage >= maxPage}
-                         className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFF4DC] border border-[#b68d52] shadow-md flex items-center justify-center text-[#5A2B1A] hover:bg-[#FFEAC5] transition disabled:opacity-30">
-                         <ChevronRight className="w-5 h-5" />
-                       </button>
-                     </div>
+                        {/* Next arrow */}
+                        <button onClick={nextPage} disabled={desktopPage >= maxPage}
+                          className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFF4DC] border border-[#b68d52] shadow-md flex items-center justify-center text-[#5A2B1A] hover:bg-[#FFEAC5] transition disabled:opacity-30">
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+                      </div>
 
-                     {/* Dots — one per reel */}
-                     {total > 4 && (
-                       <div className="flex justify-center gap-2 mt-5">
-                         {reels.map((_, i) => (
-                           <button key={i}
-                             onClick={() => setDesktopPage(Math.min(i, maxPage))}
-                             className={`rounded-full transition-all duration-300 ${i === desktopPage ? "w-6 h-2 bg-[#b68d52]" : "w-2 h-2 bg-[#d1b890]"}`}
-                           />
-                         ))}
-                       </div>
-                     )}
-                   </>
-                 );
-               })()}
-             </div>
-           </>
-         )}
+                      {/* Dots — one per reel */}
+                      {total > 4 && (
+                        <div className="flex justify-center gap-2 mt-5">
+                          {reels.map((_, i) => (
+                            <button key={i}
+                              onClick={() => setDesktopPage(Math.min(i, maxPage))}
+                              className={`rounded-full transition-all duration-300 ${i === desktopPage ? "w-6 h-2 bg-[#b68d52]" : "w-2 h-2 bg-[#d1b890]"}`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </>
+          )}
 
-         {/* Follow button */}
-         <div className="mt-8">
-           <a
-             href="https://www.instagram.com/vinayak_jewellers_jaipur/"
-             target="_blank"
-             rel="noopener noreferrer"
-             className="inline-flex items-center gap-2 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white px-6 py-2.5 rounded-full text-sm font-medium shadow-md hover:scale-105 transition-transform duration-200"
-           >
-             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-               <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-             </svg>
-             Follow @vinayak_jewellers_jaipur
-           </a>
-         </div>
+          {/* Follow button */}
+          <div className="mt-8">
+            <a
+              href="https://www.instagram.com/vinayak_jewellers_jaipur/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white px-6 py-2.5 rounded-full text-sm font-medium shadow-md hover:scale-105 transition-transform duration-200"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+              </svg>
+              Follow @vinayak_jewellers_jaipur
+            </a>
+          </div>
 
         </div>
       </section>
@@ -583,7 +583,7 @@ export default function Home() {
             CUSTOMER EXPERIENCES & REVIEWS
           </h2>
           <p className="text-[#140100] mt-2 mainfont tracking-wider text-[15px]">
-           Explore what our customers say about Vinayak Jewellers - trust, quality, and service.
+            Explore what our customers say about Vinayak Jewellers - trust, quality, and service.
           </p>
 
           {/* Reviews Carousel/Slider */}
