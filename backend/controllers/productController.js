@@ -358,35 +358,64 @@ export const bulkUploadProducts = async (req, res) => {
     const results = [];
     const errors = [];
 
-    for (const item of products) {
+    const normalizeKey = (key) =>
+      String(key || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]+/g, "");
+
+    const getValueByAliases = (row, aliases = []) => {
+      const entries = Object.entries(row || {});
+      const aliasSet = new Set(aliases.map((a) => normalizeKey(a)));
+      for (const [key, value] of entries) {
+        if (aliasSet.has(normalizeKey(key))) return value;
+      }
+      return undefined;
+    };
+
+    const cleanString = (value) => (value === undefined || value === null ? "" : String(value).trim());
+
+    for (let index = 0; index < products.length; index += 1) {
+      const item = products[index];
       try {
-        const {
-          "Product Name": productName,
-          SKU: sku,
-          Description: details,
-          Collection: collection,
-          Category: category,
-          Subcategory: subcategory,
-          "Image URL": imageUrl,
-          "Image URL 2": imageUrl2,
-          "Image URL 3": imageUrl3,
-        } = item;
+        const productName = cleanString(
+          getValueByAliases(item, ["Product Name", "ProductName", "Name"])
+        );
+        const sku = cleanString(getValueByAliases(item, ["SKU", "Sku"]));
+        const details = cleanString(
+          getValueByAliases(item, ["Description", "Details", "Product Description"])
+        );
+        const collection = cleanString(getValueByAliases(item, ["Collection"]));
+        const category = cleanString(getValueByAliases(item, ["Category"]));
+        const subcategory = cleanString(getValueByAliases(item, ["Subcategory", "Sub Category"]));
+        const imageUrl = cleanString(getValueByAliases(item, ["Image URL", "ImageURL", "Image Url 1"]));
+        const imageUrl2 = cleanString(getValueByAliases(item, ["Image URL 2", "ImageURL2", "Image Url 2"]));
+        const imageUrl3 = cleanString(getValueByAliases(item, ["Image URL 3", "ImageURL3", "Image Url 3"]));
+
+        // Skip fully empty rows
+        if (!productName && !sku && !details && !imageUrl && !imageUrl2 && !imageUrl3) {
+          continue;
+        }
 
         if (!productName || !sku || !details) {
-          errors.push({ row: item, error: "Missing required fields (Product Name, SKU, Description)" });
+          errors.push({
+            rowNumber: index + 2,
+            row: item,
+            error: "Missing required fields (Product Name, SKU, Description)",
+          });
           continue;
         }
 
         // Collect all image URLs (filter out empty ones and handle different column name formats)
         // Support both "Image URL" and "Image URL 2" format, and also handle undefined/null
         const allImageUrls = [
-          imageUrl || item["Image URL"] || item["imageUrl"] || item["image_url"],
-          imageUrl2 || item["Image URL 2"] || item["imageUrl2"] || item["image_url_2"],
-          imageUrl3 || item["Image URL 3"] || item["imageUrl3"] || item["image_url_3"],
+          imageUrl || cleanString(item["Image URL"]) || cleanString(item["imageUrl"]) || cleanString(item["image_url"]),
+          imageUrl2 || cleanString(item["Image URL 2"]) || cleanString(item["imageUrl2"]) || cleanString(item["image_url_2"]),
+          imageUrl3 || cleanString(item["Image URL 3"]) || cleanString(item["imageUrl3"]) || cleanString(item["image_url_3"]),
         ].filter(url => url && typeof url === "string" && url.trim() !== "");
 
         if (allImageUrls.length === 0) {
-          errors.push({ row: item, error: "At least one Image URL is required" });
+          errors.push({ rowNumber: index + 2, row: item, error: "At least one Image URL is required" });
           continue;
         }
 
@@ -429,7 +458,7 @@ export const bulkUploadProducts = async (req, res) => {
 
         // If no images were successfully uploaded, skip this product
         if (imageUrlsArray.length === 0) {
-          errors.push({ row: item, error: "Failed to upload any images" });
+          errors.push({ rowNumber: index + 2, row: item, error: "Failed to upload any images" });
           continue;
         }
 
@@ -455,9 +484,9 @@ export const bulkUploadProducts = async (req, res) => {
         results.push(product);
       } catch (err) {
         if (err?.code === 11000) {
-          errors.push({ row: item, error: "SKU already exists" });
+          errors.push({ rowNumber: index + 2, row: item, error: "SKU already exists" });
         } else {
-          errors.push({ row: item, error: err.message });
+          errors.push({ rowNumber: index + 2, row: item, error: err.message });
         }
       }
     }

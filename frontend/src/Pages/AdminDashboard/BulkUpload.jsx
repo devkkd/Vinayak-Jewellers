@@ -156,7 +156,7 @@ const BulkUpload = () => {
             ? "Products" 
             : workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet);
+          const json = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
           if (json.length === 0) {
             alert("Excel file is empty");
@@ -164,23 +164,65 @@ const BulkUpload = () => {
             return;
           }
 
+          const normalizeKey = (key) =>
+            String(key || "")
+              .trim()
+              .toLowerCase()
+              .replace(/[\s_-]+/g, "");
+
+          const pick = (row, aliases = []) => {
+            const aliasSet = new Set(aliases.map((a) => normalizeKey(a)));
+            const entry = Object.entries(row).find(([k]) => aliasSet.has(normalizeKey(k)));
+            return entry ? String(entry[1] ?? "").trim() : "";
+          };
+
+          const normalizedProducts = json
+            .map((row) => ({
+              "Product Name": pick(row, ["Product Name", "ProductName", "Name"]),
+              SKU: pick(row, ["SKU", "Sku"]),
+              Description: pick(row, ["Description", "Details", "Product Description"]),
+              Collection: pick(row, ["Collection"]),
+              Category: pick(row, ["Category"]),
+              Subcategory: pick(row, ["Subcategory", "Sub Category"]),
+              "Image URL": pick(row, ["Image URL", "ImageURL", "Image Url 1"]),
+              "Image URL 2": pick(row, ["Image URL 2", "ImageURL2", "Image Url 2"]),
+              "Image URL 3": pick(row, ["Image URL 3", "ImageURL3", "Image Url 3"]),
+            }))
+            .filter(
+              (row) =>
+                row["Product Name"] ||
+                row.SKU ||
+                row.Description ||
+                row["Image URL"] ||
+                row["Image URL 2"] ||
+                row["Image URL 3"]
+            );
+
+          if (normalizedProducts.length === 0) {
+            alert("No valid product rows found in file");
+            setUploading(false);
+            return;
+          }
+
           // Validate required fields
-          const invalidRows = json.filter((row, index) => {
-            if (!row["Product Name"] || !row["SKU"] || !row["Description"] || !row["Image URL"]) {
-              return { row: index + 2, missing: [] }; // +2 because row 1 is header
-            }
-            return null;
-          }).filter(Boolean);
+          const invalidRows = normalizedProducts
+            .map((row, index) => {
+              if (!row["Product Name"] || !row.SKU || !row.Description || !row["Image URL"]) {
+                return index + 2; // +2 because row 1 is header
+              }
+              return null;
+            })
+            .filter(Boolean);
 
           if (invalidRows.length > 0) {
-            alert(`Please fill all required fields (Product Name, SKU, Description, Image URL) in rows: ${invalidRows.map(r => r.row).join(", ")}`);
+            alert(`Please fill all required fields (Product Name, SKU, Description, Image URL) in rows: ${invalidRows.join(", ")}`);
             setUploading(false);
             return;
           }
 
           const token = localStorage.getItem("adminToken") || localStorage.getItem("backendToken");
 
-          const res = await client.post("/api/products/bulk-upload", { products: json }, {
+          const res = await client.post("/api/products/bulk-upload", { products: normalizedProducts }, {
             headers: {
               "Content-Type": "application/json",
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -191,7 +233,7 @@ const BulkUpload = () => {
           const errorCount = res.data?.errors?.length || 0;
           
           if (errorCount > 0) {
-            alert(`Upload completed!\n✅ Successfully uploaded: ${successCount} products\n❌ Failed: ${errorCount} products\n\nCheck console for error details.`);
+            alert(`Upload completed!\n✅ Successfully uploaded: ${successCount} products\n❌ Failed: ${errorCount} products\n\nCheck console for error details with row numbers.`);
             console.error("Upload errors:", res.data.errors);
           } else {
             alert(`✅ Successfully uploaded ${successCount} products!`);

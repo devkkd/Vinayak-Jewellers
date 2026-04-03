@@ -28,15 +28,8 @@ export default function Diamond() {
         setLoading(true);
         
         // Load products
-        const list = await listBackendProducts();
-        
-        const diamondItems = list.filter((p) => {
-          const collection = (p.collection || "").toLowerCase().trim();
-          const category = (p.category || "").toLowerCase().trim();
-          return collection === "diamond" || category === "diamond";
-        });
-        
-        setProducts(diamondItems);
+        const list = await listBackendProducts({ collection: "Diamond" });
+        setProducts(list);
 
         // Load categories
         const cats = await listCategories("Diamond");
@@ -225,109 +218,54 @@ export default function Diamond() {
     
   //   return true;
   // });
-// Replace your filteredProducts logic with this:
+const normalizeText = (value) =>
+  (value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ");
 
-// Helper function for strict matching
-const strictMatch = (productValue, searchValue) => {
-  if (!productValue || !searchValue) return false;
-  
-  const normalizedProduct = productValue.toLowerCase().trim().replace(/\s+/g, ' ');
-  const normalizedSearch = searchValue.toLowerCase().trim().replace(/\s+/g, ' ');
-  
-  // Exact match
-  if (normalizedProduct === normalizedSearch) return true;
-  
-  // Singular/plural match only for same root word
-  const productSingular = normalizedProduct.replace(/s$/, '');
-  const searchSingular = normalizedSearch.replace(/s$/, '');
-  
-  // Check if they have the same root (to avoid "earring" matching "ring")
-  if (productSingular === searchSingular && productSingular.length > 0) {
-    // Additional check: make sure the words are the same
-    // For example, "earring" becomes "earring" (no change when removing 's')
-    // while "ring" becomes "ring"
-    // So we need to check if the original words are actually the same or singular/plural
-    if (normalizedProduct === normalizedSearch) return true;
-    if (normalizedProduct === normalizedSearch + 's') return true;
-    if (normalizedProduct + 's' === normalizedSearch) return true;
-    
-    // For cases like "earrings" -> "earring" and "ring" -> "ring"
-    // Check if they're different words with same singular form
-    return false;
-  }
-  
-  // Word boundary check - only match whole words
-  const productWords = normalizedProduct.split(' ');
-  const searchWords = normalizedSearch.split(' ');
-  
-  for (const searchWord of searchWords) {
-    for (const productWord of productWords) {
-      if (productWord === searchWord) return true;
-      if (productWord === searchWord + 's') return true;
-      if (productWord + 's' === searchWord) return true;
-    }
-  }
-  
-  return false;
-};
+const toSingular = (value) => value.replace(/s$/, "");
 
 const filteredProducts = products.filter((product) => {
-  // Normalize collection/category check (case-insensitive)
-  const productCollection = (product.collection || "").toLowerCase().trim();
-  const productCategory = (product.category || "").toLowerCase().trim();
-  const productSubcategory = (product.subcategory || "").toLowerCase().trim();
+  const productCollection = normalizeText(product.collection);
+  const productCategory = normalizeText(product.category);
+  const productSubcategory = normalizeText(product.subcategory);
   
-  // First check if it's a diamond product
-  const isDiamond = productCollection === "diamond" || productCategory === "diamond";
+  const isDiamond = productCollection === "diamond";
   if (!isDiamond) return false;
   
-  // If no URL subcategory, show all diamond products
-  if (!urlSubcategory) return true;
-  
-  // Normalize URL subcategory
-  const urlNormalized = (urlSubcategory || "").toLowerCase().trim()
-    .replace(/-/g, ' ')
-    .replace(/\s+/g, ' ');
-  
-  // Try exact match first with product subcategory
-  if (productSubcategory) {
-    const normalizedSubcategory = productSubcategory
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, ' ');
-    
-    // Use strict matching
-    if (strictMatch(normalizedSubcategory, urlNormalized)) {
-      return true;
-    }
-    
-    // Additional: check if subcategory contains the word as a whole word
-    const subWords = normalizedSubcategory.split(/[\s-]+/);
-    const searchWords = urlNormalized.split(/[\s-]+/);
-    
-    for (const searchWord of searchWords) {
-      for (const subWord of subWords) {
-        // Whole word matching only
-        if (subWord === searchWord) return true;
-        if (subWord === searchWord + 's') return true;
-        if (subWord + 's' === searchWord) return true;
-      }
-    }
+  if (urlSubcategory) {
+    const urlNormalized = normalizeText(urlSubcategory);
+    if (!productSubcategory) return false;
+    return (
+      productSubcategory === urlNormalized ||
+      toSingular(productSubcategory) === toSingular(urlNormalized)
+    );
   }
-  
-  // Check product category as fallback
-  if (productCategory) {
-    const normalizedCategory = productCategory
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, ' ');
-    
-    if (strictMatch(normalizedCategory, urlNormalized)) {
-      return true;
-    }
+
+  if (!selectedCategory && !selectedSubcategory) return true;
+
+  if (selectedSubcategory) {
+    const selectedSub = normalizeText(selectedSubcategory);
+    if (!productSubcategory) return false;
+    return (
+      productSubcategory === selectedSub ||
+      toSingular(productSubcategory) === toSingular(selectedSub)
+    );
   }
-  
-  return false;
+
+  if (selectedCategory) {
+    const selectedCategoryName = normalizeText(selectedCategory.category);
+    return (
+      productCategory === selectedCategoryName ||
+      toSingular(productCategory) === toSingular(selectedCategoryName) ||
+      productSubcategory === selectedCategoryName ||
+      toSingular(productSubcategory) === toSingular(selectedCategoryName)
+    );
+  }
+
+  return true;
 });
   // Get primary image helper
   const getPrimaryImage = (product) => {

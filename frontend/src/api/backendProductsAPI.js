@@ -70,7 +70,11 @@ export const deleteBackendProduct = async (id, token) => {
   return res.data;
 };
 
-export const updateBackendProduct = async (id, { productName, details, sku, collection, category, subcategory, file, files }, token) => {
+export const updateBackendProduct = async (
+  id,
+  { productName, details, sku, collection, category, subcategory, file, files, image },
+  token
+) => {
   const form = new FormData();
   if (productName !== undefined) form.append("productName", productName);
   if (details !== undefined) form.append("details", details);
@@ -84,8 +88,9 @@ export const updateBackendProduct = async (id, { productName, details, sku, coll
     files.forEach((f) => {
       form.append("image", f);
     });
-  } else if (file) {
-    form.append("image", file);
+  } else if (file || image) {
+    const uploadFile = file || image;
+    form.append("image", uploadFile);
   }
   
   const res = await client.put(`/api/products/${id}`, form, {

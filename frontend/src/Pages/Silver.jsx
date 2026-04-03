@@ -28,15 +28,8 @@ export default function Silver() {
         setLoading(true);
         
         // Load products
-        const data = await listBackendProducts();
-        
-        const silverProducts = data.filter((p) => {
-          const collection = (p.collection || "").toLowerCase().trim();
-          const category = (p.category || "").toLowerCase().trim();
-          return collection === "silver" || category === "silver";
-        });
-        
-        setProducts(silverProducts);
+        const data = await listBackendProducts({ collection: "Silver" });
+        setProducts(data);
 
         // Load categories
         const cats = await listCategories("Silver");
@@ -105,107 +98,51 @@ export default function Silver() {
 
 
 
-  // Helper function for strict word matching
-const strictWordMatch = (productValue, searchValue) => {
-  if (!productValue || !searchValue) return false;
-  
-  const normalizedProduct = productValue.toLowerCase().trim();
-  const normalizedSearch = searchValue.toLowerCase().trim();
-  
-  // Exact match
-  if (normalizedProduct === normalizedSearch) return true;
-  
-  // Singular/plural exact match
-  if (normalizedProduct === normalizedSearch + 's') return true;
-  if (normalizedProduct + 's' === normalizedSearch) return true;
-  
-  // Split into words and check for whole word matches
-  const productWords = normalizedProduct.split(/[\s-]+/);
-  const searchWords = normalizedSearch.split(/[\s-]+/);
-  
-  for (const searchWord of searchWords) {
-    for (const productWord of productWords) {
-      // Exact word match
-      if (productWord === searchWord) return true;
-      
-      // Singular/plural word match
-      if (productWord === searchWord + 's') return true;
-      if (productWord + 's' === searchWord) return true;
-    }
-  }
-  
-  return false;
-};
+const normalizeText = (value) =>
+  (value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ");
 
-// Filter products by category/subcategory with strict word matching
+const toSingular = (value) => value.replace(/s$/, "");
+
 // Filter products by category/subcategory
 const filteredProducts = products.filter((product) => {
-  // Check if it's a silver product
-  const productCollection = (product.collection || "").toLowerCase().trim();
-  const productCategory = (product.category || "").toLowerCase().trim();
-  const isSilver = productCollection === "silver" || productCategory === "silver";
+  const productCollection = normalizeText(product.collection);
+  const isSilver = productCollection === "silver";
   
   if (!isSilver) return false;
   
-  // If no URL subcategory, show all silver products
-  if (!urlSubcategory) return true;
-  
-  const urlNormalized = (urlSubcategory || "").toLowerCase().trim();
-  
-  // Get product subcategory
-  const productSub = (product.subcategory || "").toLowerCase().trim();
-  
-  // If product has no subcategory, don't show it when filtering by subcategory
-  if (!productSub) return false;
-  
-  // Special handling for "ring" - check whole word only
-  if (urlNormalized === 'ring' || urlNormalized === 'rings') {
-    // Check if subcategory is exactly "ring" or "rings" (case insensitive)
-    if (productSub === 'ring' || productSub === 'rings') {
-      return true;
-    }
-    
-    // Also check if subcategory ends with "ring" as a whole word
-    // This handles cases like "silver ring" or "gold ring"
-    const words = productSub.split(/\s+/);
-    for (const word of words) {
-      if (word === 'ring' || word === 'rings') {
-        return true;
-      }
-    }
-    
-    return false;
+  if (urlSubcategory) {
+    const urlNormalized = normalizeText(urlSubcategory);
+    const productSub = normalizeText(product.subcategory);
+    if (!productSub) return false;
+    return productSub === urlNormalized || toSingular(productSub) === toSingular(urlNormalized);
   }
-  
-  // Special handling for "earring" - check whole word only
-  if (urlNormalized === 'earring' || urlNormalized === 'earrings') {
-    if (productSub === 'earring' || productSub === 'earrings') {
-      return true;
-    }
-    
-    const words = productSub.split(/\s+/);
-    for (const word of words) {
-      if (word === 'earring' || word === 'earrings') {
-        return true;
-      }
-    }
-    
-    return false;
+
+  if (!selectedCategory && !selectedSubcategory) return true;
+
+  if (selectedSubcategory) {
+    const selectedSub = normalizeText(selectedSubcategory);
+    const productSub = normalizeText(product.subcategory);
+    if (!productSub) return false;
+    return productSub === selectedSub || toSingular(productSub) === toSingular(selectedSub);
   }
-  
-  // For other subcategories, use more flexible matching
-  // Direct match
-  if (productSub === urlNormalized) return true;
-  
-  // Singular/plural match
-  if (productSub === urlNormalized + 's') return true;
-  if (productSub + 's' === urlNormalized) return true;
-  
-  // Contains match (for multi-word subcategories)
-  if (productSub.includes(urlNormalized)) return true;
-  if (urlNormalized.includes(productSub)) return true;
-  
-  return false;
+
+  if (selectedCategory) {
+    const selectedCategoryName = normalizeText(selectedCategory.category);
+    const productCategory = normalizeText(product.category);
+    const productSub = normalizeText(product.subcategory);
+    return (
+      productCategory === selectedCategoryName ||
+      toSingular(productCategory) === toSingular(selectedCategoryName) ||
+      productSub === selectedCategoryName ||
+      toSingular(productSub) === toSingular(selectedCategoryName)
+    );
+  }
+
+  return true;
 });
   const openModal = (product) => {
     setSelectedProduct(product);

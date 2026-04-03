@@ -29,14 +29,8 @@ export default function Gold() {
         setLoading(true);
         
         // Load products
-        const list = await listBackendProducts();
-        const goldItems = list.filter((p) => {
-          const collection = (p.collection || "").toLowerCase().trim();
-          const category = (p.category || "").toLowerCase().trim();
-          return collection === "gold" || category === "gold";
-        });
-        
-        setProducts(goldItems);
+        const list = await listBackendProducts({ collection: "Gold" });
+        setProducts(list);
 
         // Load categories
         const cats = await listCategories("Gold");
@@ -104,47 +98,27 @@ export default function Gold() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSubcategory, categories, products]);
 
-  // Filter products with improved matching
+  const normalizeText = (value) =>
+    (value || "")
+      .toLowerCase()
+      .trim()
+      .replace(/-/g, " ")
+      .replace(/\s+/g, " ");
+
+  const toSingular = (value) => value.replace(/s$/, "");
+
+  // Filter products with strict subcategory match
   const filteredProducts = products.filter((product) => {
-    // Normalize collection/category check (case-insensitive)
-    const productCollection = (product.collection || "").toLowerCase().trim();
-    const productCategory = (product.category || "").toLowerCase().trim();
-    const productSub = (product.subcategory || "").toLowerCase().trim();
-    const isGold = productCollection === "gold" || productCategory === "gold";
+    const productCollection = normalizeText(product.collection);
+    const isGold = productCollection === "gold";
     
     if (!isGold) return false;
     
-    // If URL has subcategory, use it directly for filtering
     if (urlSubcategory) {
-      const urlNormalized = (urlSubcategory || "").toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
-      
-      // Try matching with product subcategory
-      if (productSub) {
-        const productSubNormalized = productSub.replace(/\s+/g, ' ');
-        if (productSubNormalized === urlNormalized) return true;
-        if (productSubNormalized.includes(urlNormalized) || urlNormalized.includes(productSubNormalized)) return true;
-        // Singular/plural match
-        const productSubSingular = productSubNormalized.replace(/s$/, '');
-        const urlSingular = urlNormalized.replace(/s$/, '');
-        if (productSubSingular === urlSingular && productSubSingular.length > 0) return true;
-      }
-      
-      // Try matching with product category
-      if (productCategory) {
-        const productCatNormalized = productCategory.replace(/\s+/g, ' ');
-        if (productCatNormalized === urlNormalized) return true;
-        if (productCatNormalized.includes(urlNormalized) || urlNormalized.includes(productCatNormalized)) return true;
-        // Singular/plural match
-        const productCatSingular = productCatNormalized.replace(/s$/, '');
-        const urlSingular = urlNormalized.replace(/s$/, '');
-        if (productCatSingular === urlSingular && productCatSingular.length > 0) return true;
-      }
-      
-      // Try matching with product name
-      const productName = (product.productName || "").toLowerCase().trim();
-      if (productName.includes(urlNormalized)) return true;
-      
-      return false;
+      const urlNormalized = normalizeText(urlSubcategory);
+      const productSub = normalizeText(product.subcategory);
+      if (!productSub) return false;
+      return productSub === urlNormalized || toSingular(productSub) === toSingular(urlNormalized);
     }
     
     // If no category/subcategory selected, show all products in collection
@@ -152,31 +126,23 @@ export default function Gold() {
     
     // If subcategory selected, filter by subcategory (case-insensitive, partial match)
     if (selectedSubcategory) {
-      const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
-      
-      // Try exact match first
-      if (productSub === selectedSub) return true;
-      
-      // Try partial match (contains) - handles "Ring" vs "Rings", "Chain" vs "Chains"
-      if (productSub.includes(selectedSub) || selectedSub.includes(productSub)) return true;
-      
-      // Also check if product category matches subcategory (fallback)
-      if (productCategory === selectedSub || productCategory.includes(selectedSub) || selectedSub.includes(productCategory)) return true;
-      
-      return false;
+      const selectedSub = normalizeText(selectedSubcategory);
+      const productSub = normalizeText(product.subcategory);
+      if (!productSub) return false;
+      return productSub === selectedSub || toSingular(productSub) === toSingular(selectedSub);
     }
     
     // If category selected, filter by category (case-insensitive, partial match)
     if (selectedCategory) {
-      const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
-      
-      // Try exact match
-      if (productCategory === selectedCategoryName) return true;
-      
-      // Try partial match
-      if (productCategory.includes(selectedCategoryName) || selectedCategoryName.includes(productCategory)) return true;
-      
-      return false;
+      const selectedCategoryName = normalizeText(selectedCategory.category);
+      const productCategory = normalizeText(product.category);
+      const productSub = normalizeText(product.subcategory);
+      return (
+        productCategory === selectedCategoryName ||
+        toSingular(productCategory) === toSingular(selectedCategoryName) ||
+        productSub === selectedCategoryName ||
+        toSingular(productSub) === toSingular(selectedCategoryName)
+      );
     }
     
     return true;
