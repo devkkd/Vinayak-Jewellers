@@ -1,26 +1,30 @@
+import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { r2Client, R2_BUCKET, R2_PUBLIC_URL } from "../config/r2.js";
 import InstagramReel from "../models/InstagramReel.js";
-import cloudinary from "../config/cloudinary.js";
-import streamifier from "streamifier";
+import { v4 as uuidv4 } from "uuid";
 
 const MAX_REELS = 7;
 
-// Helper: upload buffer to Cloudinary
-const uploadToCloudinary = (buffer, resourceType = "video") =>
-  new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { folder: "vinayak_reels", resource_type: resourceType },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
-    );
-    streamifier.createReadStream(buffer).pipe(stream);
-  });
+// Helper: upload buffer to R2
+const uploadToR2 = async (buffer, mimeType, folder = "vinayak_reels") => {
+  const ext = mimeType.split("/")[1]?.split(";")[0] || "bin";
+  const key = `${folder}/${uuidv4()}.${ext}`;
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      Body: buffer,
+      ContentType: mimeType,
+    })
+  );
+  return { url: `${R2_PUBLIC_URL}/${key}`, key };
+};
 
-// Helper: delete from Cloudinary
-const destroyCloudinary = async (publicId, resourceType = "video") => {
+// Helper: delete from R2
+const deleteFromR2 = async (key) => {
+  if (!key) return;
   try {
-    await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+    await r2Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key }));
   } catch (_) {}
 };
 
@@ -44,7 +48,7 @@ export const getAllReels = async (_req, res) => {
   }
 };
 
-// Admin: add reel with video file upload
+// Admin: add reel
 export const addReel = async (req, res) => {
   try {
     if (!req.files?.video?.[0]) {
@@ -56,27 +60,26 @@ export const addReel = async (req, res) => {
     if (count >= MAX_REELS) {
       const oldest = await InstagramReel.findOne().sort({ createdAt: 1 });
       if (oldest) {
-        if (oldest.videoPublicId) await destroyCloudinary(oldest.videoPublicId, "video");
-        if (oldest.thumbnailPublicId) await destroyCloudinary(oldest.thumbnailPublicId, "image");
+        await deleteFromR2(oldest.videoPublicId);
+        await deleteFromR2(oldest.thumbnailPublicId);
         await InstagramReel.findByIdAndDelete(oldest._id);
       }
     }
 
-    // Upload video
-    const videoResult = await uploadToCloudinary(req.files.video[0].buffer, "video");
+    const videoFile = req.files.video[0];
+    const videoResult = await uploadToR2(videoFile.buffer, videoFile.mimetype);
 
-    // Upload thumbnail if provided
-    let thumbnailUrl = "";
-    let thumbnailPublicId = "";
+    let thumbnailUrl = "", thumbnailPublicId = "";
     if (req.files?.thumbnail?.[0]) {
-      const thumbResult = await uploadToCloudinary(req.files.thumbnail[0].buffer, "image");
-      thumbnailUrl = thumbResult.secure_url;
-      thumbnailPublicId = thumbResult.public_id;
+      const thumbFile = req.files.thumbnail[0];
+      const thumbResult = await uploadToR2(thumbFile.buffer, thumbFile.mimetype);
+      thumbnailUrl = thumbResult.url;
+      thumbnailPublicId = thumbResult.key;
     }
 
     const reel = await InstagramReel.create({
-      videoUrl: videoResult.secure_url,
-      videoPublicId: videoResult.public_id,
+      videoUrl: videoResult.url,
+      videoPublicId: videoResult.key,
       thumbnailUrl,
       thumbnailPublicId,
     });
@@ -87,33 +90,31 @@ export const addReel = async (req, res) => {
   }
 };
 
-// Admin: update reel (optionally replace video/thumbnail)
+// Admin: update reel
 export const updateReel = async (req, res) => {
   try {
     const { id } = req.params;
     const { isActive } = req.body || {};
-
     const reel = await InstagramReel.findById(id);
     if (!reel) return res.status(404).json({ success: false, message: "Reel not found" });
 
-    // Replace video if new one uploaded
     if (req.files?.video?.[0]) {
-      if (reel.videoPublicId) await destroyCloudinary(reel.videoPublicId, "video");
-      const videoResult = await uploadToCloudinary(req.files.video[0].buffer, "video");
-      reel.videoUrl = videoResult.secure_url;
-      reel.videoPublicId = videoResult.public_id;
+      await deleteFromR2(reel.videoPublicId);
+      const videoFile = req.files.video[0];
+      const videoResult = await uploadToR2(videoFile.buffer, videoFile.mimetype);
+      reel.videoUrl = videoResult.url;
+      reel.videoPublicId = videoResult.key;
     }
 
-    // Replace thumbnail if new one uploaded
     if (req.files?.thumbnail?.[0]) {
-      if (reel.thumbnailPublicId) await destroyCloudinary(reel.thumbnailPublicId, "image");
-      const thumbResult = await uploadToCloudinary(req.files.thumbnail[0].buffer, "image");
-      reel.thumbnailUrl = thumbResult.secure_url;
-      reel.thumbnailPublicId = thumbResult.public_id;
+      await deleteFromR2(reel.thumbnailPublicId);
+      const thumbFile = req.files.thumbnail[0];
+      const thumbResult = await uploadToR2(thumbFile.buffer, thumbFile.mimetype);
+      reel.thumbnailUrl = thumbResult.url;
+      reel.thumbnailPublicId = thumbResult.key;
     }
 
     if (isActive !== undefined) reel.isActive = isActive === "true" || isActive === true;
-
     await reel.save();
     return res.json({ success: true, data: reel });
   } catch (e) {
@@ -127,8 +128,8 @@ export const deleteReel = async (req, res) => {
     const { id } = req.params;
     const reel = await InstagramReel.findByIdAndDelete(id);
     if (!reel) return res.status(404).json({ success: false, message: "Reel not found" });
-    if (reel.videoPublicId) await destroyCloudinary(reel.videoPublicId, "video");
-    if (reel.thumbnailPublicId) await destroyCloudinary(reel.thumbnailPublicId, "image");
+    await deleteFromR2(reel.videoPublicId);
+    await deleteFromR2(reel.thumbnailPublicId);
     return res.json({ success: true, message: "Reel deleted successfully" });
   } catch {
     return res.status(500).json({ success: false, message: "Failed to delete reel" });
