@@ -25,6 +25,31 @@ const AddProduct = () => {
   const [availableSubcategories, setAvailableSubcategories] = useState([]); // Subcategories for selected category
   const [allCategories, setAllCategories] = useState({}); // All categories grouped by collection
 
+  const getFlatSubcategories = (categories = []) => {
+    const seen = new Set();
+    const list = [];
+    categories.forEach((cat) => {
+      const categoryName = (cat.category || "").trim();
+      if (categoryName) {
+        const key = categoryName.toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          list.push(categoryName);
+        }
+      }
+      (cat.subcategories || []).forEach((sub) => {
+        const subName = String(sub || "").trim();
+        if (!subName) return;
+        const key = subName.toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          list.push(subName);
+        }
+      });
+    });
+    return list;
+  };
+
   // Load categories from frontend data folder
   useEffect(() => {
     // Organize categories by collection
@@ -58,7 +83,8 @@ const AddProduct = () => {
     // Get categories for selected collection
     const categories = allCategories[selectedCollection] || [];
     setAvailableCategories(categories);
-    setAvailableSubcategories([]);
+    // Show subcategory options immediately after collection select
+    setAvailableSubcategories(getFlatSubcategories(categories));
   };
 
   // Handle category change
@@ -73,9 +99,11 @@ const AddProduct = () => {
     
     if (selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
       setAvailableSubcategories(selectedCategory.subcategories);
-    } else {
-      setAvailableSubcategories([]);
+      return;
     }
+
+    // If no nested subcategories, still allow selecting this category as subcategory
+    setAvailableSubcategories(selectedCategoryName ? [selectedCategoryName] : []);
   };
 
 

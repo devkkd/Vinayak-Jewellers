@@ -6,6 +6,7 @@ import {
   giftingCategories,
   weddingCategories,
   birthStoneCategories,
+  coinsCategories,
 } from "../data/admincategories";
 
 const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
@@ -19,62 +20,84 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
     image: null,
   });
 
+  const [availableCategories, setAvailableCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+
+  const getCategoriesByCollection = (collection) => {
+    switch (collection) {
+      case "Gold":
+        return goldCategories;
+      case "Silver":
+        return silverCategories;
+      case "Diamond":
+        return diamondCategories;
+      case "Gifting":
+        return giftingCategories;
+      case "Wedding Collection":
+        return weddingCategories;
+      case "Birth Stones":
+        return birthStoneCategories;
+      case "Coins":
+        return coinsCategories;
+      default:
+        return [];
+    }
+  };
 
   useEffect(() => {
     if (product) {
-      const category = product.collection || product.category || "";
+      const initialCollection = product.collection || "";
+      const initialCategory = product.category || "";
+      const initialSubcategory = product.subcategory || "";
+      const categoriesForCollection = getCategoriesByCollection(initialCollection);
+
       setFormData({
         productName: product.productName || "",
         details: product.details || "",
         sku: product.sku || "",
-        collection: product.collection || "",
-        category: category,
-        subcategory: product.subcategory || "",
+        collection: initialCollection,
+        category: initialCategory,
+        subcategory: initialSubcategory,
         image: null,
       });
 
-      // Load subcategories based on category
-      loadSubcategories(category);
+      setAvailableCategories(categoriesForCollection);
+      loadSubcategories(initialCollection, initialCategory, initialSubcategory);
     }
   }, [product]);
 
-  const loadSubcategories = (selectedCategory) => {
-    let subs = [];
+  const loadSubcategories = (selectedCollection, selectedCategory = "", existingSubcategory = "") => {
+    const categories = getCategoriesByCollection(selectedCollection);
+    const chosen = categories.find((item) => item.category === selectedCategory);
+    const options = chosen?.subcategories?.length
+      ? chosen.subcategories
+      : selectedCategory
+        ? [selectedCategory]
+        : [];
 
-    switch (selectedCategory) {
-      case "Gold":
-        subs = goldCategories;
-        break;
-      case "Silver":
-        subs = silverCategories;
-        break;
-      case "Diamond":
-        subs = diamondCategories;
-        break;
-      case "Gifting":
-        subs = giftingCategories;
-        break;
-      case "Wedding Collection":
-        subs = weddingCategories;
-        break;
-      case "Birth Stones":
-        subs = birthStoneCategories;
-        break;
-      case "Coins":
-        subs = [{ category: "Coins", subcategories: ["Gold Coins", "Silver Coins"] }];
-        break;
-      default:
-        subs = [];
+    // Keep already saved subcategory visible if it does not exist in current options
+    if (
+      existingSubcategory &&
+      !options.some((item) => item.toLowerCase() === existingSubcategory.toLowerCase())
+    ) {
+      setSubcategories([existingSubcategory, ...options]);
+      return;
     }
+    setSubcategories(options);
+  };
 
-    setSubcategories(subs);
+  const handleCollectionChange = (e) => {
+    const selectedCollection = e.target.value;
+    const categories = getCategoriesByCollection(selectedCollection);
+    setAvailableCategories(categories);
+    setFormData({ ...formData, collection: selectedCollection, category: "", subcategory: "" });
+    setSubcategories([]);
   };
 
   const handleCategoryChange = (e) => {
     const selectedCategory = e.target.value;
-    setFormData({ ...formData, collection: selectedCategory, category: selectedCategory, subcategory: "" });
-    loadSubcategories(selectedCategory);
+    setFormData({ ...formData, category: selectedCategory, subcategory: "" });
+    loadSubcategories(formData.collection, selectedCategory);
   };
 
   if (!isOpen || !product) return null;
@@ -140,14 +163,14 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
             </p>
           </div>
           <div>
-            <label className="block text-[#3B1C0A] font-semibold mb-2">Category</label>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">Collection</label>
             <select
-              name="category"
-              value={formData.category}
-              onChange={handleCategoryChange}
+              name="collection"
+              value={formData.collection}
+              onChange={handleCollectionChange}
               className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
             >
-              <option value="">Select Category</option>
+              <option value="">Select Collection</option>
               <option value="Gold">Gold</option>
               <option value="Silver">Silver</option>
               <option value="Diamond">Diamond</option>
@@ -158,30 +181,37 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
             </select>
           </div>
           <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleCategoryChange}
+              disabled={!formData.collection || availableCategories.length === 0}
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            >
+              <option value="">Select Category</option>
+              {availableCategories.map((item) => (
+                <option key={item.category} value={item.category}>
+                  {item.category}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className="block text-[#3B1C0A] font-semibold mb-2">Subcategory</label>
             <select
               name="subcategory"
               value={formData.subcategory}
               onChange={handleChange}
-              disabled={!subcategories.length}
+              disabled={!formData.category || !subcategories.length}
               className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] disabled:bg-gray-100"
             >
               <option value="">Select Sub-category</option>
-              {subcategories.map((item, i) =>
-                item.subcategories?.length ? (
-                  <optgroup key={i} label={item.category}>
-                    {item.subcategories.map((sub, j) => (
-                      <option key={j} value={sub}>
-                        {sub}
-                      </option>
-                    ))}
-                  </optgroup>
-                ) : (
-                  <option key={i} value={item.category}>
-                    {item.category}
-                  </option>
-                )
-              )}
+              {subcategories.map((sub, i) => (
+                <option key={i} value={sub}>
+                  {sub}
+                </option>
+              ))}
             </select>
           </div>
           <div>
