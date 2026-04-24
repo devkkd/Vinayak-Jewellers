@@ -17,16 +17,17 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1032.0",
+    "@aws-sdk/lib-storage": "^3.1032.0",
     "axios": "^1.13.1",
     "bcryptjs": "^2.4.3",
-    "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
-    "streamifier": "^0.1.1"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
