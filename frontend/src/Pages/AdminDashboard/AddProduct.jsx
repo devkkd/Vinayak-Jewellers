@@ -79,8 +79,7 @@ const AddProduct = () => {
     // Get categories for selected collection
     const categories = allCategories[selectedCollection] || [];
     setAvailableCategories(categories);
-    // Show subcategory options immediately after collection select
-    setAvailableSubcategories(getFlatSubcategories(categories));
+    setAvailableSubcategories([]);
   };
 
   // Handle category change
@@ -95,14 +94,14 @@ const AddProduct = () => {
     if (selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
       const options = selectedCategory.subcategories;
       setAvailableSubcategories(options);
-      setFormData({ ...formData, category: selectedCategoryName, subcategory: options[0] || "" });
+      setFormData({ ...formData, category: selectedCategoryName, subcategory: "" });
       return;
     }
 
     // If no nested subcategories, still allow selecting this category as subcategory
     const fallback = selectedCategoryName ? [selectedCategoryName] : [];
     setAvailableSubcategories(fallback);
-    setFormData({ ...formData, category: selectedCategoryName, subcategory: fallback[0] || "" });
+    setFormData({ ...formData, category: selectedCategoryName, subcategory: "" });
   };
 
 
@@ -307,12 +306,12 @@ const AddProduct = () => {
             name="subcategory"
             value={formData.subcategory}
             onChange={handleChange}
-            disabled={!formData.collection || availableSubcategories.length === 0}
+            disabled={!formData.category || availableSubcategories.length === 0}
             className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] disabled:bg-gray-100"
           >
             <option value="">
-              {!formData.collection
-                ? "Select Collection first"
+              {!formData.category
+                ? "Select Category first"
                 : availableSubcategories.length === 0 
                 ? "No subcategories (optional)" 
                 : "Select Sub-category"}
