@@ -44,12 +44,36 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
     }
   };
 
+  const inferCollectionFromProduct = (item) => {
+    if (item.collection) return item.collection;
+    const value = `${item.category || ""} ${item.subcategory || ""}`.toLowerCase();
+    if (value.includes("gold")) return "Gold";
+    if (value.includes("silver")) return "Silver";
+    if (value.includes("diamond")) return "Diamond";
+    if (value.includes("wedding")) return "Wedding Collection";
+    if (value.includes("birth") || value.includes("rashi") || value.includes("pukhraj") || value.includes("emerald")) return "Birth Stones";
+    if (value.includes("coin")) return "Coins";
+    if (value.includes("gift")) return "Gifting";
+    return "";
+  };
+
+  const inferCategoryFromSubcategory = (categories, subcategory) => {
+    const sub = String(subcategory || "").toLowerCase().trim();
+    if (!sub) return "";
+    const direct = categories.find((c) => String(c.category || "").toLowerCase().trim() === sub);
+    if (direct) return direct.category;
+    const byNested = categories.find((c) =>
+      (c.subcategories || []).some((s) => String(s || "").toLowerCase().trim() === sub)
+    );
+    return byNested ? byNested.category : "";
+  };
+
   useEffect(() => {
     if (product) {
-      const initialCollection = product.collection || "";
-      const initialCategory = product.category || "";
+      const initialCollection = inferCollectionFromProduct(product);
       const initialSubcategory = product.subcategory || "";
       const categoriesForCollection = getCategoriesByCollection(initialCollection);
+      const initialCategory = product.category || inferCategoryFromSubcategory(categoriesForCollection, initialSubcategory);
 
       setFormData({
         productName: product.productName || "",

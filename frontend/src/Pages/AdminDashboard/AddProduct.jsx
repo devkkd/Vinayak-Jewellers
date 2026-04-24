@@ -308,12 +308,12 @@ const AddProduct = () => {
             name="subcategory"
             value={formData.subcategory}
             onChange={handleChange}
-            disabled={!formData.category}
+            disabled={!formData.collection || availableSubcategories.length === 0}
             className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] disabled:bg-gray-100"
           >
             <option value="">
-              {!formData.category 
-                ? "Select Category first" 
+              {!formData.collection
+                ? "Select Collection first"
                 : availableSubcategories.length === 0 
                 ? "No subcategories (optional)" 
                 : "Select Sub-category"}
