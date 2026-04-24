@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { uploadBackendProduct } from "../../api/backendProductsAPI";
 import {
   goldCategories,
@@ -23,7 +23,6 @@ const AddProduct = () => {
 
   const [availableCategories, setAvailableCategories] = useState([]); // Categories for selected collection
   const [availableSubcategories, setAvailableSubcategories] = useState([]); // Subcategories for selected category
-  const [allCategories, setAllCategories] = useState({}); // All categories grouped by collection
 
   const getFlatSubcategories = (categories = []) => {
     const seen = new Set();
@@ -50,25 +49,22 @@ const AddProduct = () => {
     return list;
   };
 
-  // Load categories from frontend data folder
-  useEffect(() => {
-    // Organize categories by collection
-    const grouped = {
-      "Gold": goldCategories,
-      "Silver": silverCategories,
-      "Diamond": diamondCategories,
-      "Gifting": giftingCategories,
+  const allCategories = useMemo(
+    () => ({
+      Gold: goldCategories,
+      Silver: silverCategories,
+      Diamond: diamondCategories,
+      Gifting: giftingCategories,
       "Wedding Collection": weddingCategories,
       "Birth Stones": birthStoneCategories,
-      "Coins": [
-        { category: "Gold", subcategories: [] },
-        { category: "Silver", subcategories: [] }
+      Coins: [
+        { category: "Gold Coins", subcategories: [] },
+        { category: "Silver Coins", subcategories: [] },
       ],
-      "Mens": mensCategories,
-    };
-    
-    setAllCategories(grouped);
-  }, []);
+      Mens: mensCategories,
+    }),
+    []
+  );
 
   // Handle collection change
   const handleCollectionChange = (e) => {
@@ -90,7 +86,6 @@ const AddProduct = () => {
   // Handle category change
   const handleCategoryChange = (e) => {
     const selectedCategoryName = e.target.value;
-    setFormData({ ...formData, category: selectedCategoryName, subcategory: "" });
 
     // Find the selected category object and get its subcategories
     const selectedCategory = availableCategories.find(
@@ -98,12 +93,16 @@ const AddProduct = () => {
     );
     
     if (selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
-      setAvailableSubcategories(selectedCategory.subcategories);
+      const options = selectedCategory.subcategories;
+      setAvailableSubcategories(options);
+      setFormData({ ...formData, category: selectedCategoryName, subcategory: options[0] || "" });
       return;
     }
 
     // If no nested subcategories, still allow selecting this category as subcategory
-    setAvailableSubcategories(selectedCategoryName ? [selectedCategoryName] : []);
+    const fallback = selectedCategoryName ? [selectedCategoryName] : [];
+    setAvailableSubcategories(fallback);
+    setFormData({ ...formData, category: selectedCategoryName, subcategory: fallback[0] || "" });
   };
 
 
@@ -140,7 +139,7 @@ const AddProduct = () => {
         sku: formData.sku,
         collection: formData.collection,
         category: formData.category,
-        subcategory: formData.subcategory,
+        subcategory: formData.subcategory || formData.category,
         files: formData.images, // Send all images
         token,
       });
