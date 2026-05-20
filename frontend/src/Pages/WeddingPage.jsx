@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { slugify, segmentsMatch } from "../utils/productFilter";
 import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listCategories } from "../api/categoryAPI";
+import { categoryPillClass, subcategoryPillClass } from "../utils/categoryNavStyles";
 
 export default function Wedding() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const categorySlug = searchParams.get("category");
 
   // State management
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -21,10 +25,9 @@ export default function Wedding() {
     const loadData = async () => {
       try {
         // Load products
-        const data = await listBackendProducts();
-        const weddingProducts = data.filter(
-          (p) => p.collection === "Wedding Collection" || p.category === "Wedding Collection"
-        );
+        const weddingProducts = await listBackendProducts({
+          collection: "Wedding Collection",
+        });
         setProducts(weddingProducts);
 
         // Load categories
@@ -36,6 +39,19 @@ export default function Wedding() {
     };
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!categorySlug || categories.length === 0) return;
+    const match = categories.find(
+      (c) =>
+        slugify(c.category) === categorySlug ||
+        segmentsMatch(c.category, categorySlug.replace(/-/g, " "))
+    );
+    if (match) {
+      setSelectedCategory(match);
+      setSelectedSubcategory(null);
+    }
+  }, [categorySlug, categories]);
 
   // Handle category selection
   const handleCategoryClick = (category) => {
@@ -72,27 +88,26 @@ export default function Wedding() {
 
   // Product filtering logic
   const filteredProducts = products.filter((product) => {
-    // First check collection
-    if (product.collection !== "Wedding Collection" && product.category !== "Wedding Collection") return false;
-    
-    // If no category/subcategory selected, show all products in collection
+    const coll = (product.collection || "").toLowerCase().trim();
+    if (coll !== "wedding collection" && coll !== "wedding") return false;
+
     if (!selectedCategory && !selectedSubcategory) return true;
-    
-    // If subcategory selected, filter by subcategory
+
     if (selectedSubcategory) {
       return (
-        product.subcategory &&
-        product.subcategory.toLowerCase().trim() === selectedSubcategory.toLowerCase().trim()
+        segmentsMatch(product.subcategory, selectedSubcategory) ||
+        segmentsMatch(product.category, selectedSubcategory)
       );
     }
-    
-    // If category selected, filter by category (case-insensitive)
+
     if (selectedCategory) {
-      const productCategory = (product.category || "").toLowerCase().trim();
-      const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
-      return productCategory === selectedCategoryName;
+      const typeName = selectedCategory.category;
+      return (
+        segmentsMatch(product.category, typeName) ||
+        segmentsMatch(product.subcategory, typeName)
+      );
     }
-    
+
     return true;
   });
 
@@ -112,11 +127,7 @@ export default function Wedding() {
             <button
               key={cat._id || cat.category}
               onClick={() => handleCategoryClick(cat)}
-              className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
-                selectedCategory?.category === cat.category
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
-              }`}
+              className={categoryPillClass(selectedCategory?.category === cat.category)}
             >
               {cat.category}
             </button>
@@ -131,11 +142,7 @@ export default function Wedding() {
             <button
               key={sub || index}
               onClick={() => handleSubcategoryClick(sub)}
-              className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
-                selectedSubcategory === sub
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#FAEED1] text-[#681F00] hover:bg-[#F8D89C]"
-              }`}
+              className={subcategoryPillClass(selectedSubcategory === sub)}
             >
               {sub}
             </button>

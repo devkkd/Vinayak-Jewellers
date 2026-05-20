@@ -1,319 +1,366 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+
+import { useNavigate } from "react-router-dom";
+
 import ContactSection from "../components/ContactSection";
+
 import EnquiryModal from "../components/EnquiryModal";
-import { listBackendProducts } from "../api/backendProductsAPI";
-import { listCategories } from "../api/categoryAPI";
+
+import { categoryPillClass, subcategoryPillClass, matchesUrlSegment } from "../utils/categoryNavStyles";
+
+import { slugify, shouldShowNestedSubcategories } from "../utils/productFilter";
+
+import { useCollectionPage } from "../hooks/useCollectionPage";
+
+
 
 export default function Silver() {
+
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+
+
   const [modalOpen, setModalOpen] = useState(false);
+
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Extract subcategory from URL (e.g., /silver/rings -> "rings")
-  const pathParts = location.pathname.split('/').filter(Boolean);
-  const urlSubcategory = pathParts.length > 1 && pathParts[0] === 'silver' ? pathParts[1] : null;
-
-  // Fetch products and categories from backend
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        
-        // Load products
-        const data = await listBackendProducts({ collection: "Silver" });
-        setProducts(data);
-
-        // Load categories
-        const cats = await listCategories("Silver");
-        setCategories(cats);
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("❌ Error loading data:", error);
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
-
-  // Auto-select subcategory from URL
-  useEffect(() => {
-    if (urlSubcategory && categories.length > 0 && products.length > 0) {
-      // Normalize URL subcategory (remove hyphens, convert to lowercase)
-      const urlNormalized = (urlSubcategory || "").toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
-      
-      let foundMatch = false;
-      
-      // Find matching subcategory in categories
-      for (const cat of categories) {
-        if (cat.subcategories && cat.subcategories.length > 0) {
-          const matchingSub = cat.subcategories.find(sub => {
-            const subNormalized = (sub || "").toLowerCase().trim().replace(/\s+/g, ' ');
-            
-            // Try exact match
-            if (subNormalized === urlNormalized) return true;
-            
-            // Try match without spaces
-            if (subNormalized.replace(/\s+/g, '') === urlNormalized.replace(/\s+/g, '')) return true;
-            
-            // Try partial match (contains)
-            if (subNormalized.includes(urlNormalized) || urlNormalized.includes(subNormalized)) return true;
-            
-            // Try singular/plural match (rings -> ring, ring -> rings)
-            const subSingular = subNormalized.replace(/s$/, '');
-            const urlSingular = urlNormalized.replace(/s$/, '');
-            if (subSingular === urlSingular && subSingular.length > 0) return true;
-            
-            return false;
-          });
-          
-          if (matchingSub) {
-            setSelectedCategory(cat);
-            setSelectedSubcategory(matchingSub);
-            foundMatch = true;
-            break;
-          }
-        }
-      }
-      
-      // If no match found in categories, still set the URL subcategory directly
-      if (!foundMatch && urlSubcategory) {
-        setSelectedSubcategory(urlNormalized);
-      }
-    } else if (!urlSubcategory) {
-      // If no URL subcategory, reset selections
-      setSelectedCategory(null);
-      setSelectedSubcategory(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlSubcategory, categories, products]);
 
 
 
-const normalizeText = (value) =>
-  (value || "")
-    .toLowerCase()
-    .trim()
-    .replace(/-/g, " ")
-    .replace(/\s+/g, " ");
+  const {
 
-const toSingular = (value) => value.replace(/s$/, "");
+    selectedCategory,
 
-// Filter products by category/subcategory
-const filteredProducts = products.filter((product) => {
-  const productCollection = normalizeText(product.collection);
-  const isSilver = productCollection === "silver";
-  
-  if (!isSilver) return false;
-  
-  if (urlSubcategory) {
-    const urlNormalized = normalizeText(urlSubcategory);
-    const productSub = normalizeText(product.subcategory);
-    if (!productSub) return false;
-    return productSub === urlNormalized || toSingular(productSub) === toSingular(urlNormalized);
-  }
+    setSelectedCategory,
 
-  if (!selectedCategory && !selectedSubcategory) return true;
+    selectedSubcategory,
 
-  if (selectedSubcategory) {
-    const selectedSub = normalizeText(selectedSubcategory);
-    const productSub = normalizeText(product.subcategory);
-    if (!productSub) return false;
-    return productSub === selectedSub || toSingular(productSub) === toSingular(selectedSub);
-  }
+    setSelectedSubcategory,
 
-  if (selectedCategory) {
-    const selectedCategoryName = normalizeText(selectedCategory.category);
-    const productCategory = normalizeText(product.category);
-    const productSub = normalizeText(product.subcategory);
-    return (
-      productCategory === selectedCategoryName ||
-      toSingular(productCategory) === toSingular(selectedCategoryName) ||
-      productSub === selectedCategoryName ||
-      toSingular(productSub) === toSingular(selectedCategoryName)
-    );
-  }
+    categories,
 
-  return true;
-});
+    loading,
+
+    urlSubcategory,
+
+    filteredProducts,
+
+  } = useCollectionPage("Silver", "silver");
+
+
+
   const openModal = (product) => {
+
     setSelectedProduct(product);
+
     setModalOpen(true);
+
   };
+
+
 
   const closeModal = () => {
+
     setSelectedProduct(null);
+
     setModalOpen(false);
+
   };
+
+
 
   const handleCategoryClick = (category) => {
-    if (selectedCategory && selectedCategory.category === category.category) {
-      setSelectedCategory(null);
+
+    if (shouldShowNestedSubcategories(category)) {
+
+      setSelectedCategory(
+
+        selectedCategory?.category === category.category ? null : category
+
+      );
+
       setSelectedSubcategory(null);
-      navigate('/silver', { replace: true });
-    } else {
-      setSelectedCategory(category);
-      setSelectedSubcategory(null);
-      navigate('/silver', { replace: true });
+
+      navigate("/silver", { replace: true });
+
+      return;
+
     }
+
+    setSelectedCategory(category);
+
+    setSelectedSubcategory(category.category);
+
+    navigate(`/silver/${slugify(category.category)}`, { replace: true });
+
   };
+
+
 
   const handleSubcategoryClick = (subcategory) => {
+
     setSelectedSubcategory(subcategory);
-    
-    // Update URL to reflect selected subcategory
-    const subcategorySlug = (subcategory || "")
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
-    
-    navigate(`/silver/${subcategorySlug}`, { replace: true });
+
+    navigate(`/silver/${slugify(subcategory)}`, { replace: true });
+
   };
+
+
 
   const handleBack = () => {
+
     setSelectedCategory(null);
+
     setSelectedSubcategory(null);
-    navigate('/silver', { replace: true });
+
+    navigate("/silver", { replace: true });
+
   };
 
-  // Show loading state
+
+
   if (loading) {
+
     return (
+
       <section className="bg-[#FFF6DE] py-16 px-4 sm:px-6 md:px-12 min-h-screen flex items-center justify-center">
+
         <div className="text-center">
+
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#681F00] mx-auto mb-4"></div>
+
           <p className="text-[#0E0100] text-lg">Loading Silver Jewellery details...</p>
+
         </div>
+
       </section>
+
     );
+
   }
 
+
+
   return (
+
     <section className="bg-[#FFF6DE] py-16 px-4 sm:px-6 md:px-12 min-h-screen">
-      {/* Title */}
+
       <div className="max-w-7xl mx-auto text-center mb-8">
+
         <h2 className="text-3xl md:text-4xl cinzelfont uppercase font-bold text-[#0E0100] mb-10 tracking-wide">
+
           Silver Jewellery
+
         </h2>
+
       </div>
 
-      {/* Categories */}
+
+
       {categories.length > 0 && (
+
         <div className="flex flex-wrap justify-center gap-3 mb-8">
+
           {categories.map((cat) => (
+
             <button
+
               key={cat._id || cat.category}
+
               onClick={() => handleCategoryClick(cat)}
-              className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
-                selectedCategory?.category === cat.category
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
-              }`}
+
+              className={categoryPillClass(
+
+                selectedCategory?.category === cat.category ||
+
+                  matchesUrlSegment(cat.category, selectedSubcategory) ||
+
+                  matchesUrlSegment(cat.category, urlSubcategory)
+
+              )}
+
             >
+
               {cat.category}
+
             </button>
+
           ))}
+
         </div>
+
       )}
 
-      {/* Subcategories */}
-      {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
+
+
+      {selectedCategory && shouldShowNestedSubcategories(selectedCategory) && (
+
         <div className="flex flex-wrap justify-center gap-2 mb-10">
+
           {selectedCategory.subcategories.map((sub, index) => (
+
             <button
+
               key={sub || index}
+
               onClick={() => handleSubcategoryClick(sub)}
-              className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
-                selectedSubcategory === sub
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#FAEED1] text-[#681F00] hover:bg-[#F8D89C]"
-              }`}
+
+              className={subcategoryPillClass(
+
+                selectedSubcategory === sub || matchesUrlSegment(sub, urlSubcategory)
+
+              )}
+
             >
+
               {sub}
+
             </button>
+
           ))}
+
           <button
+
             onClick={handleBack}
+
             className="px-3 py-1.5 text-xs sm:text-sm rounded-full bg-gray-300 text-gray-800 hover:bg-gray-400 transition"
+
           >
+
             Back
+
           </button>
+
         </div>
+
       )}
 
-{/* Products Grid */}
-{filteredProducts.length > 0 ? (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
-    {filteredProducts.map((product) => {
-      // Get primary image - support both images array and single image field
-      const primaryImage = (product.images && product.images.length > 0) 
-        ? product.images[0] 
-        : (product.image || "");
-      
-      return (
-        <div key={product._id} className="flex flex-col h-full"> {/* Changed to h-full */}
-          {/* Product Image */}
-          <div
-            onClick={() => navigate(`/backend-product/${product._id}`)}
-            className="w-full bg-[#FFF4DC] h-[360px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex justify-center items-center"
-          >
-            {primaryImage ? (
-              <img
-                src={primaryImage}
-                alt={product.productName}
-                className="w-[300px] h-[400px] object-cover hover:scale-105 transition-transform duration-500"
-              />
-            ) : (
-              <div className="w-full h-[360px] flex items-center justify-center text-gray-400">
-                No image
+
+
+      {filteredProducts.length > 0 ? (
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
+
+          {filteredProducts.map((product) => {
+
+            const primaryImage =
+
+              product.images?.length > 0 ? product.images[0] : product.image || "";
+
+
+
+            return (
+
+              <div key={product._id} className="flex flex-col h-full">
+
+                <div
+
+                  onClick={() => navigate(`/backend-product/${product._id}`)}
+
+                  className="w-full bg-[#FFF4DC] h-[360px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex justify-center items-center"
+
+                >
+
+                  {primaryImage ? (
+
+                    <img
+
+                      src={primaryImage}
+
+                      alt={product.productName}
+
+                      className="w-[300px] h-[400px] object-cover hover:scale-105 transition-transform duration-500"
+
+                    />
+
+                  ) : (
+
+                    <div className="w-full h-[360px] flex items-center justify-center text-gray-400">
+
+                      No image
+
+                    </div>
+
+                  )}
+
+                </div>
+
+
+
+                <div className="flex flex-col flex-grow mt-4">
+
+                  <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide flex-grow">
+
+                    {product.productName}
+
+                  </h4>
+
+                  <button
+
+                    onClick={() => openModal(product)}
+
+                    className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer w-full sm:w-auto"
+
+                  >
+
+                    Enquiry Now →
+
+                  </button>
+
+                </div>
+
               </div>
-            )}
-          </div>
 
-          {/* Product Info */}
-          <div className="flex flex-col flex-grow mt-4"> {/* Changed to flex-col flex-grow */}
-            <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide flex-grow"> {/* Added flex-grow */}
-              {product.productName}
-            </h4>
-            <button
-              onClick={() => openModal(product)}
-              className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer w-full sm:w-auto" /* Added w-full sm:w-auto */
-            >
-              Enquiry Now →
-            </button>
-          </div>
+            );
+
+          })}
+
         </div>
-      );
-    })}
-  </div>
-) : (
-  <div className="text-center text-[#0E0100] py-10 font-medium">
-    No products found.
-  </div>
-)}
 
-      {/* Contact Section */}
+      ) : (
+
+        <div className="text-center text-[#0E0100] py-10 font-medium">
+
+          No products found.
+
+        </div>
+
+      )}
+
+
+
       <ContactSection />
 
-      {/* Enquiry Modal */}
+
+
       {selectedProduct && (
+
         <EnquiryModal
+
           isOpen={modalOpen}
+
           onClose={closeModal}
+
           productName={selectedProduct.productName || selectedProduct.name}
+
           productId={selectedProduct._id}
-          productImage={(selectedProduct.images && selectedProduct.images.length > 0) ? selectedProduct.images[0] : (selectedProduct.image || "")}
+
+          productImage={
+
+            selectedProduct.images?.length > 0
+
+              ? selectedProduct.images[0]
+
+              : selectedProduct.image || ""
+
+          }
+
         />
+
       )}
+
     </section>
-  );
+
+  );
+
 }
+

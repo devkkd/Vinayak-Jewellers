@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  goldCategories,
-  silverCategories,
-  diamondCategories,
-  giftingCategories,
-  weddingCategories,
-  birthStoneCategories,
-  coinsCategories,
-} from "../data/admincategories";
+import { listCategories } from "../api/categoryAPI";
 
 const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
   const [formData, setFormData] = useState({
@@ -22,27 +14,6 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
 
   const [availableCategories, setAvailableCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-
-  const getCategoriesByCollection = (collection) => {
-    switch (collection) {
-      case "Gold":
-        return goldCategories;
-      case "Silver":
-        return silverCategories;
-      case "Diamond":
-        return diamondCategories;
-      case "Gifting":
-        return giftingCategories;
-      case "Wedding Collection":
-        return weddingCategories;
-      case "Birth Stones":
-        return birthStoneCategories;
-      case "Coins":
-        return coinsCategories;
-      default:
-        return [];
-    }
-  };
 
   const inferCollectionFromProduct = (item) => {
     if (item.collection) return item.collection;
@@ -69,11 +40,17 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
   };
 
   useEffect(() => {
-    if (product) {
+    const init = async () => {
+      if (!product) return;
       const initialCollection = inferCollectionFromProduct(product);
       const initialSubcategory = product.subcategory || "";
-      const categoriesForCollection = getCategoriesByCollection(initialCollection);
-      const initialCategory = product.category || inferCategoryFromSubcategory(categoriesForCollection, initialSubcategory);
+      let categoriesForCollection = [];
+      if (initialCollection) {
+        categoriesForCollection = await listCategories(initialCollection);
+      }
+      const initialCategory =
+        product.category ||
+        inferCategoryFromSubcategory(categoriesForCollection, initialSubcategory);
 
       setFormData({
         productName: product.productName || "",
@@ -86,12 +63,12 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
       });
 
       setAvailableCategories(categoriesForCollection);
-      loadSubcategories(initialCollection, initialCategory, initialSubcategory);
-    }
+      loadSubcategories(categoriesForCollection, initialCategory, initialSubcategory);
+    };
+    init();
   }, [product]);
 
-  const loadSubcategories = (selectedCollection, selectedCategory = "", existingSubcategory = "") => {
-    const categories = getCategoriesByCollection(selectedCollection);
+  const loadSubcategories = (categories, selectedCategory = "", existingSubcategory = "") => {
     const chosen = categories.find((item) => item.category === selectedCategory);
     const options = chosen?.subcategories?.length
       ? chosen.subcategories
@@ -110,9 +87,9 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
     setSubcategories(options);
   };
 
-  const handleCollectionChange = (e) => {
+  const handleCollectionChange = async (e) => {
     const selectedCollection = e.target.value;
-    const categories = getCategoriesByCollection(selectedCollection);
+    const categories = selectedCollection ? await listCategories(selectedCollection) : [];
     setAvailableCategories(categories);
     setFormData({ ...formData, collection: selectedCollection, category: "", subcategory: "" });
     setSubcategories([]);
@@ -120,8 +97,14 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
 
   const handleCategoryChange = (e) => {
     const selectedCategory = e.target.value;
-    setFormData({ ...formData, category: selectedCategory, subcategory: "" });
-    loadSubcategories(formData.collection, selectedCategory);
+    const row = availableCategories.find((c) => c.category === selectedCategory);
+    const subs = row?.subcategories?.filter(Boolean) || [];
+    setSubcategories(subs.length ? subs : selectedCategory ? [selectedCategory] : []);
+    setFormData({
+      ...formData,
+      category: selectedCategory,
+      subcategory: subs.length ? "" : selectedCategory,
+    });
   };
 
   if (!isOpen || !product) return null;
@@ -137,7 +120,11 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await onSave(product._id, formData);
+    const payload = {
+      ...formData,
+      subcategory: formData.subcategory || formData.category,
+    };
+    await onSave(product._id, payload);
   };
 
   return (

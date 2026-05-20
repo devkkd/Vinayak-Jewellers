@@ -1,14 +1,17 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { uploadBackendProduct } from "../../api/backendProductsAPI";
-import {
-  goldCategories,
-  silverCategories,
-  diamondCategories,
-  giftingCategories,
-  weddingCategories,
-  birthStoneCategories,
-  mensCategories,
-} from "../../data/admincategories";
+import { listCategories } from "../../api/categoryAPI";
+
+const COLLECTIONS = [
+  "Gold",
+  "Silver",
+  "Diamond",
+  "Wedding Collection",
+  "Gifting",
+  "Birth Stones",
+  "Coins",
+  "Mens",
+];
 
 const AddProduct = () => {
   const [formData, setFormData] = useState({
@@ -21,129 +24,97 @@ const AddProduct = () => {
     subcategory: "",
   });
 
-  const [availableCategories, setAvailableCategories] = useState([]); // Categories for selected collection
-  const [availableSubcategories, setAvailableSubcategories] = useState([]); // Subcategories for selected category
+  const [dbCategories, setDbCategories] = useState([]);
+  const [subOptions, setSubOptions] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
 
-  const getFlatSubcategories = (categories = []) => {
-    const seen = new Set();
-    const list = [];
-    categories.forEach((cat) => {
-      const categoryName = (cat.category || "").trim();
-      if (categoryName) {
-        const key = categoryName.toLowerCase();
-        if (!seen.has(key)) {
-          seen.add(key);
-          list.push(categoryName);
-        }
-      }
-      (cat.subcategories || []).forEach((sub) => {
-        const subName = String(sub || "").trim();
-        if (!subName) return;
-        const key = subName.toLowerCase();
-        if (!seen.has(key)) {
-          seen.add(key);
-          list.push(subName);
-        }
-      });
-    });
-    return list;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const allCategories = useMemo(
-    () => ({
-      Gold: goldCategories,
-      Silver: silverCategories,
-      Diamond: diamondCategories,
-      Gifting: giftingCategories,
-      "Wedding Collection": weddingCategories,
-      "Birth Stones": birthStoneCategories,
-      Coins: [
-        { category: "Gold Coins", subcategories: [] },
-        { category: "Silver Coins", subcategories: [] },
-      ],
-      Mens: mensCategories,
-    }),
-    []
-  );
+  const handleCollectionChange = async (e) => {
+    const collection = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      collection,
+      category: "",
+      subcategory: "",
+    }));
+    setSubOptions([]);
 
-  // Handle collection change
-  const handleCollectionChange = (e) => {
-    const selectedCollection = e.target.value;
-    setFormData({ 
-      ...formData, 
-      collection: selectedCollection, 
-      category: "", 
-      subcategory: "" 
-    });
-
-    // Get categories for selected collection
-    const categories = allCategories[selectedCollection] || [];
-    setAvailableCategories(categories);
-    setAvailableSubcategories([]);
-  };
-
-  // Handle category change
-  const handleCategoryChange = (e) => {
-    const selectedCategoryName = e.target.value;
-
-    // Find the selected category object and get its subcategories
-    const selectedCategory = availableCategories.find(
-      (cat) => cat.category === selectedCategoryName
-    );
-    
-    if (selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
-      const options = selectedCategory.subcategories;
-      setAvailableSubcategories(options);
-      setFormData({ ...formData, category: selectedCategoryName, subcategory: "" });
+    if (!collection) {
+      setDbCategories([]);
       return;
     }
 
-    // If no nested subcategories, still allow selecting this category as subcategory
-    const fallback = selectedCategoryName ? [selectedCategoryName] : [];
-    setAvailableSubcategories(fallback);
-    setFormData({ ...formData, category: selectedCategoryName, subcategory: "" });
+    setLoadingCategories(true);
+    try {
+      const cats = await listCategories(collection);
+      setDbCategories(cats || []);
+    } catch {
+      setDbCategories([]);
+      alert("Could not load categories. Add them in Categories panel first.");
+    } finally {
+      setLoadingCategories(false);
+    }
   };
 
+  const handleCategoryChange = (e) => {
+    const categoryName = e.target.value;
+    const row = dbCategories.find((c) => c.category === categoryName);
+    const subs = row?.subcategories?.filter(Boolean) || [];
 
-  // 🧠 Handle text/textarea inputs
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setSubOptions(subs);
+    setFormData((prev) => ({
+      ...prev,
+      category: categoryName,
+      subcategory: subs.length === 0 ? categoryName : "",
+    }));
   };
 
-  // 🖼 Multiple image uploads (with previews)
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData({ ...formData, images: files });
+    setFormData((prev) => ({ ...prev, images: Array.from(e.target.files || []) }));
   };
 
-  // 🚀 Submit handler → backend upload
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.images.length) {
+      alert("Please select at least one image.");
+      return;
+    }
+    if (!formData.collection || !formData.category) {
+      alert("Please select collection and category.");
+      return;
+    }
+    if (subOptions.length > 0 && !formData.subcategory) {
+      alert("Please select a sub-category.");
+      return;
+    }
+
+    const token =
+      localStorage.getItem("adminToken") || localStorage.getItem("backendToken");
+    if (!token) {
+      alert("Please log in first.");
+      return;
+    }
+
+    const subcategory = formData.subcategory || formData.category;
+
     try {
-      if (!formData.images.length) {
-        alert("⚠️ Please select at least one image.");
-        return;
-      }
-
-      const token = localStorage.getItem("adminToken") || localStorage.getItem("backendToken");
-      if (!token) {
-        alert("❌ No token found. Please log in first.");
-        return;
-      }
-
       await uploadBackendProduct({
         productName: formData.title,
         details: formData.description || formData.title,
         sku: formData.sku,
         collection: formData.collection,
         category: formData.category,
-        subcategory: formData.subcategory || formData.category,
-        files: formData.images, // Send all images
+        subcategory,
+        files: formData.images,
         token,
       });
 
-      alert("✅ Product uploaded successfully!");
+      alert("Product uploaded successfully!");
       setFormData({
         images: [],
         title: "",
@@ -153,182 +124,151 @@ const AddProduct = () => {
         category: "",
         subcategory: "",
       });
-      setAvailableCategories([]);
-      setAvailableSubcategories([]);
+      setDbCategories([]);
+      setSubOptions([]);
     } catch (err) {
       const msg = err?.response?.data?.message || err.message || "Upload failed";
-      alert(`❌ ${msg}`);
+      alert(msg);
     }
   };
 
   return (
     <div className="bg-[#FFF9E6] p-8 rounded-2xl shadow-md border border-[#E2C887]/40 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold text-[#5C1D02] mb-6 text-center cinzelfont">
+      <h2 className="text-2xl font-bold text-[#5C1D02] mb-2 text-center cinzelfont">
         Add New Product
       </h2>
+      <p className="text-sm text-[#7A2D0E] text-center mb-6">
+        Fill details → choose collection → category → sub-category (if available)
+      </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Product Images */}
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-[#3B1C0A] font-semibold mb-2">
-            Product Images (Select multiple)
-          </label>
+          <label className="block text-[#3B1C0A] font-semibold mb-2">Product Images *</label>
           <input
             type="file"
             accept="image/*"
             multiple
             onChange={handleImageChange}
-            className="block w-full border border-[#E2C887]/60 rounded-lg bg-[#FFF9E6] p-2 focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            className="block w-full border border-[#E2C887]/60 rounded-lg bg-white p-2"
+            required
           />
-          {formData.images.length > 0 && (
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              {formData.images.map((img, i) => (
-                <div
-                  key={i}
-                  className="w-full aspect-square border border-[#E2C887]/60 rounded-lg overflow-hidden shadow-sm"
-                >
-                  <img
-                    src={URL.createObjectURL(img)}
-                    alt={`preview-${i}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
-        {/* Product Title */}
         <div>
-          <label className="block text-[#3B1C0A] font-semibold mb-2">
-            Product Title
-          </label>
+          <label className="block text-[#3B1C0A] font-semibold mb-2">Product Name *</label>
           <input
             type="text"
             name="title"
             value={formData.title}
             onChange={handleChange}
-            placeholder="Enter product name"
-            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white"
             required
           />
         </div>
 
-        {/* Product SKU */}
         <div>
-          <label className="block text-[#3B1C0A] font-semibold mb-2">
-            Product SKU
-          </label>
+          <label className="block text-[#3B1C0A] font-semibold mb-2">SKU *</label>
           <input
             type="text"
             name="sku"
             value={formData.sku}
             onChange={handleChange}
-            placeholder="Unique SKU (e.g. GJ-1023)"
-            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white"
             required
           />
         </div>
 
-        {/* Product Description */}
         <div>
-          <label className="block text-[#3B1C0A] font-semibold mb-2">
-            Product Description <span className="text-xs text-gray-500">(HTML tags supported)</span>
-          </label>
+          <label className="block text-[#3B1C0A] font-semibold mb-2">Description</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
-            rows="6"
-            placeholder="Enter product description. You can use HTML tags for styling:&#10;&lt;p&gt;Paragraph text&lt;/p&gt;&#10;&lt;strong&gt;Bold text&lt;/strong&gt;&#10;&lt;em&gt;Italic text&lt;/em&gt;&#10;&lt;ul&gt;&lt;li&gt;List items&lt;/li&gt;&lt;/ul&gt;&#10;&lt;br/&gt; for line breaks"
-            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] font-mono text-sm"
-          ></textarea>
-          <p className="text-xs text-gray-500 mt-1">
-            Supported HTML tags: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;u&gt;, &lt;br/&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;h1&gt;-&lt;h6&gt;
-          </p>
+            rows="4"
+            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white"
+          />
         </div>
 
-        {/* Product Collection */}
-        <div>
-          <label className="block text-[#3B1C0A] font-semibold mb-2">
-            Product Collection
-          </label>
-          <select
-            name="collection"
-            value={formData.collection}
-            onChange={handleCollectionChange}
-            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
-            required
-          >
-            <option value="">Select Collection</option>
-            {Object.keys(allCategories).map((collection) => (
-              <option key={collection} value={collection}>
-                {collection}
+        <div className="border-t border-[#E2C887]/40 pt-4 space-y-4">
+          <p className="text-sm font-semibold text-[#5C1D02]">Category (where product will show)</p>
+
+          <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">1. Collection *</label>
+            <select
+              name="collection"
+              value={formData.collection}
+              onChange={handleCollectionChange}
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white"
+              required
+            >
+              <option value="">Select Collection</option>
+              {COLLECTIONS.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[#3B1C0A] font-semibold mb-2">2. Category *</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleCategoryChange}
+              disabled={!formData.collection || loadingCategories}
+              className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white disabled:bg-gray-100"
+              required
+            >
+              <option value="">
+                {loadingCategories
+                  ? "Loading..."
+                  : !formData.collection
+                    ? "Select collection first"
+                    : dbCategories.length === 0
+                      ? "No categories — add in Categories panel"
+                      : "Select Category"}
               </option>
-            ))}
-          </select>
+              {dbCategories.map((cat) => (
+                <option key={cat._id || cat.category} value={cat.category}>
+                  {cat.category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {subOptions.length > 0 && (
+            <div>
+              <label className="block text-[#3B1C0A] font-semibold mb-2">3. Sub-category *</label>
+              <select
+                name="subcategory"
+                value={formData.subcategory}
+                onChange={handleChange}
+                className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white"
+                required
+              >
+                <option value="">Select Sub-category</option>
+                {subOptions.map((sub) => (
+                  <option key={sub} value={sub}>
+                    {sub}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {formData.category && subOptions.length === 0 && (
+            <p className="text-xs text-[#7A2D0E] bg-[#FFF4DC] p-2 rounded">
+              This product will appear under: <strong>{formData.collection}</strong> →{" "}
+              <strong>{formData.category}</strong>
+            </p>
+          )}
         </div>
 
-        {/* Product Category */}
-        <div>
-          <label className="block text-[#3B1C0A] font-semibold mb-2">
-            Product Category
-          </label>
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleCategoryChange}
-            disabled={!formData.collection || availableCategories.length === 0}
-            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] disabled:bg-gray-100"
-            required
-          >
-            <option value="">
-              {!formData.collection 
-                ? "Select Collection first" 
-                : availableCategories.length === 0 
-                ? "No categories available" 
-                : "Select Category"}
-            </option>
-            {availableCategories.map((cat, i) => (
-              <option key={i} value={cat.category}>
-                {cat.category}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Product Sub-category */}
-        <div>
-          <label className="block text-[#3B1C0A] font-semibold mb-2">
-            Product Sub-category
-          </label>
-          <select
-            name="subcategory"
-            value={formData.subcategory}
-            onChange={handleChange}
-            disabled={!formData.category || availableSubcategories.length === 0}
-            className="w-full border border-[#E2C887]/60 rounded-lg p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#E2C887] disabled:bg-gray-100"
-          >
-            <option value="">
-              {!formData.category
-                ? "Select Category first"
-                : availableSubcategories.length === 0 
-                ? "No subcategories (optional)" 
-                : "Select Sub-category"}
-            </option>
-            {availableSubcategories.map((sub, i) => (
-              <option key={i} value={sub}>
-                {sub}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Submit */}
-        <div className="text-center">
+        <div className="text-center pt-2">
           <button
             type="submit"
-            className="bg-[#5C1D02] text-[#FFF9E6] px-6 py-2 rounded-lg font-semibold hover:bg-[#3B1C0A] transition-all duration-300"
+            className="bg-[#5C1D02] text-[#FFF9E6] px-8 py-2 rounded-lg font-semibold hover:bg-[#3B1C0A]"
           >
             Add Product
           </button>

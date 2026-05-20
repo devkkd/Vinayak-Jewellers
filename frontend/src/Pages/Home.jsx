@@ -1,4 +1,5 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { slugify } from "../utils/productFilter";
 import BannerSlider from "../components/BannerSlider";
 import { useState, useEffect, useRef } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -167,7 +168,7 @@ export default function Home() {
 
             {/* CARD 1 - GIFT COLLECTION */}
             <Link
-              to="/alljewellery?category=Gifting"
+              to="/gifting"
               state={{ scrollToTop: true }}
               className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
             >
@@ -199,7 +200,7 @@ export default function Home() {
 
             {/* CARD 2 - MANGALSUTRA COLLECTION */}
             <Link
-              to="/alljewellery?category=Gold&subcategory=Mangalsutra"
+              to="/gold/mangalsutra"
               state={{ scrollToTop: true }}
               className="group relative w-full sm:w-[48%] lg:w-[45%] bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
             >
@@ -264,18 +265,18 @@ export default function Home() {
         {/* Full-bleed image grid, no gap */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 sm:gap-9  max-w-5xl justify-center items-center mx-5 sm:mx-auto">
           {[
-            { name: "Collections", category: "All Jewellery", img: "/images/categories/1.jpg.jpeg" },
-            { name: "Gold", category: "Gold", img: "/images/categories/2.jpg.jpeg" },
-            { name: "Diamond", category: "Diamond", img: "/images/categories/3.jpg.jpeg" },
-            { name: "Silver", category: "Silver", img: "/images/categories/4.jpg.jpeg" },
-            { name: "Men's", category: "Mens", img: "/images/categories/5.jpg.jpeg" },
-            { name: "Coins", category: "Coins", img: "/images/categories/6.jpg.jpeg" },
-            { name: "Gifting", category: "Gifting", img: "/images/categories/7.jpg.jpeg" },
-            { name: "Birth Stones", category: "Birth Stones", img: "/images/categories/8.jpg.jpeg" },
+            { name: "Collections", link: "/alljewellery", img: "/images/categories/1.jpg.jpeg" },
+            { name: "Gold", link: "/gold", img: "/images/categories/2.jpg.jpeg" },
+            { name: "Diamond", link: "/diamond", img: "/images/categories/3.jpg.jpeg" },
+            { name: "Silver", link: "/silver", img: "/images/categories/4.jpg.jpeg" },
+            { name: "Men's", link: "/mens", img: "/images/categories/5.jpg.jpeg" },
+            { name: "Coins", link: "/coins", img: "/images/categories/6.jpg.jpeg" },
+            { name: "Gifting", link: "/gifting", img: "/images/categories/7.jpg.jpeg" },
+            { name: "Birth Stones", link: "/birthstones", img: "/images/categories/8.jpg.jpeg" },
           ].map((item, index) => (
             <Link
               key={index}
-              to={`/alljewellery?category=${encodeURIComponent(item.category)}`}
+              to={item.link}
               state={{ scrollToTop: true }}
               className="group block aspect-[3/4] overflow-hidden"
             >
@@ -385,31 +386,55 @@ export default function Home() {
 
           <div className="mt-6 sm:mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-8">
             {[
-              { name: "Gold Wedding", img: "/images/ocassion/9.jpg" },
-              { name: "Gold Traditional", img: "/images/ocassion/10.jpg" },
-              { name: "Gold Rajasthani Collection", img: "/images/ocassion/11.jpg" },
-              { name: "Rose Gold Collection", img: "/images/ocassion/12.jpg" },
-              { name: "Diamond Wedding Collection", img: "/images/ocassion/13.jpg" },
-              { name: "Mangalsutra Collection", img: "/images/ocassion/14.jpg", mobileOnly: true },
+              {
+                name: "Gold Wedding",
+                img: "/images/ocassion/9.jpg",
+                link: `/wedding?category=${slugify("Gold Wedding")}`,
+              },
+              {
+                name: "Gold Traditional",
+                img: "/images/ocassion/10.jpg",
+                link: `/wedding?category=${slugify("Gold Traditional")}`,
+              },
+              {
+                name: "Gold Rajasthani Collection",
+                img: "/images/ocassion/11.jpg",
+                link: `/wedding?category=${slugify("Gold rajasthani collection")}`,
+              },
+              {
+                name: "Rose Gold Collection",
+                img: "/images/ocassion/12.jpg",
+                link: `/wedding?category=${slugify("Rose gold collection")}`,
+              },
+              {
+                name: "Diamond Wedding Collection",
+                img: "/images/ocassion/13.jpg",
+                link: `/wedding?category=${slugify("Diamond Wedding collection")}`,
+              },
+              {
+                name: "Mangalsutra Collection",
+                img: "/images/ocassion/14.jpg",
+                link: "/gold/mangalsutra",
+                mobileOnly: true,
+              },
             ].map((item, index) => (
-              <div
+              <Link
                 key={index}
-                className={`flex flex-col items-center text-center group ${item.mobileOnly ? "md:hidden" : ""}`}
+                to={item.link}
+                state={{ scrollToTop: true }}
+                className={`flex flex-col items-center text-center group cursor-pointer ${item.mobileOnly ? "md:hidden" : ""}`}
               >
-                {/* Image box */}
-                <div className=" rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300 w-full">
+                <div className="rounded-2xl overflow-hidden hover:scale-105 transition-transform duration-300 w-full">
                   <img
                     src={item.img}
                     alt={item.name}
                     className="w-full h-64 object-contain"
                   />
                 </div>
-
-                {/* Title below image */}
-                <p className="mt-4 text-[#140100] text-[13px] tracking-[1px] uppercase mainfont font-normal">
+                <p className="mt-4 text-[#140100] text-[13px] tracking-[1px] uppercase mainfont font-normal group-hover:text-[#681F00] transition-colors">
                   {item.name}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

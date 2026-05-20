@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
 import { listBackendProducts } from "../api/backendProductsAPI";
+import {
+  fetchCollectionProducts,
+  productBelongsToCollection,
+} from "../utils/collectionMembership";
 
 export default function Coins() {
   const navigate = useNavigate();
@@ -17,15 +21,10 @@ export default function Coins() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const data = await listBackendProducts();
-
-        // ONLY COINS PRODUCTS
-        const coinsProducts = data.filter(
-          (p) =>
-            (p.collection || "").toLowerCase() === "coins" ||
-            (p.category || "").toLowerCase() === "coins"
+        const coinsProducts = await fetchCollectionProducts(
+          listBackendProducts,
+          "Coins"
         );
-
         setProducts(coinsProducts);
       } catch (err) {
         console.error("Failed to load coins products", err);
@@ -41,18 +40,21 @@ export default function Coins() {
 
   /* ---------------- FILTER LOGIC (FIXED) ---------------- */
   const filteredProducts = products.filter((p) => {
-    const productSub = (p.category || "").toLowerCase().trim();
-    const selectedSub = selectedSubcategory.toLowerCase().trim();
+    if (!productBelongsToCollection(p, "Coins")) return false;
+
+    const productCat = (p.category || "").toLowerCase().trim();
+    const productSub = (p.subcategory || "").toLowerCase().trim();
+    const productBlob = `${productCat} ${productSub} ${(p.productName || "").toLowerCase()}`;
     const selectedCat = selectedCategory.toLowerCase().trim();
 
-    // If category selected (Gold / Silver)
     if (selectedCategory) {
-      if (!productSub.includes(selectedCat)) return false;
+      if (selectedCat === "gold" && !productBlob.includes("gold")) return false;
+      if (selectedCat === "silver" && !productBlob.includes("silver")) return false;
     }
 
-    // If subcategory selected (price range)
     if (selectedSubcategory) {
-      if (productSub !== selectedSub) return false;
+      const selectedSub = selectedSubcategory.toLowerCase().trim();
+      if (productSub !== selectedSub && productCat !== selectedSub) return false;
     }
 
     return true;

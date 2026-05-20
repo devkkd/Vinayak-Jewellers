@@ -16,7 +16,6 @@ import React, { useState, useEffect } from "react";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({});
   const navigate = useNavigate();
 
@@ -62,8 +61,6 @@ const AdminDashboard = () => {
         setDashboardData(res.data || {});
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -144,14 +141,7 @@ const AdminDashboard = () => {
 
         {/* Main content */}
         <main className="flex-1 overflow-y-auto p-6">
-          {loading ? (
-            <div className="flex items-center justify-center h-full text-[#5C1D02]">
-              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-[#5C1D02] mr-3"></div>
-              Loading Dashboard...
-            </div>
-          ) : (
-            <Outlet context={{ dashboardData }} />
-          )}
+          <Outlet context={{ dashboardData }} />
         </main>
       </div>
     </div>

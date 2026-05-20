@@ -4,6 +4,12 @@ import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listCategories } from "../api/categoryAPI";
+import {
+  fetchCollectionProducts,
+  productBelongsToCollection,
+} from "../utils/collectionMembership";
+import { categoryPillClass, subcategoryPillClass } from "../utils/categoryNavStyles";
+import { segmentsMatch } from "../utils/productFilter";
 
 export default function Gifting() {
   const navigate = useNavigate();
@@ -21,9 +27,9 @@ export default function Gifting() {
     const loadData = async () => {
       try {
         // Load products
-        const data = await listBackendProducts();
-        const giftingProducts = data.filter(
-          (p) => p.collection === "Gifting" || p.category === "Gifting"
+        const giftingProducts = await fetchCollectionProducts(
+          listBackendProducts,
+          "Gifting"
         );
         setProducts(giftingProducts);
 
@@ -73,24 +79,26 @@ export default function Gifting() {
   // Product Filtering Logic
   const filteredProducts = products.filter((product) => {
     // First check collection
-    if (product.collection !== "Gifting" && product.category !== "Gifting") return false;
+    if (!productBelongsToCollection(product, "Gifting")) return false;
     
     // If no category/subcategory selected, show all products in collection
     if (!selectedCategory && !selectedSubcategory) return true;
     
-    // If subcategory selected, filter by subcategory
+    // If subcategory selected — match DB subcategory/category (same rules as Wedding page)
     if (selectedSubcategory) {
       return (
-        product.subcategory &&
-        product.subcategory.toLowerCase().trim() === selectedSubcategory.toLowerCase().trim()
+        segmentsMatch(product.subcategory, selectedSubcategory) ||
+        segmentsMatch(product.category, selectedSubcategory)
       );
     }
-    
-    // If category selected, filter by category (case-insensitive)
+
+    // If category selected — product saved under that type in category or subcategory
     if (selectedCategory) {
-      const productCategory = (product.category || "").toLowerCase().trim();
-      const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
-      return productCategory === selectedCategoryName;
+      const typeName = selectedCategory.category;
+      return (
+        segmentsMatch(product.category, typeName) ||
+        segmentsMatch(product.subcategory, typeName)
+      );
     }
     
     return true;
@@ -112,11 +120,7 @@ export default function Gifting() {
             <button
               key={cat._id || cat.category}
               onClick={() => handleCategoryClick(cat)}
-              className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
-                selectedCategory?.category === cat.category
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
-              }`}
+              className={categoryPillClass(selectedCategory?.category === cat.category)}
             >
               {cat.category}
             </button>
@@ -131,11 +135,7 @@ export default function Gifting() {
             <button
               key={sub || index}
               onClick={() => handleSubcategoryClick(sub)}
-              className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
-                selectedSubcategory === sub
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#FAEED1] text-[#681F00] hover:bg-[#F8D89C]"
-              }`}
+              className={subcategoryPillClass(selectedSubcategory === sub)}
             >
               {sub}
             </button>

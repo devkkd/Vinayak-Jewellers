@@ -11,7 +11,8 @@ const productSchema = new mongoose.Schema(
     // Cloudinary public ids for deletion/updates
     imagePublicId: { type: String }, // Single image public id (legacy)
     imagePublicIds: { type: [String], default: [] }, // Array of public ids
-    collection: { type: String }, // e.g., Gold, Silver, Diamond, Gifting, Wedding, Birth Stones, Coins
+    collection: { type: String }, // primary: Gold, Silver, Gifting, Coins, …
+    collections: { type: [String], default: [] }, // extra pages (e.g. Gifting + Coins)
     category: { type: String },
     subcategory: { type: String },
   },

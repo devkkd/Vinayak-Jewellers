@@ -3,6 +3,10 @@ import { r2Client, R2_BUCKET, R2_PUBLIC_URL } from "../config/r2.js";
 import Product from "../models/Product.js";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import {
+  buildLinkedCollectionFilter,
+  syncProductCollections,
+} from "../utils/collectionMembership.js";
 
 const uploadToR2 = async (buffer, mimeType, folder = "vinayak_jewellers") => {
   const ext = mimeType.split("/")[1] || "bin";
@@ -32,7 +36,22 @@ export const uploadProduct = async (req, res) => {
     for (const file of files) uploadResults.push(await uploadToR2(file.buffer, file.mimetype));
     const imageUrls = uploadResults.map((r) => r.url);
     const imagePublicIds = uploadResults.map((r) => r.key);
-    const product = await Product.create({ productName, details, sku, image: imageUrls[0], imagePublicId: imagePublicIds[0], images: imageUrls, imagePublicIds, collection: collection || undefined, category: category || undefined, subcategory: subcategory || undefined });
+    const draft = {
+      productName,
+      details,
+      sku,
+      collection: collection || undefined,
+      category: category || undefined,
+      subcategory: subcategory || undefined,
+    };
+    syncProductCollections(draft);
+    const product = await Product.create({
+      ...draft,
+      image: imageUrls[0],
+      imagePublicId: imagePublicIds[0],
+      images: imageUrls,
+      imagePublicIds,
+    });
     return res.status(201).json({ success: true, message: "✅ Product uploaded successfully!", data: product });
   } catch (error) {
     if (error?.code === 11000) return res.status(409).json({ success: false, message: "Product with this SKU already exists" });
@@ -40,13 +59,38 @@ export const uploadProduct = async (req, res) => {
   }
 };
 
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const exactFieldMatch = (value) => {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return null;
+  const singular = trimmed.replace(/s$/i, "");
+  const plural = trimmed.endsWith("s") ? trimmed : `${trimmed}s`;
+  const patterns = [...new Set([trimmed, singular, plural])].map(
+    (v) => new RegExp(`^${escapeRegex(v)}$`, "i")
+  );
+  return { $in: patterns };
+};
+
 export const listProducts = async (req, res) => {
   try {
     const { collection, category, subcategory } = req.query;
-    const filter = {};
-    if (collection) filter.collection = { $regex: collection, $options: "i" };
-    if (category) filter.category = { $regex: category, $options: "i" };
-    if (subcategory) filter.subcategory = { $regex: subcategory, $options: "i" };
+    const clauses = [];
+    if (collection) {
+      const collKey = collection.trim().toLowerCase();
+      if (collKey === "gifting" || collKey === "coins") {
+        clauses.push(buildLinkedCollectionFilter(collection, exactFieldMatch));
+      } else {
+        clauses.push({ collection: exactFieldMatch(collection) });
+      }
+    }
+    if (category) clauses.push({ category: exactFieldMatch(category) });
+    if (subcategory) {
+      const typeMatch = exactFieldMatch(subcategory);
+      clauses.push({ $or: [{ subcategory: typeMatch }, { category: typeMatch }] });
+    }
+    const filter =
+      clauses.length === 0 ? {} : clauses.length === 1 ? clauses[0] : { $and: clauses };
     const products = await Product.find(filter).sort({ createdAt: -1 });
     return res.json({ success: true, data: products, count: products.length });
   } catch (error) {
@@ -110,6 +154,7 @@ export const updateProduct = async (req, res) => {
     if (collection !== undefined) product.collection = collection?.trim() || undefined;
     if (category !== undefined) product.category = category?.trim() || undefined;
     if (subcategory !== undefined) product.subcategory = subcategory?.trim() || undefined;
+    syncProductCollections(product);
     await product.save();
     return res.json({ success: true, message: "✅ Product updated", data: product });
   } catch (error) {
@@ -156,7 +201,22 @@ export const bulkUploadProducts = async (req, res) => {
           } catch (e) { console.error(`Image upload failed: ${imgUrl}`, e.message); }
         }
         if (imageUrls.length === 0) { errors.push({ row: item, error: "Failed to upload any images" }); continue; }
-        const product = await Product.create({ productName, details, sku, image: imageUrls[0], imagePublicId: imagePublicIds[0], images: imageUrls, imagePublicIds, collection: collection || undefined, category: category || undefined, subcategory: subcategory || undefined });
+        const draft = {
+          productName,
+          details,
+          sku,
+          collection: collection || undefined,
+          category: category || undefined,
+          subcategory: subcategory || undefined,
+        };
+        syncProductCollections(draft);
+        const product = await Product.create({
+          ...draft,
+          image: imageUrls[0],
+          imagePublicId: imagePublicIds[0],
+          images: imageUrls,
+          imagePublicIds,
+        });
         results.push(product);
       } catch (err) {
         errors.push({ row: item, error: err?.code === 11000 ? "SKU already exists" : err.message });
@@ -185,7 +245,20 @@ export const uploadProductJson = async (req, res) => {
       buffer = Buffer.from(base64Data, "base64"); mime = mimeType || "image/jpeg";
     }
     const result = await uploadToR2(buffer, mime);
-    const product = await Product.create({ productName, details, sku, image: result.url, imagePublicId: result.key, collection: collection?.trim() || undefined, category: category?.trim() || undefined, subcategory: subcategory?.trim() || undefined });
+    const draft = {
+      productName,
+      details,
+      sku,
+      collection: collection?.trim() || undefined,
+      category: category?.trim() || undefined,
+      subcategory: subcategory?.trim() || undefined,
+    };
+    syncProductCollections(draft);
+    const product = await Product.create({
+      ...draft,
+      image: result.url,
+      imagePublicId: result.key,
+    });
     return res.status(201).json({ success: true, message: "✅ Product uploaded successfully!", data: product });
   } catch (error) {
     if (error?.code === 11000) return res.status(409).json({ success: false, message: "SKU already exists" });

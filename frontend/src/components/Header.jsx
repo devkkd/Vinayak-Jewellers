@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSearch } from "../context/SearchContext";
 import { useEnquiry } from "../context/EnquiryContext";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listMenus } from "../api/menuAPI";
 import { ShoppingBag } from "lucide-react";
 
+const isPathActive = (pathname, link) => {
+  const base = (link || "").split("?")[0];
+  if (!base || base === "/") return pathname === "/";
+  return pathname === base || pathname.startsWith(`${base}/`);
+};
+
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [openSub, setOpenSub] = useState(null);
   const [mobileSub, setMobileSub] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -42,23 +49,23 @@ export default function Header() {
   sub: [
     { 
       name: "Gold Wedding", 
-      link: "/alljewellery?category=Gold&subcategory=gold-wedding" 
+      link: "/wedding?category=gold-wedding" 
     },
     { 
       name: "Gold Traditional", 
-      link: "/alljewellery?category=Gold&subcategory=gold-traditional" 
+      link: "/wedding?category=gold-traditional" 
     },
     { 
       name: "Gold rajasthani collection", 
-      link: "/alljewellery?category=Gold&subcategory=gold-rajasthani-collection" 
+      link: "/wedding?category=gold-rajasthani-collection" 
     },
     { 
       name: "Rose gold collection", 
-      link: "/alljewellery?category=Gold&subcategory=rose-gold-collection" 
+      link: "/wedding?category=rose-gold-collection" 
     },
     { 
       name: "Diamond Wedding collection", 
-      link: "/alljewellery?category=Diamond&subcategory=diamond-wedding-collection" 
+      link: "/wedding?category=diamond-wedding-collection" 
     },
     { 
       name: "Diamond Solitaire", 
@@ -651,7 +658,11 @@ export default function Header() {
             <Link
               to={cat.link}
               onClick={(e) => { e.preventDefault(); navigate(cat.link); setMenuOpen(false); }}
-              className="relative flex items-center gap-1.5 lg:gap-2 text-[#5A2B1A] px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm lg:text-[15px] font-semibold transition-all duration-300 after:absolute after:left-0 after:bottom-0 after:h-[1px] after:w-0 after:bg-[#5A2B1A] after:transition-all after:duration-300 group-hover:after:w-full whitespace-nowrap"
+              className={`relative flex items-center gap-1.5 lg:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm lg:text-[15px] font-semibold transition-all duration-200 whitespace-nowrap ${
+                isPathActive(location.pathname, cat.link)
+                  ? "bg-[#681F00] text-[#FFE9A8] shadow-sm"
+                  : "text-[#5A2B1A] hover:bg-[#FAEED1] hover:text-[#681F00] group-hover:bg-[#FAEED1]/80"
+              }`}
             >
               <span className="flex-shrink-0">{cat.iconComponent}</span>
               <span>{cat.name}</span>
@@ -686,7 +697,11 @@ export default function Header() {
                         setOpenSub(null);
                         navigate(sub.link);
                       }}
-                      className="px-3 sm:px-4 py-1 text-xs sm:text-sm hover:underline rounded-lg text-left cursor-pointer whitespace-nowrap"
+                      className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg text-left cursor-pointer whitespace-nowrap transition-all duration-150 ${
+                        isPathActive(location.pathname, sub.link)
+                          ? "bg-[#681F00] text-[#FFE9A8] font-semibold"
+                          : "text-[#5A2B1A] hover:bg-[#FFF4DC] hover:text-[#681F00] hover:font-medium"
+                      }`}
                     >
                       {sub.name}
                     </Link>
@@ -733,7 +748,11 @@ export default function Header() {
                                   setOpenSub(null);
                                   navigate(item.link);
                                 }}
-                                className="block py-0.5 sm:py-1 text-xs sm:text-sm text-[#7a563f] rounded-md hover:bg-[#FFF4DC] hover:text-[#5A2B1A] transition-all duration-150 border border-transparent hover:underline cursor-pointer"
+                                className={`block py-0.5 sm:py-1 text-xs sm:text-sm rounded-md transition-all duration-150 border border-transparent cursor-pointer ${
+                                  isPathActive(location.pathname, item.link)
+                                    ? "bg-[#681F00] text-[#FFE9A8] font-semibold px-2"
+                                    : "text-[#7a563f] hover:bg-[#FFF4DC] hover:text-[#5A2B1A] hover:px-2"
+                                }`}
                               >
                                 {item.name}
                               </Link>

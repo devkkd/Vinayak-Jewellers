@@ -4,6 +4,7 @@ import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listCategories } from "../api/categoryAPI";
+import { categoryPillClass, subcategoryPillClass } from "../utils/categoryNavStyles";
 
 export default function BirthStones() {
   const navigate = useNavigate();
@@ -106,11 +107,7 @@ export default function BirthStones() {
             <button
               key={cat._id || cat.category}
               onClick={() => handleCategoryClick(cat)}
-              className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
-                selectedCategory?.category === cat.category
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
-              }`}
+              className={categoryPillClass(selectedCategory?.category === cat.category)}
             >
               {cat.category}
             </button>
@@ -125,11 +122,7 @@ export default function BirthStones() {
             <button
               key={sub || index}
               onClick={() => handleSubcategoryClick(sub)}
-              className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
-                selectedSubcategory === sub
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#FAEED1] text-[#681F00] hover:bg-[#F8D89C]"
-              }`}
+              className={subcategoryPillClass(selectedSubcategory === sub)}
             >
               {sub}
             </button>

@@ -63,6 +63,7 @@ const ManageProducts = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const subcategoryOptions = useMemo(() => {
     if (!selectedCategory) return [];
@@ -85,6 +86,15 @@ const ManageProducts = () => {
     };
     load();
   }, [selectedCategory, selectedSubcategory]);
+
+  const filteredProducts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter((p) => {
+      const fields = [p.productName, p.sku, p.collection, p.category, p.subcategory];
+      return fields.some((f) => String(f || "").toLowerCase().includes(q));
+    });
+  }, [products, searchQuery]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
@@ -119,7 +129,14 @@ const ManageProducts = () => {
       <main className="flex-1 bg-[#FFF9E6] border border-[#E2C887]/40 rounded-xl p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between mb-4">
           <h2 className="text-2xl font-bold text-[#5C1D02] cinzelfont">All Products</h2>
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:items-center">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:items-center flex-wrap">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name, SKU, category..."
+              className="w-full sm:w-64 border border-[#E2C887]/60 rounded-lg p-2 bg-white text-[#3B1C0A] focus:outline-none focus:ring-2 focus:ring-[#E2C887]"
+            />
             <select
               value={selectedCategory}
               onChange={(e) => {
@@ -152,17 +169,19 @@ const ManageProducts = () => {
         </div>
         {loading ? (
           <p className="text-[#3B1C0A]">Loading...</p>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <p className="text-[#3B1C0A] italic">
-            {selectedSubcategory && selectedCategory
-              ? `No products found in ${selectedCategory} → ${selectedSubcategory}.`
-              : selectedCategory
-                ? `No products found in ${selectedCategory}.`
-                : "No products found."}
+            {searchQuery.trim()
+              ? `No products match "${searchQuery.trim()}".`
+              : selectedSubcategory && selectedCategory
+                ? `No products found in ${selectedCategory} → ${selectedSubcategory}.`
+                : selectedCategory
+                  ? `No products found in ${selectedCategory}.`
+                  : "No products found."}
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {products.map((p) => {
+            {filteredProducts.map((p) => {
               // Get primary image - support both images array and single image field
               const primaryImage = (p.images && p.images.length > 0) ? p.images[0] : (p.image || "");
               
@@ -193,6 +212,12 @@ const ManageProducts = () => {
                   </h5>
                   <p className="text-xs text-[#7A2D0E] mt-1 truncate" title={p.sku}>
                     SKU: {p.sku}
+                  </p>
+                  <p
+                    className="text-xs text-[#5C4033] mt-1 truncate"
+                    title={`${p.collection || ""} → ${p.subcategory || p.category || "—"}`}
+                  >
+                    Type: {p.collection || "—"} → {p.subcategory || p.category || "—"}
                   </p>
                   <div className="flex justify-between mt-3">
                     <button

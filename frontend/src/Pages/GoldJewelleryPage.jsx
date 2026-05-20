@@ -1,152 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { listBackendProducts } from "../api/backendProductsAPI";
-import { listCategories } from "../api/categoryAPI";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { categoryPillClass, subcategoryPillClass, matchesUrlSegment } from "../utils/categoryNavStyles";
+import { slugify, shouldShowNestedSubcategories } from "../utils/productFilter";
+import { useCollectionPage } from "../hooks/useCollectionPage";
 import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
 
 export default function Gold() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   // State variables
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Extract subcategory from URL (e.g., /gold/rings -> "rings")
-  const pathParts = location.pathname.split('/').filter(Boolean);
-  const urlSubcategory = pathParts.length > 1 && pathParts[0] === 'gold' ? pathParts[1] : null;
-
-  // Load backend products and categories
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        
-        // Load products
-        const list = await listBackendProducts({ collection: "Gold" });
-        setProducts(list);
-
-        // Load categories
-        const cats = await listCategories("Gold");
-        setCategories(cats);
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("❌ Error loading data:", error);
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
-
-  // Auto-select subcategory from URL
-  useEffect(() => {
-    if (urlSubcategory && categories.length > 0 && products.length > 0) {
-      // Normalize URL subcategory (remove hyphens, convert to lowercase)
-      const urlNormalized = (urlSubcategory || "").toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
-      
-      let foundMatch = false;
-      
-      // Find matching subcategory in categories
-      for (const cat of categories) {
-        if (cat.subcategories && cat.subcategories.length > 0) {
-          const matchingSub = cat.subcategories.find(sub => {
-            const subNormalized = (sub || "").toLowerCase().trim().replace(/\s+/g, ' ');
-            
-            // Try exact match
-            if (subNormalized === urlNormalized) return true;
-            
-            // Try match without spaces
-            if (subNormalized.replace(/\s+/g, '') === urlNormalized.replace(/\s+/g, '')) return true;
-            
-            // Try partial match (contains)
-            if (subNormalized.includes(urlNormalized) || urlNormalized.includes(subNormalized)) return true;
-            
-            // Try singular/plural match (rings -> ring, ring -> rings)
-            const subSingular = subNormalized.replace(/s$/, '');
-            const urlSingular = urlNormalized.replace(/s$/, '');
-            if (subSingular === urlSingular && subSingular.length > 0) return true;
-            
-            return false;
-          });
-          
-          if (matchingSub) {
-            setSelectedCategory(cat);
-            setSelectedSubcategory(matchingSub);
-            foundMatch = true;
-            break;
-          }
-        }
-      }
-      
-      // If no match found in categories, still set the URL subcategory directly
-      // This allows filtering by URL even if category structure doesn't match
-      if (!foundMatch && urlSubcategory) {
-        setSelectedSubcategory(urlNormalized);
-      }
-    } else if (!urlSubcategory) {
-      // If no URL subcategory, reset selections
-      setSelectedCategory(null);
-      setSelectedSubcategory(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlSubcategory, categories, products]);
-
-  const normalizeText = (value) =>
-    (value || "")
-      .toLowerCase()
-      .trim()
-      .replace(/-/g, " ")
-      .replace(/\s+/g, " ");
-
-  const toSingular = (value) => value.replace(/s$/, "");
-
-  // Filter products with strict subcategory match
-  const filteredProducts = products.filter((product) => {
-    const productCollection = normalizeText(product.collection);
-    const isGold = productCollection === "gold";
-    
-    if (!isGold) return false;
-    
-    if (urlSubcategory) {
-      const urlNormalized = normalizeText(urlSubcategory);
-      const productSub = normalizeText(product.subcategory);
-      if (!productSub) return false;
-      return productSub === urlNormalized || toSingular(productSub) === toSingular(urlNormalized);
-    }
-    
-    // If no category/subcategory selected, show all products in collection
-    if (!selectedCategory && !selectedSubcategory) return true;
-    
-    // If subcategory selected, filter by subcategory (case-insensitive, partial match)
-    if (selectedSubcategory) {
-      const selectedSub = normalizeText(selectedSubcategory);
-      const productSub = normalizeText(product.subcategory);
-      if (!productSub) return false;
-      return productSub === selectedSub || toSingular(productSub) === toSingular(selectedSub);
-    }
-    
-    // If category selected, filter by category (case-insensitive, partial match)
-    if (selectedCategory) {
-      const selectedCategoryName = normalizeText(selectedCategory.category);
-      const productCategory = normalizeText(product.category);
-      const productSub = normalizeText(product.subcategory);
-      return (
-        productCategory === selectedCategoryName ||
-        toSingular(productCategory) === toSingular(selectedCategoryName) ||
-        productSub === selectedCategoryName ||
-        toSingular(productSub) === toSingular(selectedCategoryName)
-      );
-    }
-    
-    return true;
-  });
+  const {
+    selectedCategory,
+    setSelectedCategory,
+    selectedSubcategory,
+    setSelectedSubcategory,
+    categories,
+    loading,
+    urlSubcategory,
+    filteredProducts,
+  } = useCollectionPage("Gold", "gold");
 
   // Modal handlers
   const openModal = (product) => {
@@ -161,28 +37,22 @@ export default function Gold() {
 
   // Category/Subcategory handlers
   const handleCategoryClick = (category) => {
-    if (selectedCategory && selectedCategory.category === category.category) {
-      setSelectedCategory(null);
+    if (shouldShowNestedSubcategories(category)) {
+      setSelectedCategory(
+        selectedCategory?.category === category.category ? null : category
+      );
       setSelectedSubcategory(null);
-      navigate('/gold', { replace: true });
-    } else {
-      setSelectedCategory(category);
-      setSelectedSubcategory(null);
-      navigate('/gold', { replace: true });
+      navigate("/gold", { replace: true });
+      return;
     }
+    setSelectedCategory(category);
+    setSelectedSubcategory(category.category);
+    navigate(`/gold/${slugify(category.category)}`, { replace: true });
   };
 
   const handleSubcategoryClick = (subcategory) => {
     setSelectedSubcategory(subcategory);
-    
-    // Update URL to reflect selected subcategory
-    const subcategorySlug = (subcategory || "")
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
-    
-    navigate(`/gold/${subcategorySlug}`, { replace: true });
+    navigate(`/gold/${slugify(subcategory)}`, { replace: true });
   };
 
   const handleBack = () => {
@@ -207,9 +77,14 @@ export default function Gold() {
     <section className="bg-[#FFF6DE] py-16 px-4 sm:px-6 md:px-12 min-h-screen">
       {/* Title */}
       <div className="max-w-7xl mx-auto text-center mb-8">
-        <h2 className="text-3xl md:text-4xl cinzelfont uppercase font-bold text-[#0E0100] mb-10 tracking-wide">
+        <h2 className="text-3xl md:text-4xl cinzelfont uppercase font-bold text-[#0E0100] mb-4 tracking-wide">
           Gold Jewellery
         </h2>
+        {(urlSubcategory || selectedSubcategory) && (
+          <p className="text-sm text-[#681F00] font-medium mb-6">
+            Showing: {selectedSubcategory || urlSubcategory?.replace(/-/g, " ")}
+          </p>
+        )}
       </div>
 
       {/* Category Buttons */}
@@ -219,11 +94,11 @@ export default function Gold() {
             <button
               key={cat._id || cat.category}
               onClick={() => handleCategoryClick(cat)}
-              className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
-                selectedCategory?.category === cat.category
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
-              }`}
+              className={categoryPillClass(
+                selectedCategory?.category === cat.category ||
+                  matchesUrlSegment(cat.category, selectedSubcategory) ||
+                  matchesUrlSegment(cat.category, urlSubcategory)
+              )}
             >
               {cat.category}
             </button>
@@ -232,17 +107,15 @@ export default function Gold() {
       )}
 
       {/* Subcategory Buttons */}
-      {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
+      {selectedCategory && shouldShowNestedSubcategories(selectedCategory) && (
         <div className="flex flex-wrap justify-center gap-2 mb-10">
           {selectedCategory.subcategories.map((sub, index) => (
             <button
               key={sub || index}
               onClick={() => handleSubcategoryClick(sub)}
-              className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
-                selectedSubcategory === sub
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#FAEED1] text-[#681F00] hover:bg-[#F8D89C]"
-              }`}
+              className={subcategoryPillClass(
+                selectedSubcategory === sub || matchesUrlSegment(sub, urlSubcategory)
+              )}
             >
               {sub}
             </button>

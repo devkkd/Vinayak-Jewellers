@@ -1,74 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
-import { listBackendProducts } from "../api/backendProductsAPI";
-import { listCategories } from "../api/categoryAPI";
+import { categoryPillClass, subcategoryPillClass, matchesUrlSegment } from "../utils/categoryNavStyles";
+import { slugify, shouldShowNestedSubcategories } from "../utils/productFilter";
+import { useCollectionPage } from "../hooks/useCollectionPage";
 
 export default function Diamond() {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Extract subcategory from URL (e.g., /diamond/rings -> "rings")
-  const pathParts = location.pathname.split('/').filter(Boolean);
-  const urlSubcategory = pathParts.length > 1 && pathParts[0] === 'diamond' ? pathParts[1] : null;
-
-  // Load backend products and categories
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        
-        // Load products
-        const list = await listBackendProducts({ collection: "Diamond" });
-        setProducts(list);
-
-        // Load categories
-        const cats = await listCategories("Diamond");
-        setCategories(cats);
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error loading data:", error);
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+  const {
+    selectedCategory,
+    setSelectedCategory,
+    selectedSubcategory,
+    setSelectedSubcategory,
+    categories,
+    loading,
+    urlSubcategory,
+    filteredProducts,
+  } = useCollectionPage("Diamond", "diamond");
 
   // Handle Category selection
   const handleCategoryClick = (category) => {
-    if (selectedCategory?.category === category.category) {
-      setSelectedCategory(null);
+    if (shouldShowNestedSubcategories(category)) {
+      setSelectedCategory(
+        selectedCategory?.category === category.category ? null : category
+      );
       setSelectedSubcategory(null);
-      navigate('/diamond', { replace: true });
-    } else {
-      setSelectedCategory(category);
-      setSelectedSubcategory(null);
-      navigate('/diamond', { replace: true });
+      navigate("/diamond", { replace: true });
+      return;
     }
+    setSelectedCategory(category);
+    setSelectedSubcategory(category.category);
+    navigate(`/diamond/${slugify(category.category)}`, { replace: true });
   };
 
-  // Handle Subcategory selection
   const handleSubcategoryClick = (subcategory) => {
     setSelectedSubcategory(subcategory);
-    
-    // Update URL to reflect selected subcategory
-    const subcategorySlug = (subcategory || "")
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
-    
-    navigate(`/diamond/${subcategorySlug}`, { replace: true });
+    navigate(`/diamond/${slugify(subcategory)}`, { replace: true });
   };
 
   // Reset filters
@@ -89,184 +61,6 @@ export default function Diamond() {
     setModalOpen(false);
   };
 
-  // Auto-select subcategory from URL
-  useEffect(() => {
-    if (urlSubcategory && categories.length > 0 && products.length > 0) {
-      // Normalize URL subcategory (remove hyphens, convert to lowercase)
-      const urlNormalized = (urlSubcategory || "").toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
-      
-      let foundMatch = false;
-      
-      // Find matching subcategory in categories
-      for (const cat of categories) {
-        if (cat.subcategories && cat.subcategories.length > 0) {
-          const matchingSub = cat.subcategories.find(sub => {
-            const subNormalized = (sub || "").toLowerCase().trim().replace(/\s+/g, ' ');
-            
-            // Try exact match
-            if (subNormalized === urlNormalized) return true;
-            
-            // Try match without spaces
-            if (subNormalized.replace(/\s+/g, '') === urlNormalized.replace(/\s+/g, '')) return true;
-            
-            // Try partial match (contains)
-            if (subNormalized.includes(urlNormalized) || urlNormalized.includes(subNormalized)) return true;
-            
-            // Try singular/plural match (rings -> ring, ring -> rings)
-            const subSingular = subNormalized.replace(/s$/, '');
-            const urlSingular = urlNormalized.replace(/s$/, '');
-            if (subSingular === urlSingular && subSingular.length > 0) return true;
-            
-            return false;
-          });
-          
-          if (matchingSub) {
-            setSelectedCategory(cat);
-            setSelectedSubcategory(matchingSub);
-            foundMatch = true;
-            break;
-          }
-        }
-      }
-      
-      // If no match found in categories, still set the URL subcategory directly
-      if (!foundMatch && urlSubcategory) {
-        setSelectedSubcategory(urlNormalized);
-      }
-    } else if (!urlSubcategory) {
-      // If no URL subcategory, reset selections
-      setSelectedCategory(null);
-      setSelectedSubcategory(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlSubcategory, categories, products]);
-
-  // Filter products with improved matching
-  // const filteredProducts = products.filter((product) => {
-  //   // Normalize collection/category check (case-insensitive)
-  //   const productCollection = (product.collection || "").toLowerCase().trim();
-  //   const productCategory = (product.category || "").toLowerCase().trim();
-  //   const productSubcategory = (product.subcategory || "").toLowerCase().trim();
-  //   const isDiamond = productCollection === "diamond" || productCategory === "diamond";
-    
-  //   if (!isDiamond) return false;
-    
-  //   // If URL has subcategory, use it directly for filtering
-  //   if (urlSubcategory) {
-  //     const urlNormalized = (urlSubcategory || "").toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
-      
-  //     // Try matching with product subcategory
-  //     if (productSubcategory) {
-  //       const productSubNormalized = productSubcategory.replace(/\s+/g, ' ');
-  //       if (productSubNormalized === urlNormalized) return true;
-  //       if (productSubNormalized.includes(urlNormalized) || urlNormalized.includes(productSubNormalized)) return true;
-  //       // Singular/plural match
-  //       const productSubSingular = productSubNormalized.replace(/s$/, '');
-  //       const urlSingular = urlNormalized.replace(/s$/, '');
-  //       if (productSubSingular === urlSingular && productSubSingular.length > 0) return true;
-  //     }
-      
-  //     // Try matching with product category
-  //     if (productCategory) {
-  //       const productCatNormalized = productCategory.replace(/\s+/g, ' ');
-  //       if (productCatNormalized === urlNormalized) return true;
-  //       if (productCatNormalized.includes(urlNormalized) || urlNormalized.includes(productCatNormalized)) return true;
-  //       // Singular/plural match
-  //       const productCatSingular = productCatNormalized.replace(/s$/, '');
-  //       const urlSingular = urlNormalized.replace(/s$/, '');
-  //       if (productCatSingular === urlSingular && productCatSingular.length > 0) return true;
-  //     }
-      
-  //     // Try matching with product name
-  //     const productName = (product.productName || "").toLowerCase().trim();
-  //     if (productName.includes(urlNormalized)) return true;
-      
-  //     return false;
-  //   }
-    
-  //   // If no category/subcategory selected, show all products in collection
-  //   if (!selectedCategory && !selectedSubcategory) return true;
-    
-  //   // If subcategory selected, prioritize subcategory matching
-  //   if (selectedSubcategory) {
-  //     const selectedSub = (selectedSubcategory || "").toLowerCase().trim();
-      
-  //     // Try exact match first
-  //     if (productSubcategory === selectedSub) return true;
-      
-  //     // Try partial match (contains) - handles "Ring" vs "Rings", "Chain" vs "Chains"
-  //     if (productSubcategory.includes(selectedSub) || selectedSub.includes(productSubcategory)) return true;
-      
-  //     // Also check if product category matches subcategory (fallback)
-  //     if (productCategory === selectedSub || productCategory.includes(selectedSub) || selectedSub.includes(productCategory)) return true;
-      
-  //     return false;
-  //   }
-    
-  //   // If only category selected (no subcategory), filter by category
-  //   if (selectedCategory) {
-  //     const selectedCategoryName = (selectedCategory.category || "").toLowerCase().trim();
-      
-  //     // Try exact match
-  //     if (productCategory === selectedCategoryName) return true;
-      
-  //     // Try partial match
-  //     if (productCategory.includes(selectedCategoryName) || selectedCategoryName.includes(productCategory)) return true;
-      
-  //     return false;
-  //   }
-    
-  //   return true;
-  // });
-const normalizeText = (value) =>
-  (value || "")
-    .toLowerCase()
-    .trim()
-    .replace(/-/g, " ")
-    .replace(/\s+/g, " ");
-
-const toSingular = (value) => value.replace(/s$/, "");
-
-const filteredProducts = products.filter((product) => {
-  const productCollection = normalizeText(product.collection);
-  const productCategory = normalizeText(product.category);
-  const productSubcategory = normalizeText(product.subcategory);
-  
-  const isDiamond = productCollection === "diamond";
-  if (!isDiamond) return false;
-  
-  if (urlSubcategory) {
-    const urlNormalized = normalizeText(urlSubcategory);
-    if (!productSubcategory) return false;
-    return (
-      productSubcategory === urlNormalized ||
-      toSingular(productSubcategory) === toSingular(urlNormalized)
-    );
-  }
-
-  if (!selectedCategory && !selectedSubcategory) return true;
-
-  if (selectedSubcategory) {
-    const selectedSub = normalizeText(selectedSubcategory);
-    if (!productSubcategory) return false;
-    return (
-      productSubcategory === selectedSub ||
-      toSingular(productSubcategory) === toSingular(selectedSub)
-    );
-  }
-
-  if (selectedCategory) {
-    const selectedCategoryName = normalizeText(selectedCategory.category);
-    return (
-      productCategory === selectedCategoryName ||
-      toSingular(productCategory) === toSingular(selectedCategoryName) ||
-      productSubcategory === selectedCategoryName ||
-      toSingular(productSubcategory) === toSingular(selectedCategoryName)
-    );
-  }
-
-  return true;
-});
   // Get primary image helper
   const getPrimaryImage = (product) => {
     if (product.images && product.images.length > 0) return product.images[0];
@@ -302,11 +96,11 @@ const filteredProducts = products.filter((product) => {
             <button
               key={cat._id || cat.category}
               onClick={() => handleCategoryClick(cat)}
-              className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all ${
-                selectedCategory?.category === cat.category
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#681F00] text-[#FFF0C2] hover:bg-[#5a2b1a]"
-              }`}
+              className={categoryPillClass(
+                selectedCategory?.category === cat.category ||
+                  matchesUrlSegment(cat.category, selectedSubcategory) ||
+                  matchesUrlSegment(cat.category, urlSubcategory)
+              )}
             >
               {cat.category}
             </button>
@@ -315,17 +109,15 @@ const filteredProducts = products.filter((product) => {
       )}
 
       {/* Subcategory Buttons */}
-      {selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0 && (
+      {selectedCategory && shouldShowNestedSubcategories(selectedCategory) && (
         <div className="flex flex-wrap justify-center gap-2 mb-10">
           {selectedCategory.subcategories.map((sub, index) => (
             <button
               key={sub || index}
               onClick={() => handleSubcategoryClick(sub)}
-              className={`px-3 py-1.5 text-xs sm:text-sm rounded-full border transition-all ${
-                selectedSubcategory === sub
-                  ? "bg-[#681F00] text-[#FFE9A8]"
-                  : "bg-[#FAEED1] text-[#681F00] hover:bg-[#F8D89C]"
-              }`}
+              className={subcategoryPillClass(
+                selectedSubcategory === sub || matchesUrlSegment(sub, urlSubcategory)
+              )}
             >
               {sub}
             </button>
