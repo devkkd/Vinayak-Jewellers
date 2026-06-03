@@ -5,6 +5,7 @@ import EnquiryModal from "../components/EnquiryModal";
 import { categoryPillClass, subcategoryPillClass, matchesUrlSegment } from "../utils/categoryNavStyles";
 import { slugify, shouldShowNestedSubcategories } from "../utils/productFilter";
 import { useCollectionPage } from "../hooks/useCollectionPage";
+import { diamondCategories } from "../data/admincategories";
 
 export default function Diamond() {
   const navigate = useNavigate();
@@ -21,7 +22,13 @@ export default function Diamond() {
     loading,
     urlSubcategory,
     filteredProducts,
-  } = useCollectionPage("Diamond", "diamond");
+  } = useCollectionPage("Diamond", "diamond", diamondCategories);
+
+  const handleShowAll = () => {
+    setSelectedCategory(null);
+    setSelectedSubcategory(null);
+    navigate("/diamond", { replace: true });
+  };
 
   // Handle Category selection
   const handleCategoryClick = (category) => {
@@ -84,14 +91,32 @@ export default function Diamond() {
     <section className="bg-[#FFF6DE] py-16 px-4 sm:px-6 md:px-12 min-h-screen">
       {/* Page Title */}
       <div className="max-w-7xl mx-auto text-center mb-10">
-        <h2 className="text-3xl md:text-4xl cinzelfont uppercase font-bold text-[#0E0100] mb-8 tracking-wide">
+        <h2 className="text-3xl md:text-4xl cinzelfont uppercase font-bold text-[#0E0100] mb-4 tracking-wide">
           Diamond Jewellery
         </h2>
+        <p className="text-sm text-[#681F00]/90 max-w-2xl mx-auto">
+          Ladies collections below. Men&apos;s diamond jewellery is under{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/diamond/mens")}
+            className="underline font-medium hover:text-[#5C1D02]"
+          >
+            Men&apos;s
+          </button>{" "}
+          or the Mens section.
+        </p>
       </div>
 
       {/* Category Buttons */}
       {categories.length > 0 && (
         <div className="flex flex-wrap justify-center gap-3 mb-8">
+          <button
+            type="button"
+            onClick={handleShowAll}
+            className={categoryPillClass(!urlSubcategory && !selectedSubcategory)}
+          >
+            All
+          </button>
           {categories.map((cat) => (
             <button
               key={cat._id || cat.category}

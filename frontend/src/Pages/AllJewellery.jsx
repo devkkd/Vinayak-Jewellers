@@ -17,6 +17,12 @@ import {
   coinsCategories
 } from "../data/admincategories";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  COLLECTION_ROUTE_MAP,
+  collectionSubcategoryPath,
+  filterAllJewelleryProducts,
+  slugify,
+} from "../utils/productFilter";
 
 /**
  * AllJewellery (Light theme with dark accents)
@@ -60,10 +66,22 @@ export default function AllJewellery() {
   const categoryScrollRef = useRef(null);
   const subcategoryScrollRef = useRef(null);
 
-  // Read category and subcategory from URL query parameters
+  // Legacy ?category=Gold&subcategory=Ring → dedicated collection routes
   useEffect(() => {
-    const categoryFromUrl = searchParams.get('category');
-    const subcategoryFromUrl = searchParams.get('subcategory');
+    const categoryFromUrl = searchParams.get("category");
+    const subcategoryFromUrl = searchParams.get("subcategory");
+
+    if (categoryFromUrl && COLLECTION_ROUTE_MAP[categoryFromUrl]) {
+      const base = COLLECTION_ROUTE_MAP[categoryFromUrl];
+      if (subcategoryFromUrl) {
+        navigate(collectionSubcategoryPath(categoryFromUrl, subcategoryFromUrl), {
+          replace: true,
+        });
+        return;
+      }
+      navigate(base, { replace: true });
+      return;
+    }
 
     if (categoryFromUrl && categories[categoryFromUrl]) {
       setSelectedCategory(categoryFromUrl);
@@ -76,12 +94,8 @@ export default function AllJewellery() {
       }
     }
 
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'instant'
-    });
-  }, [location.search]);
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.search, navigate]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -100,24 +114,34 @@ export default function AllJewellery() {
 
   // Update when category changes
   const handleCategorySelect = (cat) => {
+    if (COLLECTION_ROUTE_MAP[cat]) {
+      navigate(COLLECTION_ROUTE_MAP[cat]);
+      return;
+    }
     setSelectedCategory(cat);
     setSelectedSubcategory("");
     setSelectedMainSubcategory("");
     setSelectedNestedSubcategory("");
     setSelectedCollectionItem(null);
     if (subcategoryScrollRef.current) subcategoryScrollRef.current.scrollLeft = 0;
-    navigate('/alljewellery', { replace: true });
+    navigate("/alljewellery", { replace: true });
   };
 
-  // Update when main subcategory is selected
   const handleMainSubcategorySelect = (sub) => {
+    if (COLLECTION_ROUTE_MAP[selectedCategory]) {
+      navigate(collectionSubcategoryPath(selectedCategory, sub));
+      return;
+    }
     setSelectedMainSubcategory(sub);
     setSelectedNestedSubcategory("");
     setSelectedSubcategory(sub);
   };
 
-  // Update when nested subcategory is selected
   const handleNestedSubcategorySelect = (nestedSub) => {
+    if (selectedCategory === "Mens") {
+      navigate(collectionSubcategoryPath("Mens", nestedSub));
+      return;
+    }
     setSelectedNestedSubcategory(nestedSub);
     setSelectedSubcategory(nestedSub);
   };
@@ -125,8 +149,11 @@ export default function AllJewellery() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await listBackendProducts();
-          console.log("Filtering product:", data);
+        const filters =
+          selectedCategory && selectedCategory !== "All Jewellery"
+            ? { collection: selectedCategory }
+            : {};
+        const data = await listBackendProducts(filters);
         setProducts(data || []);
       } catch (err) {
         console.error("Failed to fetch products", err);
@@ -134,7 +161,7 @@ export default function AllJewellery() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [selectedCategory]);
 
 
 
@@ -217,47 +244,23 @@ export default function AllJewellery() {
     },
   };
 
-  const filtered = products.filter((p) => {
-    // Convert to lowercase for case-insensitive comparison
-    const productCategory = (p.collection || p.category || "").toLowerCase().trim();
-    const productSubcategory = (p.subcategory || "").toLowerCase().trim();
-    const selectedCat = selectedCategory.toLowerCase().trim();
-    
-    // 1️⃣ Category filter
-    if (selectedCategory !== "All Jewellery") {
-      if (productCategory !== selectedCat) return false;
-    }
+  const categoryRowsForFilter =
+    selectedCategory === "Gold"
+      ? goldCategories
+      : selectedCategory === "Silver"
+        ? silverCategories
+        : selectedCategory === "Diamond"
+          ? diamondCategories
+          : selectedCategory === "Gifting"
+            ? giftingCategories
+            : [];
 
-    // 2️⃣ Handle Mens category filtering differently
-    if (selectedCategory === "Mens" || selectedCategory === "Coins") {
-      // For Mens and Coins, we need to check both levels
-      if (selectedMainSubcategory) {
-        // Check if product's subcategory matches selected main subcategory
-        const mainSubMatch = productSubcategory.includes(selectedMainSubcategory.toLowerCase()) ||
-                            productCategory.includes(selectedMainSubcategory.toLowerCase());
-        
-        if (!mainSubMatch) return false;
-        
-        // If nested subcategory is selected, check further
-        if (selectedNestedSubcategory) {
-          const nestedMatch = productSubcategory.includes(selectedNestedSubcategory.toLowerCase()) ||
-                            (p.material || "").toLowerCase().includes(selectedNestedSubcategory.toLowerCase()) ||
-                            (p.description || "").toLowerCase().includes(selectedNestedSubcategory.toLowerCase());
-          
-          return nestedMatch;
-        }
-      }
-    } else {
-      // Original logic for other categories
-      if (selectedSubcategory) {
-        if (productSubcategory !== selectedSubcategory.toLowerCase().trim() && 
-            productCategory !== selectedSubcategory.toLowerCase().trim()) {
-          return false;
-        }
-      }
-    }
-
-    return true;
+  const filtered = filterAllJewelleryProducts(products, {
+    selectedCategory,
+    selectedSubcategory,
+    selectedMainSubcategory,
+    selectedNestedSubcategory,
+    categoryRows: categoryRowsForFilter,
   });
 
   const openModal = (product) => {

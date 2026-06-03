@@ -11,6 +11,7 @@ import { categoryPillClass, subcategoryPillClass, matchesUrlSegment } from "../u
 import { slugify, shouldShowNestedSubcategories } from "../utils/productFilter";
 
 import { useCollectionPage } from "../hooks/useCollectionPage";
+import { silverCategories } from "../data/admincategories";
 
 
 
@@ -44,9 +45,13 @@ export default function Silver() {
 
     filteredProducts,
 
-  } = useCollectionPage("Silver", "silver");
+  } = useCollectionPage("Silver", "silver", silverCategories);
 
-
+  const handleShowAll = () => {
+    setSelectedCategory(null);
+    setSelectedSubcategory(null);
+    navigate("/silver", { replace: true });
+  };
 
   const openModal = (product) => {
 
@@ -159,7 +164,13 @@ export default function Silver() {
       {categories.length > 0 && (
 
         <div className="flex flex-wrap justify-center gap-3 mb-8">
-
+          <button
+            type="button"
+            onClick={handleShowAll}
+            className={categoryPillClass(!urlSubcategory && !selectedSubcategory)}
+          >
+            All
+          </button>
           {categories.map((cat) => (
 
             <button

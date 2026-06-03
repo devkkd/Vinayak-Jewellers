@@ -81,7 +81,10 @@ export const listProducts = async (req, res) => {
       if (collKey === "gifting" || collKey === "coins") {
         clauses.push(buildLinkedCollectionFilter(collection, exactFieldMatch));
       } else {
-        clauses.push({ collection: exactFieldMatch(collection) });
+        const collMatch = exactFieldMatch(collection);
+        clauses.push({
+          $or: [{ collection: collMatch }, { collections: collMatch }],
+        });
       }
     }
     if (category) clauses.push({ category: exactFieldMatch(category) });

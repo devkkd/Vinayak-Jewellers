@@ -7,13 +7,13 @@ export const birthStoneCategories = [
 ];
 
 export const diamondCategories = [
-  { category: "Ring", subcategories: [] },
+  { category: "Rings", subcategories: [] },
   { category: "Earrings", subcategories: [] },
-  { category: "Necklace", subcategories: [] },
+  { category: "Necklaces", subcategories: [] },
   { category: "Bangles", subcategories: [] },
   { category: "Mangalsutra", subcategories: [] },
-  { category: "Pendal set", subcategories: [] },
   { category: "Pendant", subcategories: [] },
+  { category: "Pendant set", subcategories: [] },
   { category: "Men's", subcategories: [] },
 ];
 
@@ -38,6 +38,7 @@ export const goldCategories = [
   { category: "Chains", subcategories: [] },
   { category: "Bracelet", subcategories: [] },
   { category: "Pendal set", subcategories: [] },
+  { category: "Pendant set", subcategories: [] },
   { category: "Pendant", subcategories: [] },
 ];
 
@@ -45,11 +46,13 @@ export const silverCategories = [
   { category: "Utensils", subcategories: [] },
   { category: "Anklets / payals", subcategories: [] },
   { category: "Kamar belt or satka", subcategories: [] },
+  { category: "Kamarbandh/ Satka", subcategories: [] },
   { category: "Pooja articles", subcategories: [] },
   { category: "Ring", subcategories: [] },
   { category: "Earrings", subcategories: [] },
   { category: "Pendant", subcategories: [] },
   { category: "Chains", subcategories: [] },
+  { category: "Pendant set", subcategories: [] },
   { category: "Pendal set", subcategories: [] },
   { category: "Necklace", subcategories: [] },
   { category: "Bangles", subcategories: [] },

@@ -69,23 +69,23 @@ export default function Header() {
     },
     { 
       name: "Diamond Solitaire", 
-      link: "/alljewellery?category=Diamond&subcategory=diamond-solitaire" 
+      link: "/diamond/ring" 
     },
     { 
       name: "Silver Utensils", 
-      link: "/alljewellery?category=Silver&subcategory=silver-utensils" 
+      link: "/silver/utensils" 
     },
     { 
       name: "Silver traditional jewellery", 
-      link: "/alljewellery?category=Silver&subcategory=silver-traditional-jewellery" 
+      link: "/silver/necklace" 
     },
     { 
       name: "Silver fancy jewellery", 
-      link: "/alljewellery?category=Silver&subcategory=silver-fancy-jewellery" 
+      link: "/silver/earring" 
     },
     { 
       name: "Gift Collection", 
-      link: "/alljewellery?category=Gifting&subcategory=gift-collection" 
+      link: "/gifting" 
     },
   ],
 },
@@ -111,14 +111,14 @@ export default function Header() {
       link: "/diamond", 
       iconComponent: <img src="/images/Icon/menu-icons/Diamond.svg" alt="Diamond" className="w-5 h-5" />,
       sub: [
-        { name: "Ring", link: "/diamond/ring" },
-        { name: "Earrings", link: "/diamond/earring" },
-        { name: "Necklace", link: "/diamond/necklaces" },
+        { name: "Rings", link: "/diamond/rings" },
+        { name: "Earrings", link: "/diamond/earrings" },
+        { name: "Necklaces", link: "/diamond/necklaces" },
         { name: "Bangles", link: "/diamond/bangles" },
         { name: "Mangalsutra", link: "/diamond/mangalsutra" },
-        { name: "Pendal set", link: "/diamond/pendal-set" },
-        { name: "Pendant", link: "/diamond/pendants" },
-        { name: "Men's ", link: "/diamond/mens" },
+        { name: "Pendant set", link: "/diamond/pendant-set" },
+        { name: "Pendant", link: "/diamond/pendant" },
+        { name: "Men's", link: "/diamond/mens" },
       ],
     },
     {
@@ -128,12 +128,13 @@ export default function Header() {
       sub: [
         { name: "Utensils", link: "/silver/utensils" },
         { name: "Anklets / payals", link: "/silver/anklets" },
-        { name: "Kamar belt or satka", link: "/silver/kamar-belt" },
+        { name: "Kamar belt or satka", link: "/silver/kamar-belt-or-satka" },
         { name: "Pooja articles", link: "/silver/pooja-articles" },
         { name: "Ring", link: "/silver/ring" },
         { name: "Earrings", link: "/silver/earring" },
         { name: "Pendant", link: "/silver/pendants" },
         { name: "Chains", link: "/silver/chains" },
+        { name: "Pendant set", link: "/silver/pendant-set" },
         { name: "Pendal set", link: "/silver/pendal-set" },
         { name: "Necklace", link: "/silver/necklaces" },
         { name: "Bangles", link: "/silver/bangles" },
@@ -187,17 +188,17 @@ export default function Header() {
       name: "Gifting", 
       link: "/gifting", 
       iconComponent: <img src="/images/Icon/menu-icons/Gifting.svg" alt="Gifting" className="w-5 h-5" />,
-      // sub: [
-      //   { name: "Starting from 250-500", link: "/gifting" },
-      //   { name: "500-1000", link: "/gifting" },
-      //   { name: "1k-2k", link: "/gifting" },
-      //   { name: "2k-5k", link: "/gifting" },
-      //   { name: "5k-10k", link: "/gifting" },
-      //   { name: "10k-15k", link: "/gifting" },
-      //   { name: "15k-20k", link: "/gifting" },
-      //   { name: "20k or Above ysical-20k", link: "/gifting" },
-      //   { name: "Exclusive", link: "/gifting" },
-      // ],
+      sub: [
+        { name: "250–500", link: "/gifting/starting-from-250-500" },
+        { name: "500–1000", link: "/gifting/500-1000" },
+        { name: "1k–2k", link: "/gifting/1k-2k" },
+        { name: "2k–5k", link: "/gifting/2k-5k" },
+        { name: "5k–10k", link: "/gifting/5k-10k" },
+        { name: "10k–15k", link: "/gifting/10k-15k" },
+        { name: "15k–20k", link: "/gifting/15k-20k" },
+        { name: "20k+", link: "/gifting/20k-or-above-20k" },
+        { name: "Exclusive", link: "/gifting/exclusive" },
+      ],
     },
     { 
       name: "Birth Stones", 

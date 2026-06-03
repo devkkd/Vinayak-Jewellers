@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { categoryPillClass, subcategoryPillClass, matchesUrlSegment } from "../utils/categoryNavStyles";
 import { slugify, shouldShowNestedSubcategories } from "../utils/productFilter";
 import { useCollectionPage } from "../hooks/useCollectionPage";
+import { goldCategories } from "../data/admincategories";
 import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
 
@@ -22,7 +23,13 @@ export default function Gold() {
     loading,
     urlSubcategory,
     filteredProducts,
-  } = useCollectionPage("Gold", "gold");
+  } = useCollectionPage("Gold", "gold", goldCategories);
+
+  const handleShowAll = () => {
+    setSelectedCategory(null);
+    setSelectedSubcategory(null);
+    navigate("/gold", { replace: true });
+  };
 
   // Modal handlers
   const openModal = (product) => {
@@ -90,6 +97,13 @@ export default function Gold() {
       {/* Category Buttons */}
       {categories.length > 0 && (
         <div className="flex flex-wrap justify-center gap-3 mb-8">
+          <button
+            type="button"
+            onClick={handleShowAll}
+            className={categoryPillClass(!urlSubcategory && !selectedSubcategory)}
+          >
+            All
+          </button>
           {categories.map((cat) => (
             <button
               key={cat._id || cat.category}

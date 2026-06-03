@@ -154,8 +154,9 @@ function App() {
               />
 
               <Route path="/gifting" element={<Gifting />} />
+              <Route path="/gifting/:subcategory" element={<Gifting />} />
               <Route
-                path="/gifting/:id"
+                path="/gifting/product/:id"
                 element={
                   <RemProductDetail
                     dataSource={giftingProducts}

@@ -1,16 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listCategories } from "../api/categoryAPI";
 import {
   filterCollectionProducts,
+  mergeCategoryRows,
   resolveCanonicalType,
   segmentsMatch,
-  slugify,
 } from "../utils/productFilter";
 
 /** Load + filter collection page products by URL slug → exact DB category name */
-export function useCollectionPage(collectionName, routePrefix) {
+export function useCollectionPage(
+  collectionName,
+  routePrefix,
+  adminCategoryRows = [],
+  options = {}
+) {
+  const { loadProducts: loadProductsFn, useLinkedCollections = false } = options;
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
@@ -22,10 +28,18 @@ export function useCollectionPage(collectionName, routePrefix) {
   const urlSubcategory =
     pathParts.length > 1 && pathParts[0] === routePrefix ? pathParts[1] : null;
 
-  const activeSlug =
-    urlSubcategory ||
-    (selectedSubcategory ? slugify(selectedSubcategory) : null);
-  const canonicalType = resolveCanonicalType(categories, activeSlug);
+  const displayCategories = useMemo(
+    () => mergeCategoryRows(categories, adminCategoryRows),
+    [categories, adminCategoryRows]
+  );
+
+  const activeSlug = urlSubcategory || null;
+  const canonicalType = resolveCanonicalType(
+    categories,
+    activeSlug,
+    adminCategoryRows,
+    collectionName
+  );
 
   useEffect(() => {
     listCategories(collectionName)
@@ -34,10 +48,12 @@ export function useCollectionPage(collectionName, routePrefix) {
   }, [collectionName]);
 
   useEffect(() => {
-    const loadProducts = async () => {
+    const fetchProducts = async () => {
       try {
         setLoading(true);
-        const data = await listBackendProducts({ collection: collectionName });
+        const data = loadProductsFn
+          ? await loadProductsFn()
+          : await listBackendProducts({ collection: collectionName });
         setProducts(data);
       } catch (error) {
         console.error("Error loading products:", error);
@@ -46,38 +62,42 @@ export function useCollectionPage(collectionName, routePrefix) {
         setLoading(false);
       }
     };
-    loadProducts();
-  }, [collectionName]);
+    fetchProducts();
+  }, [collectionName, loadProductsFn]);
 
   useEffect(() => {
-    if (!urlSubcategory || categories.length === 0) {
-      if (!urlSubcategory) {
-        setSelectedCategory(null);
-        setSelectedSubcategory(null);
-      }
+    if (!urlSubcategory) {
+      setSelectedCategory(null);
+      setSelectedSubcategory(null);
       return;
     }
 
-    const typeLabel = resolveCanonicalType(categories, urlSubcategory);
+    const typeLabel = resolveCanonicalType(
+      categories,
+      urlSubcategory,
+      adminCategoryRows,
+      collectionName
+    );
     if (!typeLabel) {
       setSelectedSubcategory(null);
       setSelectedCategory(null);
       return;
     }
 
-    const parent = categories.find(
+    const parent = displayCategories.find(
       (c) =>
         segmentsMatch(c.category, typeLabel) ||
         (c.subcategories || []).some((s) => segmentsMatch(s, typeLabel))
     );
     setSelectedCategory(parent || { category: typeLabel, subcategories: [] });
     setSelectedSubcategory(typeLabel);
-  }, [urlSubcategory, categories]);
+  }, [urlSubcategory, categories, adminCategoryRows, displayCategories]);
 
   const filteredProducts = filterCollectionProducts(products, {
     collectionName,
-    canonicalType: canonicalType || null,
-    categoryRows: categories,
+    canonicalType: activeSlug ? canonicalType || null : null,
+    categoryRows: displayCategories.length ? displayCategories : adminCategoryRows,
+    useLinkedCollections,
   });
 
   return {
@@ -85,7 +105,7 @@ export function useCollectionPage(collectionName, routePrefix) {
     setSelectedCategory,
     selectedSubcategory,
     setSelectedSubcategory,
-    categories,
+    categories: displayCategories,
     loading,
     urlSubcategory,
     filteredProducts,
