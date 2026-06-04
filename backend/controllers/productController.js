@@ -27,8 +27,7 @@ export const uploadProduct = async (req, res) => {
     if (details) details = details.trim();
     if (sku) sku = sku.trim();
     if (collection) collection = collection.trim();
-    if (category) category = category.trim();
-    if (subcategory) subcategory = subcategory.trim();
+    ({ category, subcategory } = normalizeTaxonomy({ category, subcategory }));
     if (!productName || !details || !sku) return res.status(400).json({ success: false, message: "productName, details and sku are required" });
     const files = req.files?.length > 0 ? req.files : req.file ? [req.file] : [];
     if (files.length === 0) return res.status(400).json({ success: false, message: "At least one image file is required" });
@@ -72,6 +71,13 @@ const exactFieldMatch = (value) => {
   return { $in: patterns };
 };
 
+/** Category required for catalog; subcategory optional */
+const normalizeTaxonomy = ({ category, subcategory }) => {
+  const cat = category?.trim() || undefined;
+  const sub = subcategory?.trim() || undefined;
+  return { category: cat, subcategory: sub || undefined };
+};
+
 export const listProducts = async (req, res) => {
   try {
     const { collection, category, subcategory } = req.query;
@@ -90,7 +96,19 @@ export const listProducts = async (req, res) => {
     if (category) clauses.push({ category: exactFieldMatch(category) });
     if (subcategory) {
       const typeMatch = exactFieldMatch(subcategory);
-      clauses.push({ $or: [{ subcategory: typeMatch }, { category: typeMatch }] });
+      const emptySub = {
+        $or: [
+          { subcategory: { $exists: false } },
+          { subcategory: null },
+          { subcategory: "" },
+        ],
+      };
+      clauses.push({
+        $or: [
+          { subcategory: typeMatch },
+          { $and: [{ category: typeMatch }, emptySub] },
+        ],
+      });
     }
     const filter =
       clauses.length === 0 ? {} : clauses.length === 1 ? clauses[0] : { $and: clauses };
@@ -155,8 +173,14 @@ export const updateProduct = async (req, res) => {
     if (details !== undefined) product.details = details.trim();
     if (sku !== undefined) product.sku = sku.trim();
     if (collection !== undefined) product.collection = collection?.trim() || undefined;
-    if (category !== undefined) product.category = category?.trim() || undefined;
-    if (subcategory !== undefined) product.subcategory = subcategory?.trim() || undefined;
+    if (category !== undefined || subcategory !== undefined) {
+      const tax = normalizeTaxonomy({
+        category: category !== undefined ? category : product.category,
+        subcategory: subcategory !== undefined ? subcategory : product.subcategory,
+      });
+      product.category = tax.category;
+      product.subcategory = tax.subcategory;
+    }
     syncProductCollections(product);
     await product.save();
     return res.json({ success: true, message: "✅ Product updated", data: product });
@@ -190,8 +214,10 @@ export const bulkUploadProducts = async (req, res) => {
         const sku = item["SKU"]?.trim();
         const details = item["Description"]?.trim();
         const collection = item["Collection"]?.trim();
-        const category = item["Category"]?.trim();
-        const subcategory = item["Subcategory"]?.trim();
+        const { category, subcategory } = normalizeTaxonomy({
+          category: item["Category"],
+          subcategory: item["Subcategory"],
+        });
         if (!productName || !sku || !details) { errors.push({ row: item, error: "Missing required fields" }); continue; }
         const rawUrls = [item["Image URL"], item["Image URL 2"], item["Image URL 3"]].filter(Boolean);
         if (rawUrls.length === 0) { errors.push({ row: item, error: "At least one Image URL required" }); continue; }
@@ -248,13 +274,14 @@ export const uploadProductJson = async (req, res) => {
       buffer = Buffer.from(base64Data, "base64"); mime = mimeType || "image/jpeg";
     }
     const result = await uploadToR2(buffer, mime);
+    const tax = normalizeTaxonomy({ category, subcategory });
     const draft = {
       productName,
       details,
       sku,
       collection: collection?.trim() || undefined,
-      category: category?.trim() || undefined,
-      subcategory: subcategory?.trim() || undefined,
+      category: tax.category,
+      subcategory: tax.subcategory,
     };
     syncProductCollections(draft);
     const product = await Product.create({

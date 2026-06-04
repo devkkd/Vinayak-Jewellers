@@ -103,7 +103,7 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
     setFormData({
       ...formData,
       category: selectedCategory,
-      subcategory: subs.length ? "" : selectedCategory,
+      subcategory: "",
     });
   };
 
@@ -122,7 +122,7 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
     e.preventDefault();
     const payload = {
       ...formData,
-      subcategory: formData.subcategory || formData.category,
+      subcategory: formData.subcategory?.trim() || undefined,
     };
     await onSave(product._id, payload);
   };

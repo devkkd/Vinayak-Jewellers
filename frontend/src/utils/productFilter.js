@@ -388,9 +388,41 @@ function fieldMatchesEarringType(fieldValue) {
 export function productInCollection(product, collectionName) {
   const target = normalizeSegment(collectionName);
   const coll = normalizeSegment(product.collection);
-  if (coll === target) return true;
+  const extra = (product.collections || []).map((c) => normalizeSegment(c));
+  if (coll === target || extra.includes(target)) return true;
   if (coll === "wedding" && target === "wedding collection") return true;
   if (coll === "wedding collection" && target === "wedding") return true;
+  return false;
+}
+
+/** Match type label on one field (category or subcategory string) */
+function fieldMatchesCanonicalLabel(fieldValue, canonicalType) {
+  const v = String(fieldValue || "").trim();
+  if (!v) return false;
+  return fieldMatchesJewelryType(v, canonicalType);
+}
+
+/**
+ * If product has subcategory → match pill only on subcategory (+ name/details).
+ * If no subcategory → match pill on category (+ name/details).
+ */
+function productMatchesTypeByTaxonomy(product, canonicalType, categoryRows) {
+  const sub = (product.subcategory || "").trim();
+  const cat = (product.category || "").trim();
+  const name = (product.productName || "").trim();
+  const details = (product.details || "").trim();
+
+  if (sub) {
+    if (fieldMatchesCanonicalLabel(sub, canonicalType)) return true;
+    if (fieldMatchesCanonicalLabel(name, canonicalType)) return true;
+    if (fieldMatchesCanonicalLabel(details, canonicalType)) return true;
+    return false;
+  }
+
+  if (cat && fieldMatchesCanonicalLabel(cat, canonicalType)) return true;
+  if (fieldMatchesCanonicalLabel(name, canonicalType)) return true;
+  if (fieldMatchesCanonicalLabel(details, canonicalType)) return true;
+
   return false;
 }
 
@@ -887,26 +919,7 @@ export function productMatchesCanonicalType(
     );
   }
 
-  if (fieldMatchesJewelryType(sub, canonicalType)) return true;
-
-  if (fieldMatchesJewelryType(cat, canonicalType)) {
-    if (sub) {
-      const subIsOtherType =
-        !fieldMatchesJewelryType(sub, canonicalType) &&
-        siblings.some(
-          (label) =>
-            fieldMatchesJewelryType(sub, label) &&
-            !fieldMatchesJewelryType(label, canonicalType)
-        );
-      if (subIsOtherType) return false;
-    }
-    return true;
-  }
-
-  if (fieldMatchesJewelryType(name, canonicalType)) return true;
-  if (fieldMatchesJewelryType(details, canonicalType)) return true;
-
-  return false;
+  return productMatchesTypeByTaxonomy(product, canonicalType, categoryRows);
 }
 
 export function filterCollectionProducts(

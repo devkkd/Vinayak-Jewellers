@@ -69,7 +69,7 @@ const AddProduct = () => {
     setFormData((prev) => ({
       ...prev,
       category: categoryName,
-      subcategory: subs.length === 0 ? categoryName : "",
+      subcategory: "",
     }));
   };
 
@@ -100,7 +100,7 @@ const AddProduct = () => {
       return;
     }
 
-    const subcategory = formData.subcategory || formData.category;
+    const subcategory = formData.subcategory?.trim() || undefined;
 
     try {
       await uploadBackendProduct({
@@ -109,7 +109,7 @@ const AddProduct = () => {
         sku: formData.sku,
         collection: formData.collection,
         category: formData.category,
-        subcategory,
+        subcategory: subcategory || undefined,
         files: formData.images,
         token,
       });
@@ -138,7 +138,7 @@ const AddProduct = () => {
         Add New Product
       </h2>
       <p className="text-sm text-[#7A2D0E] text-center mb-6">
-        Fill details → choose collection → category → sub-category (if available)
+        Fill details → collection → category (required) → sub-category only if that category has sub-types
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
