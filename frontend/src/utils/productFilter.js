@@ -1086,3 +1086,14 @@ export function collectionSubcategoryPath(collectionName, subcategoryLabel) {
   }
   return `${base}/${slugify(subcategoryLabel)}`;
 }
+
+/** Remove duplicate products by _id */
+export function dedupeProducts(products = []) {
+  const seen = new Set();
+  return products.filter((p) => {
+    const id = p._id || p.id;
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
