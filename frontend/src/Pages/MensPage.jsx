@@ -4,8 +4,8 @@ import { listBackendProducts } from "../api/backendProductsAPI";
 import { listCategories } from "../api/categoryAPI";
 import { mensCategories } from "../data/admincategories";
 import { categoryPillClass, subcategoryPillClass, matchesUrlSegment } from "../utils/categoryNavStyles";
+import { dedupeProducts } from "../utils/collectionMembership";
 import {
-  dedupeProducts,
   isMensJewelleryProduct,
   mergeCategoryRows,
   productMatchesMensSubcategory,
@@ -53,6 +53,7 @@ export default function Mens() {
         const fetches = [
           listBackendProducts({ collection: "Mens" }),
           listBackendProducts({ collection: "Gold", subcategory: "Ring" }),
+          listBackendProducts({ collection: "Silver", subcategory: "Watches" }),
           ...MENS_SUB_FETCH_LABELS.map((sub) => listBackendProducts({ subcategory: sub })),
         ];
 

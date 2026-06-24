@@ -8,6 +8,11 @@ export function isGiftingAndCoinsSharedProduct(product) {
   const details = (product.details || "").toLowerCase();
   const blob = `${name} ${cat} ${sub} ${details}`;
 
+  if (/\b(gold|silver)\s+coins?\b/.test(blob)) return true;
+  if (/\bsilver\b/.test(blob) && /\bcoins?\b/.test(blob)) return true;
+  if (/\bgold\b/.test(blob) && /\bcoins?\b/.test(blob)) return true;
+  if (cat.includes("coin") || sub.includes("coin")) return true;
+
   if (!["gifting", "coins"].includes(coll) && !cat.includes("coin") && !sub.includes("coin")) {
     return false;
   }
@@ -16,8 +21,6 @@ export function isGiftingAndCoinsSharedProduct(product) {
   if (/\bsilver\s+frame/.test(blob)) return true;
   if (/\bfine\s+silver/.test(blob) && /\bframe/.test(blob)) return true;
   if (/\b999/.test(blob) && /\bsilver/.test(blob)) return true;
-  if (cat.includes("coin") || sub.includes("coin")) return true;
-  if (/\b(gold|silver)\s+coins?\b/.test(blob)) return true;
 
   return false;
 }
@@ -59,6 +62,13 @@ export function syncProductCollections(product) {
   if (isGiftingAndCoinsSharedProduct(product)) {
     if (set.has("Gifting")) set.add("Coins");
     if (set.has("Coins")) set.add("Gifting");
+  }
+  const blob = `${product.productName || ""} ${product.category || ""} ${product.subcategory || ""}`.toLowerCase();
+  if (/\b(mens?|men|gents?|for men|male)\b/.test(blob)) {
+    set.add("Mens");
+    if (/\bgold\b/.test(blob)) set.add("Gold");
+    if (/\bsilver\b/.test(blob)) set.add("Silver");
+    if (/\bdiamond\b/.test(blob)) set.add("Diamond");
   }
   product.collections = [...set];
   return product;

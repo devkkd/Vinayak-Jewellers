@@ -37,7 +37,6 @@ export const goldCategories = [
   { category: "Mangalsutra", subcategories: [] },
   { category: "Chains", subcategories: [] },
   { category: "Bracelet", subcategories: [] },
-  { category: "Pendal set", subcategories: [] },
   { category: "Pendant set", subcategories: [] },
   { category: "Pendant", subcategories: [] },
 ];
@@ -53,7 +52,6 @@ export const silverCategories = [
   { category: "Pendant", subcategories: [] },
   { category: "Chains", subcategories: [] },
   { category: "Pendant set", subcategories: [] },
-  { category: "Pendal set", subcategories: [] },
   { category: "Necklace", subcategories: [] },
   { category: "Bangles", subcategories: [] },
   { category: "Bracelet", subcategories: [] },

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listCategories } from "../api/categoryAPI";
+import { fetchCollectionPageProducts } from "../utils/collectionMembership";
 import {
   filterCollectionProducts,
   mergeCategoryRows,
@@ -53,7 +54,7 @@ export function useCollectionPage(
         setLoading(true);
         const data = loadProductsFn
           ? await loadProductsFn()
-          : await listBackendProducts({ collection: collectionName });
+          : await fetchCollectionPageProducts(listBackendProducts, collectionName);
         setProducts(data);
       } catch (error) {
         console.error("Error loading products:", error);

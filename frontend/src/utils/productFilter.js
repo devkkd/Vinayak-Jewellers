@@ -290,6 +290,15 @@ export function isMensJewelleryProduct(product) {
     }
   }
 
+  if (isWatchProduct(product)) {
+    if (productBelongsToMensCollection(product)) return true;
+    const watchBlob = normalizeSegment(`${name} ${details} ${sub} ${cat}`);
+    if (/\b(mens?|men|gents?|male|for men)\b/.test(watchBlob)) return true;
+    if (MENS_PRODUCT_NAME_HINTS.test(name) || MENS_PRODUCT_NAME_HINTS.test(details)) {
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -299,6 +308,7 @@ const MENS_URL_SLUG_ALIASES = {
   "silver-bracelet": { parent: "Silver", label: "Silver Kadas/Bracelet" },
   "silver-kadas-bracelet": { parent: "Silver", label: "Silver Kadas/Bracelet" },
   "silver-others": { parent: "Silver", label: "Others" },
+  "silver-watches": { parent: "Silver", label: "Others" },
   "diamond-others": { parent: "Diamond", label: "Others" },
 };
 
@@ -359,6 +369,10 @@ export function productMatchesMensSubcategory(product, subcategoryLabel, parentC
     return segmentsMatch(cat, parentCategory);
   }
 
+  if (isWatchProduct(product) && parentCategory === "Silver" && segmentsMatch(subcategoryLabel, "Others")) {
+    return isMensJewelleryProduct(product);
+  }
+
   const want = normalizeSegment(subcategoryLabel);
   const blob = normalizeSegment(`${sub} ${cat} ${name}`);
   if (parentCategory && !normalizeSegment(blob).includes(normalizeSegment(parentCategory))) {
@@ -385,6 +399,42 @@ function fieldMatchesEarringType(fieldValue) {
 }
 
 /** Product belongs to a storefront collection (Gold, Silver, …) */
+export function isWatchProduct(product) {
+  const blob = normalizeSegment(
+    `${product.subcategory} ${product.category} ${product.productName} ${product.details}`
+  );
+  return /\bwatches?\b/.test(blob);
+}
+
+export function allowsMensOnLadiesTab(canonicalType) {
+  if (!canonicalType) return false;
+  if (isMensCategoryLabel(canonicalType)) return true;
+  if (isRingTypeLabel(canonicalType)) return true;
+  if (isWatchTypeLabel(canonicalType)) return true;
+  return false;
+}
+
+/** Mens collection item also listed on Gold / Silver / Diamond pages */
+export function productCrossListsToCollection(product, collectionName) {
+  const target = normalizeSegment(collectionName);
+  const primary = normalizeSegment(product.collection);
+  const extra = (product.collections || []).map((c) => normalizeSegment(c));
+  if (primary === target || extra.includes(target)) return false;
+  if (!["gold", "silver", "diamond"].includes(target)) return false;
+  if (!isMensJewelleryProduct(product)) return false;
+
+  const blob = normalizeSegment(
+    `${product.category} ${product.subcategory} ${product.productName} ${product.details}`
+  );
+  if (!blob.includes(target)) return false;
+
+  if (fieldMatchesRingType(blob)) return true;
+  if (/\bchains?\b/.test(blob)) return true;
+  if (/\b(bracelet|kada)s?\b/.test(blob)) return true;
+  if (target === "silver" && isWatchProduct(product)) return true;
+  return false;
+}
+
 export function productInCollection(product, collectionName) {
   const target = normalizeSegment(collectionName);
   const coll = normalizeSegment(product.collection);
@@ -392,7 +442,7 @@ export function productInCollection(product, collectionName) {
   if (coll === target || extra.includes(target)) return true;
   if (coll === "wedding" && target === "wedding collection") return true;
   if (coll === "wedding collection" && target === "wedding") return true;
-  return false;
+  return productCrossListsToCollection(product, collectionName);
 }
 
 /** Match type label on one field (category or subcategory string) */
@@ -939,7 +989,7 @@ export function filterCollectionProducts(
       }
       if (
         ladiesCollections.includes(collection) &&
-        !isMensCategoryLabel(canonicalType) &&
+        !allowsMensOnLadiesTab(canonicalType) &&
         !isLadiesJewelleryProduct(product)
       ) {
         return false;
@@ -1005,7 +1055,7 @@ export function filterAllJewelleryProducts(
       const coll = normalizeSegment(selectedCategory);
       if (
         (coll === "gold" || coll === "silver" || coll === "diamond") &&
-        !isMensCategoryLabel(activeSub) &&
+        !allowsMensOnLadiesTab(activeSub) &&
         !isLadiesJewelleryProduct(product)
       ) {
         return false;

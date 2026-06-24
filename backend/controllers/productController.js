@@ -123,7 +123,7 @@ export const searchProducts = async (req, res) => {
   try {
     const { q } = req.query;
     if (!q?.trim()) return res.status(400).json({ success: false, message: "Search query is required" });
-    const products = await Product.find({ $or: [{ productName: { $regex: q.trim(), $options: "i" } }, { category: { $regex: q.trim(), $options: "i" } }, { subcategory: { $regex: q.trim(), $options: "i" } }, { collection: { $regex: q.trim(), $options: "i" } }, { details: { $regex: q.trim(), $options: "i" } }] }).sort({ createdAt: -1 });
+    const products = await Product.find({ $or: [{ productName: { $regex: q.trim(), $options: "i" } }, { sku: { $regex: q.trim(), $options: "i" } }, { category: { $regex: q.trim(), $options: "i" } }, { subcategory: { $regex: q.trim(), $options: "i" } }, { collection: { $regex: q.trim(), $options: "i" } }, { details: { $regex: q.trim(), $options: "i" } }] }).sort({ createdAt: -1 });
     return res.json({ success: true, data: products, count: products.length });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Search failed", error: error.message });
