@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { listBackendProducts } from "../api/backendProductsAPI";
 import { listCategories } from "../api/categoryAPI";
+import { cacheKey, peekCache } from "../api/apiCache";
 import { fetchCollectionPageProducts } from "../utils/collectionMembership";
 import {
   filterCollectionProducts,
@@ -21,9 +22,18 @@ export function useCollectionPage(
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(() => {
+    const pageKey = cacheKey("collection-page", { collection: collectionName });
+    return peekCache(pageKey) || peekCache(cacheKey("products", { collection: collectionName })) || [];
+  });
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(
+    () =>
+      !(
+        peekCache(cacheKey("collection-page", { collection: collectionName })) ||
+        peekCache(cacheKey("products", { collection: collectionName }))
+      )
+  );
 
   const pathParts = location.pathname.split("/").filter(Boolean);
   const urlSubcategory =
@@ -43,27 +53,42 @@ export function useCollectionPage(
   );
 
   useEffect(() => {
-    listCategories(collectionName)
-      .then(setCategories)
-      .catch((err) => console.error("Error loading categories:", err));
-  }, [collectionName]);
+    let cancelled = false;
 
-  useEffect(() => {
-    const fetchProducts = async () => {
+    const pageKey = cacheKey("collection-page", { collection: collectionName });
+    const cached =
+      peekCache(pageKey) || peekCache(cacheKey("products", { collection: collectionName }));
+    if (cached?.length) {
+      setProducts(cached);
+      setProductsLoading(false);
+    } else {
+      setProductsLoading(true);
+    }
+
+    const load = async () => {
       try {
-        setLoading(true);
-        const data = loadProductsFn
-          ? await loadProductsFn()
-          : await fetchCollectionPageProducts(listBackendProducts, collectionName);
-        setProducts(data);
+        const [cats, data] = await Promise.all([
+          listCategories(collectionName).catch(() => []),
+          loadProductsFn
+            ? loadProductsFn()
+            : fetchCollectionPageProducts(listBackendProducts, collectionName),
+        ]);
+        if (!cancelled) {
+          setCategories(cats);
+          setProducts(data);
+        }
       } catch (error) {
-        console.error("Error loading products:", error);
-        setProducts([]);
+        console.error("Error loading collection page:", error);
+        if (!cancelled && !cached?.length) setProducts([]);
       } finally {
-        setLoading(false);
+        if (!cancelled) setProductsLoading(false);
       }
     };
-    fetchProducts();
+
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [collectionName, loadProductsFn]);
 
   useEffect(() => {
@@ -94,12 +119,24 @@ export function useCollectionPage(
     setSelectedSubcategory(typeLabel);
   }, [urlSubcategory, categories, adminCategoryRows, displayCategories]);
 
-  const filteredProducts = filterCollectionProducts(products, {
-    collectionName,
-    canonicalType: activeSlug ? canonicalType || null : null,
-    categoryRows: displayCategories.length ? displayCategories : adminCategoryRows,
-    useLinkedCollections,
-  });
+  const filteredProducts = useMemo(
+    () =>
+      filterCollectionProducts(products, {
+        collectionName,
+        canonicalType: activeSlug ? canonicalType || null : null,
+        categoryRows: displayCategories.length ? displayCategories : adminCategoryRows,
+        useLinkedCollections,
+      }),
+    [
+      products,
+      collectionName,
+      activeSlug,
+      canonicalType,
+      displayCategories,
+      adminCategoryRows,
+      useLinkedCollections,
+    ]
+  );
 
   return {
     selectedCategory,
@@ -107,7 +144,8 @@ export function useCollectionPage(
     selectedSubcategory,
     setSelectedSubcategory,
     categories: displayCategories,
-    loading,
+    loading: productsLoading,
+    productsLoading,
     urlSubcategory,
     filteredProducts,
   };

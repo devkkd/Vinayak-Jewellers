@@ -13,12 +13,11 @@ export default function Mangalsutra() {
   useEffect(() => {
     const load = async () => {
       try {
-        const list = await listBackendProducts();
-        // Filter only gold + Mangalsutra
-        const filtered = list.filter(
-          (p) => p.category === "Gold" && p.subcategory === "Mangalsutra"
-        );
-        setProducts(filtered);
+        const list = await listBackendProducts({
+          collection: "Gold",
+          subcategory: "Mangalsutra",
+        });
+        setProducts(list);
       } catch (err) {
         console.error("Error loading products:", err);
       }
@@ -56,6 +55,8 @@ export default function Mangalsutra() {
                 className="w-full bg-[#FFF4DC] h-[400px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
               >
                 <img
+                  loading="lazy"
+                  decoding="async"
                   src={product.image}
                   alt={product.productName}
                   className="w-full h-[400px] object-cover rounded-2xl hover:scale-105 transition-transform duration-500"

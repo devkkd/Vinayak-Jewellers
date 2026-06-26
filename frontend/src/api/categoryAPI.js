@@ -1,10 +1,14 @@
 import client from "./client";
+import { cacheKey, cachedFetch } from "./apiCache";
 
 // Get all categories (optionally filtered by collection)
 export const listCategories = async (collection = null) => {
-  const url = collection ? `/api/categories?collection=${collection}` : "/api/categories";
-  const res = await client.get(url);
-  return res.data?.data || [];
+  const key = cacheKey("categories", { collection: collection || "all" });
+  return cachedFetch(key, async () => {
+    const url = collection ? `/api/categories?collection=${collection}` : "/api/categories";
+    const res = await client.get(url);
+    return res.data?.data || [];
+  });
 };
 
 // Get categories grouped by collection

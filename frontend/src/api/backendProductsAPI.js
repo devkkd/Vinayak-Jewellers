@@ -1,21 +1,34 @@
 import client from "./client";
+import { cacheKey, cachedFetch, invalidateCachePrefix } from "./apiCache";
+
+export const invalidateProductsCache = () => invalidateCachePrefix("products:");
 
 export const listBackendProducts = async (filters = {}) => {
-  // filters can contain: { collection, category, subcategory }
   const params = {};
   if (filters.collection) params.collection = filters.collection;
   if (filters.category) params.category = filters.category;
   if (filters.subcategory) params.subcategory = filters.subcategory;
-  
-  const res = await client.get("/api/products", { params });
-  return res.data?.data || [];
+
+  const key = cacheKey("products", params);
+  return cachedFetch(key, async () => {
+    const res = await client.get("/api/products", { params });
+    return res.data?.data || [];
+  });
 };
 
 export const searchBackendProducts = async (query) => {
-  const res = await client.get("/api/products/search", {
-    params: { q: query },
-  });
-  return res.data?.data || [];
+  const q = String(query || "").trim();
+  if (!q) return [];
+
+  const key = cacheKey("products-search", { q: q.toLowerCase() });
+  return cachedFetch(
+    key,
+    async () => {
+      const res = await client.get("/api/products/search", { params: { q } });
+      return res.data?.data || [];
+    },
+    2 * 60 * 1000
+  );
 };
 
 export const getBackendProductById = async (id) => {
@@ -60,6 +73,7 @@ export const uploadBackendProduct = async ({ productName, details, sku, collecti
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
+  invalidateProductsCache();
   return res.data?.data;
 };
 
@@ -67,6 +81,7 @@ export const deleteBackendProduct = async (id, token) => {
   const res = await client.delete(`/api/products/${id}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
+  invalidateProductsCache();
   return res.data;
 };
 
@@ -99,7 +114,7 @@ export const updateBackendProduct = async (
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
+  invalidateProductsCache();
   return res.data?.data;
 };
-
 

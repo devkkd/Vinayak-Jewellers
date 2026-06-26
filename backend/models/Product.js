@@ -19,6 +19,12 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+productSchema.index({ collection: 1 });
+productSchema.index({ collections: 1 });
+productSchema.index({ subcategory: 1 });
+productSchema.index({ category: 1 });
+productSchema.index({ collection: 1, subcategory: 1 });
+
 // Custom validation: at least one image must exist (either image or images array)
 productSchema.pre("save", function (next) {
   const hasImage = this.image && this.image.trim() !== "";

@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import zlib from "node:zlib";
 import connectDB from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -41,6 +42,27 @@ app.use(
 
 // ✅ Parse JSON
 app.use(express.json());
+
+// ✅ Gzip JSON API responses (smaller + faster on slow networks)
+app.use((req, res, next) => {
+  if (!req.path.startsWith("/api")) return next();
+  const accept = req.headers["accept-encoding"] || "";
+  if (!accept.includes("gzip")) return next();
+
+  const sendJson = res.json.bind(res);
+  res.json = (body) => {
+    const payload = JSON.stringify(body);
+    if (Buffer.byteLength(payload) < 1500) return sendJson(body);
+
+    zlib.gzip(payload, (err, buffer) => {
+      if (err) return sendJson(body);
+      res.setHeader("Content-Encoding", "gzip");
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(buffer);
+    });
+  };
+  next();
+});
 
 // ✅ Connect MongoDB
 connectDB();

@@ -1,41 +1,25 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./Pages/ScrollToTop";
 import { SearchProvider } from "./context/SearchContext";
-import { EnquiryProvider } from "./context/EnquiryContext"; // ✅ ensure this exists
+import { EnquiryProvider } from "./context/EnquiryContext";
 
-// 🧱 Layout
 import WebsiteLayout from "./Pages/WebsiteLayout";
+import PageSpinner from "./components/PageSpinner";
 
-// 🏠 Website Pages
 import Home from "./Pages/Home";
 import AboutUs from "./Pages/AboutUs";
 import ContactUs from "./Pages/ContactUs";
-import AllJewellery from "./Pages/AllJewellery";
 import SearchResults from "./Pages/SearchResults";
 import LoginEnquiry from "./Pages/LoginEnquiry";
 import Login from "./Pages/Login";
 import TermsandConditions from "./Pages/TermsandConditions";
 import PrivacyPolicy from "./Pages/PrivacyPolicy";
 import Disclaimer from "./Pages/Disclaimer";
-
-// 💎 Category Pages
-import Gold from "./Pages/GoldJewelleryPage";
-import Silver from "./Pages/Silver";
-import Diamond from "./Pages/DiamondPage";
-import Wedding from "./Pages/WeddingPage";
-import Gifting from "./Pages/Gifting";
-import BirthStones from "./Pages/BirthStones";
-import Ring from "./Pages/RingPage";
-import Festive from "./Pages/Festive";
-import Mangalsutra from "./Pages/MangalsutraPage";
-import Mens from "./Pages/MensPage";
-
-// 🧩 Product Details
-import RemProductDetail from "./Pages/RemProductDetail";
+import EnquiryCart from "./Pages/EnquiryCart";
 import BackendProductDetails from "./Pages/BackendProductDetails";
+import RemProductDetail from "./Pages/RemProductDetail";
 
-// 🧱 Local Data Imports
 import { goldProducts } from "./data/goldJewelleryProducts";
 import { silverProducts } from "./data/silverJewelleryProducts";
 import { diamondProducts } from "./data/diamondJewelleryProducts";
@@ -43,22 +27,29 @@ import { weddingProducts } from "./data/weddingJewelleryProducts";
 import { giftingProducts } from "./data/giftingJewelleryProducts";
 import { birthStoneProducts } from "./data/birthStoneProducts";
 
-// ⚙ Admin Dashboard Pages
-import AdminDashboard from "./Pages/AdminDashboard/AdminDashboard";
-import DashboardHome from "./Pages/AdminDashboard/DashboardHome";
-import ManageProducts from "./Pages/AdminDashboard/ManageProducts";
-import ManageCategories from "./Pages/AdminDashboard/ManageCategories";
-import ManageMenus from "./Pages/AdminDashboard/ManageMenus";
-import ManageEnquiries from "./Pages/AdminDashboard/ManageEnquiries";
-import ManageInstagramReels from "./Pages/AdminDashboard/ManageInstagramReels";
-import AddProduct from "./Pages/AdminDashboard/AddProduct";
-import BulkUpload from "./Pages/AdminDashboard/BulkUpload";
+const AllJewellery = lazy(() => import("./Pages/AllJewellery"));
+const Gold = lazy(() => import("./Pages/GoldJewelleryPage"));
+const Silver = lazy(() => import("./Pages/Silver"));
+const Diamond = lazy(() => import("./Pages/DiamondPage"));
+const Wedding = lazy(() => import("./Pages/WeddingPage"));
+const Gifting = lazy(() => import("./Pages/Gifting"));
+const BirthStones = lazy(() => import("./Pages/BirthStones"));
+const Ring = lazy(() => import("./Pages/RingPage"));
+const Festive = lazy(() => import("./Pages/Festive"));
+const Mangalsutra = lazy(() => import("./Pages/MangalsutraPage"));
+const Mens = lazy(() => import("./Pages/MensPage"));
+const Coins = lazy(() => import("./Pages/Coins"));
+const AdminDashboard = lazy(() => import("./Pages/AdminDashboard/AdminDashboard"));
+const DashboardHome = lazy(() => import("./Pages/AdminDashboard/DashboardHome"));
+const ManageProducts = lazy(() => import("./Pages/AdminDashboard/ManageProducts"));
+const ManageCategories = lazy(() => import("./Pages/AdminDashboard/ManageCategories"));
+const ManageMenus = lazy(() => import("./Pages/AdminDashboard/ManageMenus"));
+const ManageEnquiries = lazy(() => import("./Pages/AdminDashboard/ManageEnquiries"));
+const ManageInstagramReels = lazy(() => import("./Pages/AdminDashboard/ManageInstagramReels"));
+const AddProduct = lazy(() => import("./Pages/AdminDashboard/AddProduct"));
+const BulkUpload = lazy(() => import("./Pages/AdminDashboard/BulkUpload"));
 
-// 🛒 NEW PAGE: Enquiry Cart
-import EnquiryCart from "./Pages/EnquiryCart"; // ✅ create this page (I’ll give you below)
-import Coins from "./Pages/Coins";
-
-
+const Lazy = ({ children }) => <Suspense fallback={<PageSpinner />}>{children}</Suspense>;
 function App() {
   return (
     <SearchProvider>
@@ -75,8 +66,8 @@ function App() {
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/search" element={<SearchResults />} />
               {/* <ScrollToTop/> */}
-              <Route path="/alljewellery" element={<AllJewellery />} />
-              <Route path="/alljewellery/collections/:collectionItem" element={<AllJewellery />} />
+              <Route path="/alljewellery" element={<Lazy><AllJewellery /></Lazy>} />
+              <Route path="/alljewellery/collections/:collectionItem" element={<Lazy><AllJewellery /></Lazy>} />
               <Route path="/login-enquiry" element={<LoginEnquiry />} />
               <Route path="/admin-login" element={<Login />} />
               <Route path="/terms" element={<TermsandConditions />} />
@@ -90,20 +81,19 @@ function App() {
               <Route path="/backend-product/:id" element={<BackendProductDetails />} />
 
               {/* ⚙ Admin Dashboard Routes */}
-              <Route path="/dashboard/*" element={<AdminDashboard />}>
-                <Route index element={<DashboardHome />} />
-                <Route path="products" element={<ManageProducts />} />
-                <Route path="add-product" element={<AddProduct />} />
-                <Route path="bulk-upload" element={<BulkUpload />} />
-                <Route path="categories" element={<ManageCategories />} />
-                <Route path="menus" element={<ManageMenus />} />
-                <Route path="enquiries" element={<ManageEnquiries />} />
-                <Route path="instagram-reels" element={<ManageInstagramReels />} />
+              <Route path="/dashboard/*" element={<Lazy><AdminDashboard /></Lazy>}>
+                <Route index element={<Lazy><DashboardHome /></Lazy>} />
+                <Route path="products" element={<Lazy><ManageProducts /></Lazy>} />
+                <Route path="add-product" element={<Lazy><AddProduct /></Lazy>} />
+                <Route path="bulk-upload" element={<Lazy><BulkUpload /></Lazy>} />
+                <Route path="categories" element={<Lazy><ManageCategories /></Lazy>} />
+                <Route path="menus" element={<Lazy><ManageMenus /></Lazy>} />
+                <Route path="enquiries" element={<Lazy><ManageEnquiries /></Lazy>} />
+                <Route path="instagram-reels" element={<Lazy><ManageInstagramReels /></Lazy>} />
               </Route>
 
-              {/* 💎 Jewellery Pages */}
-              <Route path="/gold" element={<Gold />} />
-              <Route path="/gold/:subcategory" element={<Gold />} />
+              <Route path="/gold" element={<Lazy><Gold /></Lazy>} />
+              <Route path="/gold/:subcategory" element={<Lazy><Gold /></Lazy>} />
               <Route
                 path="/gold/product/:id"
                 element={
@@ -115,8 +105,8 @@ function App() {
                 }
               />
 
-              <Route path="/silver" element={<Silver />} />
-              <Route path="/silver/:subcategory" element={<Silver />} />
+              <Route path="/silver" element={<Lazy><Silver /></Lazy>} />
+              <Route path="/silver/:subcategory" element={<Lazy><Silver /></Lazy>} />
               <Route
                 path="/silver/product/:id"
                 element={
@@ -128,8 +118,8 @@ function App() {
                 }
               />
 
-              <Route path="/diamond" element={<Diamond />} />
-              <Route path="/diamond/:subcategory" element={<Diamond />} />
+              <Route path="/diamond" element={<Lazy><Diamond /></Lazy>} />
+              <Route path="/diamond/:subcategory" element={<Lazy><Diamond /></Lazy>} />
               <Route
                 path="/diamond/product/:id"
                 element={
@@ -141,7 +131,7 @@ function App() {
                 }
               />
 
-              <Route path="/wedding" element={<Wedding />} />
+              <Route path="/wedding" element={<Lazy><Wedding /></Lazy>} />
               <Route
                 path="/wedding/:id"
                 element={
@@ -153,8 +143,8 @@ function App() {
                 }
               />
 
-              <Route path="/gifting" element={<Gifting />} />
-              <Route path="/gifting/:subcategory" element={<Gifting />} />
+              <Route path="/gifting" element={<Lazy><Gifting /></Lazy>} />
+              <Route path="/gifting/:subcategory" element={<Lazy><Gifting /></Lazy>} />
               <Route
                 path="/gifting/product/:id"
                 element={
@@ -167,7 +157,7 @@ function App() {
               />
 
               {/* 💎 Birth Stones */}
-              <Route path="/birthstones" element={<BirthStones />} />
+              <Route path="/birthstones" element={<Lazy><BirthStones /></Lazy>} />
               <Route
                 path="/birthstones/:id"
                 element={
@@ -180,16 +170,15 @@ function App() {
               />
 
               {/* Mens Jewellery */}
-              <Route path="/mens" element={<Mens />} />
-              <Route path="/mens/:subcategory" element={<Mens />} />
+              <Route path="/mens" element={<Lazy><Mens /></Lazy>} />
+              <Route path="/mens/:subcategory" element={<Lazy><Mens /></Lazy>} />
 
-               <Route path="/coins" element={<Coins />} />
-              <Route path="/coins/:subcategory" element={<Coins />} />
+               <Route path="/coins" element={<Lazy><Coins /></Lazy>} />
+              <Route path="/coins/:subcategory" element={<Lazy><Coins /></Lazy>} />
 
-              {/* Other Pages */}
-              <Route path="/ring" element={<Ring />} />
-              <Route path="/festive" element={<Festive />} />
-              <Route path="/mangalsutra" element={<Mangalsutra />} />
+              <Route path="/ring" element={<Lazy><Ring /></Lazy>} />
+              <Route path="/festive" element={<Lazy><Festive /></Lazy>} />
+              <Route path="/mangalsutra" element={<Lazy><Mangalsutra /></Lazy>} />
             </Route>
 
             {/* 🚫 404 Page */}

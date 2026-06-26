@@ -13,12 +13,9 @@ import {
   segmentsMatch,
   slugify,
 } from "../utils/productFilter";
+import CollectionProductGrid from "../components/CollectionProductGrid";
 import ContactSection from "../components/ContactSection";
 import EnquiryModal from "../components/EnquiryModal";
-
-const MENS_SUB_FETCH_LABELS = [
-  ...new Set(mensCategories.flatMap((c) => c.subcategories || [])),
-];
 
 export default function Mens() {
   const navigate = useNavigate();
@@ -50,19 +47,16 @@ export default function Mens() {
       try {
         setLoading(true);
 
-        const fetches = [
+        const [mensCol, goldCol, silverCol, diamondCol, cats] = await Promise.all([
           listBackendProducts({ collection: "Mens" }),
-          listBackendProducts({ collection: "Gold", subcategory: "Ring" }),
-          listBackendProducts({ collection: "Silver", subcategory: "Watches" }),
-          ...MENS_SUB_FETCH_LABELS.map((sub) => listBackendProducts({ subcategory: sub })),
-        ];
-
-        const batches = await Promise.all(fetches);
-        const merged = batches.flat();
+          listBackendProducts({ collection: "Gold" }),
+          listBackendProducts({ collection: "Silver" }),
+          listBackendProducts({ collection: "Diamond" }),
+          listCategories("Mens"),
+        ]);
+        const merged = [...mensCol, ...goldCol, ...silverCol, ...diamondCol];
         const mensOnly = merged.filter(isMensJewelleryProduct);
         setProducts(dedupeProducts(mensOnly));
-
-        const cats = await listCategories("Mens");
         setCategories(cats);
       } catch (error) {
         console.error("Error loading mens data:", error);
@@ -149,17 +143,6 @@ export default function Mens() {
     navigate("/mens", { replace: true });
   };
 
-  if (loading) {
-    return (
-      <section className="bg-[#FFF6DE] py-16 px-4 sm:px-6 md:px-12 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#681F00] mx-auto mb-4"></div>
-          <p className="text-[#0E0100] text-lg">Loading Mens Jewellery details...</p>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="bg-[#FFF6DE] py-16 px-4 sm:px-6 md:px-12 min-h-screen">
       <div className="max-w-7xl mx-auto text-center mb-8">
@@ -216,51 +199,12 @@ export default function Mens() {
         </div>
       )}
 
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto mb-20">
-          {filteredProducts.map((product) => {
-            const primaryImage =
-              product.images?.length > 0 ? product.images[0] : product.image || "";
-
-            return (
-              <div key={product._id} className="flex flex-col h-full">
-                <div
-                  onClick={() => navigate(`/backend-product/${product._id}`)}
-                  className="w-full bg-[#FFF4DC] h-[360px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex justify-center items-center"
-                >
-                  {primaryImage ? (
-                    <img
-                      src={primaryImage}
-                      alt={product.productName}
-                      className="w-[300px] h-[400px] object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-[360px] flex items-center justify-center text-gray-400">
-                      No image
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-col flex-grow mt-4">
-                  <h4 className="text-sm text-[#0E0100] mb-3 font-medium tracking-wide flex-grow">
-                    {product.productName}
-                  </h4>
-                  <button
-                    onClick={() => openModal(product)}
-                    className="bg-[#681F00] text-white text-xs md:text-sm px-5 py-2 rounded-full hover:bg-[#5a2b1a] transition-colors duration-300 cursor-pointer w-full sm:w-auto"
-                  >
-                    Enquiry Now →
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="text-center text-[#0E0100] py-10 font-medium">
-          No products found.
-        </div>
-      )}
+      <CollectionProductGrid
+        products={filteredProducts}
+        loading={loading}
+        onEnquiry={openModal}
+        imageClassName="w-[300px] h-[400px] object-cover hover:scale-105 transition-transform duration-500"
+      />
 
       <ContactSection />
 

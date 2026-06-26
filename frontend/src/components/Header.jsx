@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSearch } from "../context/SearchContext";
 import { useEnquiry } from "../context/EnquiryContext";
-import { listBackendProducts } from "../api/backendProductsAPI";
+import { searchBackendProducts } from "../api/backendProductsAPI";
 import { listMenus } from "../api/menuAPI";
+import { prefetchFromPath } from "../utils/prefetchProducts";
 import { ShoppingBag } from "lucide-react";
 
 const isPathActive = (pathname, link) => {
@@ -21,7 +22,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const { setSearchTerm } = useSearch();
   const { enquiryItems } = useEnquiry();
   
@@ -285,20 +286,34 @@ export default function Header() {
     return <img src={iconPath} alt={name} className="w-5 h-5" />;
   };
 
-  // 🧠 Fetch all products on mount
+  // Live search suggestions (API — no full catalog preload)
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const products = await listBackendProducts();
-        setAllProducts(products || []);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-    fetchProducts();
-  }, []);
+    const term = query.trim();
+    if (term.length < 2) {
+      setSuggestions([]);
+      setSearchLoading(false);
+      return;
+    }
 
-  // 🔍 Handle Enter Key (Search)
+    setSearchLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const results = await searchBackendProducts(term);
+        const uniqueNames = [
+          ...new Set(
+            results.map((p) => p.subcategory || p.category || p.productName || p.sku)
+          ),
+        ].slice(0, 6);
+        setSuggestions(uniqueNames.filter(Boolean));
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [query]);
   const handleSearch = (e) => {
     if (e.key === "Enter" && query.trim() !== "") {
       setSearchTerm(query.toLowerCase());
@@ -306,29 +321,6 @@ export default function Header() {
       navigate("/search");
     }
   };
-
-  // 🧠 Live Suggestions
-  useEffect(() => {
-    if (query.trim() === "") {
-      setSuggestions([]);
-      return;
-    }
-
-    const lower = query.toLowerCase();
-    const filtered = allProducts.filter(
-      (p) =>
-        p.productName?.toLowerCase().includes(lower) ||
-        p.category?.toLowerCase().includes(lower) ||
-        p.subcategory?.toLowerCase().includes(lower) ||
-        p.collection?.toLowerCase().includes(lower)
-    );
-
-    const uniqueNames = [
-      ...new Set(filtered.map((p) => p.subcategory || p.category || p.productName)),
-    ].slice(0, 6);
-
-    setSuggestions(uniqueNames);
-  }, [query, allProducts]);
 
   const handleSuggestionClick = (text) => {
     setQuery(text);
@@ -653,7 +645,10 @@ export default function Header() {
           <div
             key={index}
             className="relative group"
-            onMouseEnter={() => setOpenSub(index)}
+            onMouseEnter={() => {
+              setOpenSub(index);
+              prefetchFromPath(cat.link);
+            }}
             onMouseLeave={() => setOpenSub(null)}
           >
             <Link
@@ -692,6 +687,7 @@ export default function Header() {
                     <Link
                       key={i}
                       to={sub.link}
+                      onMouseEnter={() => prefetchFromPath(sub.link)}
                       onClick={(e) => {
                         e.stopPropagation();
                         setMenuOpen(false);

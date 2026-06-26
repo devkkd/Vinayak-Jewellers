@@ -21,7 +21,7 @@ export default function BirthStones() {
     const loadData = async () => {
       try {
         // Load products
-        const data = await listBackendProducts();
+        const data = await listBackendProducts({ collection: "Birth Stones" });
         const birthStoneProducts = data.filter(
           (p) => p.collection === "Birth Stones" || p.category === "Birth Stones"
         );

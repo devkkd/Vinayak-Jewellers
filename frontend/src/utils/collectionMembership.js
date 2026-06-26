@@ -1,4 +1,5 @@
 import { normalizeSegment, productCrossListsToCollection } from "./productFilter";
+import { cacheKey, cachedFetch } from "../api/apiCache";
 
 /** Silver frames / coins that belong on both Gifting and Coins pages */
 export function isGiftingAndCoinsSharedProduct(product) {
@@ -66,18 +67,22 @@ export async function fetchCollectionProducts(listBackendProducts, collectionNam
 
 /** Gold/Silver/Diamond pages also pull matching Mens collection items */
 export async function fetchCollectionPageProducts(listBackendProducts, collectionName) {
-  const primary = await fetchCollectionProducts(listBackendProducts, collectionName);
-  const target = normalizeSegment(collectionName);
+  const pageKey = cacheKey("collection-page", { collection: collectionName });
 
-  if (!["gold", "silver", "diamond"].includes(target)) {
-    return primary;
-  }
+  return cachedFetch(pageKey, async () => {
+    const primary = await fetchCollectionProducts(listBackendProducts, collectionName);
+    const target = normalizeSegment(collectionName);
 
-  try {
-    const mens = await listBackendProducts({ collection: "Mens" });
-    const crossListed = mens.filter((p) => productCrossListsToCollection(p, collectionName));
-    return dedupeProducts([...primary, ...crossListed]);
-  } catch {
-    return primary;
-  }
+    if (!["gold", "silver", "diamond"].includes(target)) {
+      return primary;
+    }
+
+    try {
+      const mens = await listBackendProducts({ collection: "Mens" });
+      const crossListed = mens.filter((p) => productCrossListsToCollection(p, collectionName));
+      return dedupeProducts([...primary, ...crossListed]);
+    } catch {
+      return primary;
+    }
+  });
 }
